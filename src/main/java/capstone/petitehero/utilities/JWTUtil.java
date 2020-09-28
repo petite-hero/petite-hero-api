@@ -1,4 +1,4 @@
-package capstone.petitehero.util;
+package capstone.petitehero.utilities;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
