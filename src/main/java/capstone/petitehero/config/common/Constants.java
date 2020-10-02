@@ -1,4 +1,4 @@
-package capstone.petitehero.config.Common;
+package capstone.petitehero.config.common;
 
 public class Constants {
     public static final String ADMIN_ROLE = "";
