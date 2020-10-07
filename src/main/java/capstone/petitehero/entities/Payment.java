@@ -12,7 +12,7 @@ import java.util.Date;
 @Entity
 @Setter
 @Getter
-public class Transaction implements Serializable {
+public class Payment implements Serializable {
 
     @Id
     @GeneratedValue

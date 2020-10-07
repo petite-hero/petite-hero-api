@@ -28,6 +28,9 @@ public class LocationHistory implements Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     private Date time;
 
+    @Column(length = 30)
+    private String status;
+
     @ManyToOne
     @JoinColumn(name = "child_id")
     @EqualsAndHashCode.Exclude

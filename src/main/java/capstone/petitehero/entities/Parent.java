@@ -4,11 +4,11 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Date;
 
 @Entity
 @Setter
@@ -31,23 +31,30 @@ public class Parent implements Serializable {
     @Column(length = Integer.MAX_VALUE)
     private String photo;
 
-    @Column(columnDefinition = "TINYINT(1)")
-    private Boolean languageSetting;
+    @Column
+    private Boolean language;
 
-    @Column(columnDefinition = "TINYINT(1)")
+    @Column
     private Boolean gender;
 
-    @Column(length = 30)
-    private String subscriptionType;
-
-    @Column(columnDefinition = "TINYINT(1)")
-    private Boolean isExpiredDate;
+    @Column
+    private Boolean isFreeTrial;
 
     @Column
-    private Integer maxChildrenAllow;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date expiredDate;
 
     @Column
-    private Integer maxParentAllow;
+    private Integer maxChildren;
+
+    @Column
+    private Integer maxParent;
+
+    @Column
+    private Boolean isDisable;
+
+    @Column
+    private String tokenLogin;
 
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
     @EqualsAndHashCode.Exclude // không sử dụng trường này trong equals và hashcode
@@ -62,7 +69,7 @@ public class Parent implements Serializable {
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
     @EqualsAndHashCode.Exclude // không sử dụng trường này trong equals và hashcode
     @ToString.Exclude // Không sử dụng trong toString()
-    private Collection<Transaction> parent_transactionCollection;
+    private Collection<Payment> parent_paymentCollection;
 
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
     @EqualsAndHashCode.Exclude // không sử dụng trường này trong equals và hashcode

@@ -13,6 +13,9 @@ public class PetiteHeroUserDetailService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String userName) throws UsernameNotFoundException {
-        return new User("test", "test", new ArrayList<>());
+        if (userName != null && !userName.isEmpty()) {
+            return new User(userName, userName, new ArrayList<>());
+        }
+        return null;
     }
 }

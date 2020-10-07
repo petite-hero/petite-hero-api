@@ -13,7 +13,7 @@ import java.util.function.Function;
 public class JWTUtil {
 
     private final String SECRET_KEY = "petite-hero-project";
-    private final int EXPIRED_TIME = 864_000_000; // 10 days
+    private final int EXPIRED_TIME = 1800000; // 30 minutes
 
     public String extractUsername(String token) {
         return Jwts.parser()

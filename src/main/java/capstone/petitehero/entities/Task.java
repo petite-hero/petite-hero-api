@@ -7,7 +7,6 @@ import lombok.ToString;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.Collection;
 import java.util.Date;
 
 @Entity
@@ -37,15 +36,24 @@ public class Task implements Serializable {
 
     @Column
     @Temporal(TemporalType.TIMESTAMP)
+    private Date assignDate;
+
+    @Column
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date modifiedDate;
+
+    @Column
+    @Temporal(TemporalType.TIMESTAMP)
     private Date deadLine;
 
-    @Column(columnDefinition = "TINYINT(1)")
-    private Boolean isDisable;
+    @Column
+    private Boolean isDeleted;
 
-    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL)
-    @EqualsAndHashCode.Exclude // không sử dụng trường này trong equals và hashcode
-    @ToString.Exclude // không sử dụng trong toString()
-    private Collection<Child_Task> task_childCollection;
+    @ManyToOne
+    @JoinColumn(name = "assignee")
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private Child child;
 
     @ManyToOne
     @JoinColumn(name = "creator_phone_number")

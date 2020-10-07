@@ -7,7 +7,7 @@ import lombok.ToString;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.Collection;
+import java.util.Date;
 
 @Entity
 @Setter
@@ -37,21 +37,27 @@ public class Quest implements Serializable {
     private String rewardName;
 
     @Column(length = Integer.MAX_VALUE)
-    private String questPhoto;
+    private String questBadge;
+
+    @Column
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date createdDate;
+
+    @Column
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date modifiedDate;
 
     @Column(length = 30)
     private String status;
 
-    @Column(columnDefinition = "TINYINT(1)")
-    private Boolean isDone;
+    @Column
+    private Boolean isDeleted;
 
-    @Column(columnDefinition = "TINYINT(1)")
-    private Boolean isDisable;
-
-    @OneToMany(mappedBy = "quest", cascade = CascadeType.ALL)
-    @EqualsAndHashCode.Exclude // không sử dụng trường này trong equals và hashcode
-    @ToString.Exclude // không sử dụng trong toString()
-    private Collection<Child_Quest> quest_childCollection;
+    @ManyToOne
+    @JoinColumn(name = "assignee")
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private Child child;
 
     @ManyToOne
     @JoinColumn(name = "creator_phone_number")

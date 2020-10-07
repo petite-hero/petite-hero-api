@@ -13,11 +13,11 @@ import java.util.Date;
 @Entity
 @Getter
 @Setter
-public class Location implements Serializable {
+public class Safezone implements Serializable {
 
     @Id
     @GeneratedValue
-    private Long locationId;
+    private Long safezoneId;
 
     @Column
     private Double xCoordinate;
@@ -27,7 +27,18 @@ public class Location implements Serializable {
 
     @Column
     @Temporal(TemporalType.TIMESTAMP)
-    private Date time;
+    private Date timeIn;
+
+    @Column
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date timeOut;
+
+    @Column
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date timePadding;
+
+    @Column
+    private Integer radius;
 
     @ManyToOne
     @JoinColumn(name = "child_id")
