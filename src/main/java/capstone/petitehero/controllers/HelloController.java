@@ -1,7 +1,7 @@
 package capstone.petitehero.controllers;
 
 import capstone.petitehero.config.jwt.PetiteHeroUserDetailService;
-import capstone.petitehero.util.JWTUtil;
+import capstone.petitehero.utilities.JWTUtil;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
