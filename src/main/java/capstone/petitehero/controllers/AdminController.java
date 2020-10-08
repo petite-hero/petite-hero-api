@@ -1,7 +1,7 @@
 package capstone.petitehero.controllers;
 
 import capstone.petitehero.dtos.ResponseErrorDTO;
-import capstone.petitehero.dtos.user.UserLoginDTO;
+import capstone.petitehero.dtos.request.admin.AdminLoginDTO;
 import capstone.petitehero.entities.Admin;
 import capstone.petitehero.services.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,27 +22,27 @@ public class AdminController {
 
     @RequestMapping(value = "/register", method = RequestMethod.POST)
     @ResponseBody
-    public ResponseEntity<Object> register(@RequestBody UserLoginDTO userLoginDTO) {
+    public ResponseEntity<Object> register(@RequestBody AdminLoginDTO adminLoginDTO) {
         ResponseErrorDTO responseErrorDTO;
-        if (userLoginDTO.getUsername() == null) {
+        if (adminLoginDTO.getUsername() == null) {
             responseErrorDTO = new ResponseErrorDTO(400, "Missing username in request body");
             return new ResponseEntity<>(responseErrorDTO, HttpStatus.BAD_REQUEST);
         }
-        if (userLoginDTO.getPassword() == null) {
+        if (adminLoginDTO.getPassword() == null) {
             responseErrorDTO = new ResponseErrorDTO(400, "Missing password in request body");
             return new ResponseEntity<>(responseErrorDTO, HttpStatus.BAD_REQUEST);
         }
-        if (userLoginDTO.getUsername().isEmpty()) {
+        if (adminLoginDTO.getUsername().isEmpty()) {
             responseErrorDTO = new ResponseErrorDTO(400, "Username cannot be empty");
             return new ResponseEntity<>(responseErrorDTO, HttpStatus.BAD_REQUEST);
         }
-        if (userLoginDTO.getPassword().isEmpty()) {
+        if (adminLoginDTO.getPassword().isEmpty()) {
             responseErrorDTO = new ResponseErrorDTO(400, "Password cannot be empty");
             return new ResponseEntity<>(responseErrorDTO, HttpStatus.BAD_REQUEST);
         }
         Admin admin = new Admin();
-        admin.setUsername(userLoginDTO.getUsername());
-        admin.setPassword(userLoginDTO.getPassword());
+        admin.setUsername(adminLoginDTO.getUsername());
+        admin.setPassword(adminLoginDTO.getPassword());
         Admin result = adminService.register(admin);
         if (result != null) {
             return new ResponseEntity<>(result, HttpStatus.OK);
@@ -54,28 +54,28 @@ public class AdminController {
 
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     @ResponseBody
-    public ResponseEntity<Object> loginByUser(@RequestBody UserLoginDTO userLoginDTO) {
+    public ResponseEntity<Object> loginByUser(@RequestBody AdminLoginDTO adminLoginDTO) {
         ResponseErrorDTO responseErrorDTO;
         //validate mandatory fields
-        if (userLoginDTO.getUsername() == null) {
+        if (adminLoginDTO.getUsername() == null) {
             responseErrorDTO = new ResponseErrorDTO(400, "Missing username in request body");
             return new ResponseEntity<>(responseErrorDTO, HttpStatus.BAD_REQUEST);
         }
-        if (userLoginDTO.getPassword() == null) {
+        if (adminLoginDTO.getPassword() == null) {
             responseErrorDTO = new ResponseErrorDTO(400, "Missing password in request body");
             return new ResponseEntity<>(responseErrorDTO, HttpStatus.BAD_REQUEST);
         }
-        if (userLoginDTO.getUsername().isEmpty()) {
+        if (adminLoginDTO.getUsername().isEmpty()) {
             responseErrorDTO = new ResponseErrorDTO(400, "Username cannot be empty");
             return new ResponseEntity<>(responseErrorDTO, HttpStatus.BAD_REQUEST);
         }
-        if (userLoginDTO.getPassword().isEmpty()) {
+        if (adminLoginDTO.getPassword().isEmpty()) {
             responseErrorDTO = new ResponseErrorDTO(400, "Password cannot be empty");
             return new ResponseEntity<>(responseErrorDTO, HttpStatus.BAD_REQUEST);
         }
         // end validate mandatory fields
 
-        String jwtString = adminService.loginByUser(userLoginDTO);
+        String jwtString = adminService.loginByAdmin(adminLoginDTO);
         if (jwtString != null) {
             return new ResponseEntity<>(jwtString, HttpStatus.OK);
         }

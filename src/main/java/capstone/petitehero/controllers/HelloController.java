@@ -1,17 +1,20 @@
 package capstone.petitehero.controllers;
 
 import capstone.petitehero.config.jwt.PetiteHeroUserDetailService;
+import capstone.petitehero.dtos.ResponseSuccessDTO;
+import capstone.petitehero.entities.Admin;
 import capstone.petitehero.utilities.JWTUtil;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
 
 @RestController
 @RequestMapping(value = "test")
@@ -60,27 +63,5 @@ public class HelloController {
         test.setId("01");
         test.setName("Hello World");
         return test;
-    }
-
-    @RequestMapping(method = RequestMethod.GET, value = "/token")
-    public String getToken(@RequestParam("username") String username){
-        if (username.isEmpty()) {
-            return "dasdasdas";
-        } else {
-            try {
-                //username = test, password = test to get token
-                authenticationManager.authenticate(
-                        new UsernamePasswordAuthenticationToken(username, username)
-                );
-                JWTUtil jwtUtil = new JWTUtil();
-
-                UserDetails userDetails = petiteHeroUserDetailService.loadUserByUsername(username);
-
-                return jwtUtil.generateToken(userDetails);
-            } catch (Exception e) {
-                e.printStackTrace();
-                return "Exception";
-            }
-        }
     }
 }

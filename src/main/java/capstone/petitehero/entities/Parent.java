@@ -54,7 +54,7 @@ public class Parent implements Serializable {
     private Boolean isDisable;
 
     @Column
-    private String tokenLogin;
+    private String OTP;
 
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
     @EqualsAndHashCode.Exclude // không sử dụng trường này trong equals và hashcode

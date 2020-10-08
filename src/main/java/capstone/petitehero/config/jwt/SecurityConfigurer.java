@@ -33,6 +33,9 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
                 .antMatchers("/v2/api-docs", "/configuration/**", "/swagger*/**", "/webjars/**").permitAll()
                 .antMatchers("/admin/login").permitAll()
                 .antMatchers("/admin/register").permitAll()
+                .antMatchers("/parent/register").permitAll()
+                .antMatchers("/parent/register-profile").permitAll()
+                .antMatchers("/parent/{phone}/children").permitAll()
                 .anyRequest().authenticated()
                 .and().sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);

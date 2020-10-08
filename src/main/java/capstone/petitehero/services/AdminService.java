@@ -1,10 +1,10 @@
 package capstone.petitehero.services;
 
 import capstone.petitehero.config.jwt.PetiteHeroUserDetailService;
-import capstone.petitehero.dtos.user.UserLoginDTO;
+import capstone.petitehero.dtos.request.admin.AdminLoginDTO;
 import capstone.petitehero.entities.Admin;
 import capstone.petitehero.repositories.AdminRepository;
-import capstone.petitehero.util.JWTUtil;
+import capstone.petitehero.utilities.JWTUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -27,8 +27,8 @@ public class AdminService {
         return adminRepository.save(loginAdminDTO);
     }
 
-    public String loginByUser(UserLoginDTO userLoginDTO) {
-        Admin admin = adminRepository.findAdminByUsernameEqualsAndPasswordEquals(userLoginDTO.getUsername(), userLoginDTO.getPassword());
+    public String loginByAdmin(AdminLoginDTO adminLoginDTO) {
+        Admin admin = adminRepository.findAdminByUsernameEqualsAndPasswordEquals(adminLoginDTO.getUsername(), adminLoginDTO.getPassword());
         if (admin != null) {
             try {
                 authenticationManager.authenticate(
