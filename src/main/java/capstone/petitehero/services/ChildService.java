@@ -60,4 +60,8 @@ public class ChildService {
         }
         return null;
     }
+
+    public Child findChildByChildId(Long childId, Boolean isDisable) {
+        return childRepository.findChildByChildIdEqualsAndIsDisable(childId, isDisable);
+    }
 }

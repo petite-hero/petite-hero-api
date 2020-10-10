@@ -1,5 +1,6 @@
 package capstone.petitehero.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -42,25 +43,30 @@ public class Child implements Serializable {
     @OneToMany(mappedBy = "child", cascade = CascadeType.ALL)
     @EqualsAndHashCode.Exclude // không sử dụng trường này trong equals và hashcode
     @ToString.Exclude // không sử dụng trong toString()
+    @JsonBackReference
     private Collection<Parent_Child> child_parentCollection;
 
     @OneToMany(mappedBy = "child", cascade = CascadeType.ALL)
     @EqualsAndHashCode.Exclude // không sử dụng trường này trong equals và hashcode
     @ToString.Exclude // không sử dụng trong toString()
+    @JsonBackReference
     private Collection<Quest> child_questCollection;
 
     @OneToMany(mappedBy = "child", cascade = CascadeType.ALL)
     @EqualsAndHashCode.Exclude // không sử dụng trường này trong equals và hashcode
     @ToString.Exclude // không sử dụng trong toString()
+    @JsonBackReference
     private Collection<Task> child_taskCollection;
 
     @OneToMany(mappedBy = "child", cascade = CascadeType.ALL)
     @EqualsAndHashCode.Exclude // không sử dụng trường này trong equals và hashcode
     @ToString.Exclude // không sử dụng trong toString()
+    @JsonBackReference
     private Collection<Safezone> child_safezoneCollection;
 
     @OneToMany(mappedBy = "child", cascade = CascadeType.ALL)
     @EqualsAndHashCode.Exclude // không sử dụng trường này trong equals và hashcode
     @ToString.Exclude // không sử dụng trong toString()
+    @JsonBackReference
     private Collection<LocationHistory> child_locationHistoryCollection;
 }

@@ -36,6 +36,7 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
                 .antMatchers("/parent/register").permitAll()
                 .antMatchers("/parent/register-profile").permitAll()
                 .antMatchers("/parent/{phone}/children").permitAll()
+                .antMatchers("/child/{childId}/tasks").permitAll()
                 .anyRequest().authenticated()
                 .and().sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);

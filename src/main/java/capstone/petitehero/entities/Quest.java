@@ -1,5 +1,6 @@
 package capstone.petitehero.entities;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -57,11 +58,13 @@ public class Quest implements Serializable {
     @JoinColumn(name = "assignee")
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
+    @JsonManagedReference
     private Child child;
 
     @ManyToOne
     @JoinColumn(name = "creator_phone_number")
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
+    @JsonManagedReference
     private Parent parent;
 }
