@@ -21,9 +21,17 @@ public class LocationController {
         return locationService.recordLocationFromSW(location);
     }
 
-    @RequestMapping(value = "/getListByTime", method = RequestMethod.GET)
+    @RequestMapping(value = "/list/{child}/{time}", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseObject getListByTime(@RequestBody GetListByTimeRequestDTO input) {
-        return locationService.getListByTime(input);
+    public ResponseObject getListByTime(@PathVariable(value = "child") Long child, @PathVariable(value = "time") int time) {
+        return locationService.getListByTime(child, time);
+//        locationService.pushNotifications("alo", "lolo");
+//        return null;
+    }
+
+    @RequestMapping(value = "/latest/{child}", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseObject getLatestChildLocation(@PathVariable(value = "child") Long child) {
+        return locationService.getLatestChildLocation(child);
     }
 }
