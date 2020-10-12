@@ -39,6 +39,12 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
                 .antMatchers("/child/{childId}/tasks").permitAll()
                 .antMatchers("/location/addNewLocation").permitAll()
                 .antMatchers("/location/getListByTime").permitAll()
+                .antMatchers("/child/task").permitAll()
+                .antMatchers("/child/quest").permitAll()
+                .antMatchers("/task/{taskId}").permitAll()
+                .antMatchers("/task/list/{childId}").permitAll()
+                .antMatchers("/quest/list/{childId}").permitAll()
+                .antMatchers("/quest/{questId}").permitAll()
                 .anyRequest().authenticated()
                 .and().sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
