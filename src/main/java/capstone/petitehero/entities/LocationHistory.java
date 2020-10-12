@@ -38,4 +38,24 @@ public class LocationHistory implements Serializable {
     @ToString.Exclude
     @JsonManagedReference
     private Child child;
+
+    public LocationHistory() {
+    }
+
+    public LocationHistory(Double xCoordinate, Double yCoordinate, Date time, String status, Child child) {
+        this.xCoordinate = xCoordinate;
+        this.yCoordinate = yCoordinate;
+        this.time = time;
+        this.status = status;
+        this.child = child;
+    }
+
+    public LocationHistory(Long locationHistoryId, Double xCoordinate, Double yCoordinate, Date time, String status, Child child) {
+        this.locationHistoryId = locationHistoryId;
+        this.xCoordinate = xCoordinate;
+        this.yCoordinate = yCoordinate;
+        this.time = time;
+        this.status = status;
+        this.child = child;
+    }
 }
