@@ -15,7 +15,7 @@ public class LocationController {
     private LocationService locationService;
 
 
-    @RequestMapping(value = "/addNewLocation", method = RequestMethod.POST)
+    @RequestMapping(value = "/update", method = RequestMethod.POST)
     @ResponseBody
     public ResponseObject addNewLocationFromSW(@RequestBody AddLocationRequestDTO location) {
         return locationService.recordLocationFromSW(location);
