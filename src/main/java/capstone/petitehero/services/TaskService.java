@@ -39,7 +39,7 @@ public class TaskService {
 
             // information of assigner (colaborator or parent)
             Assigner assigner = new Assigner();
-            assigner.setPhoneNumber(taskResult.getParent().getParentPhoneNumber());
+            assigner.setPhoneNumber(taskResult.getParent().getAccount().getUsername());
             assigner.setFirstName(taskResult.getParent().getFirstName());
             assigner.setLastName(taskResult.getParent().getLastName());
             if (taskResult.getParent().getGender().booleanValue()) {
@@ -83,7 +83,7 @@ public class TaskService {
 
             // information of assigner (colaborator or parent)
             Assigner assigner = new Assigner();
-            assigner.setPhoneNumber(taskResult.getParent().getParentPhoneNumber());
+            assigner.setPhoneNumber(taskResult.getParent().getAccount().getUsername());
             assigner.setFirstName(taskResult.getParent().getFirstName());
             assigner.setLastName(taskResult.getParent().getLastName());
             if (taskResult.getParent().getGender().booleanValue()) {

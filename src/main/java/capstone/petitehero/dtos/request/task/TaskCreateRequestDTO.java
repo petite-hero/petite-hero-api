@@ -11,6 +11,7 @@ import java.util.List;
 public class TaskCreateRequestDTO implements Serializable {
 
     private List<Long> childId;
+    private String creatorPhoneNumber;
     private String name;
     private String description;
     private String createdDate;

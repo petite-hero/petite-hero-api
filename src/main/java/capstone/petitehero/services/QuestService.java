@@ -43,7 +43,7 @@ public class QuestService {
 
             // information of assigner (colaborator or parent)
             Assigner assigner = new Assigner();
-            assigner.setPhoneNumber(questResult.getParent().getParentPhoneNumber());
+            assigner.setPhoneNumber(questResult.getParent().getAccount().getUsername());
             assigner.setFirstName(questResult.getParent().getFirstName());
             assigner.setLastName(questResult.getParent().getLastName());
             if (questResult.getParent().getGender().booleanValue()) {
@@ -91,7 +91,7 @@ public class QuestService {
 
             // information of assigner (colaborator or parent)
             Assigner assigner = new Assigner();
-            assigner.setPhoneNumber(questResult.getParent().getParentPhoneNumber());
+            assigner.setPhoneNumber(questResult.getParent().getAccount().getUsername());
             assigner.setFirstName(questResult.getParent().getFirstName());
             assigner.setLastName(questResult.getParent().getLastName());
             if (questResult.getParent().getGender().booleanValue()) {

@@ -1,20 +1,11 @@
 package capstone.petitehero.controllers;
 
 import capstone.petitehero.config.jwt.PetiteHeroUserDetailService;
-import capstone.petitehero.dtos.ResponseSuccessDTO;
-import capstone.petitehero.entities.Admin;
-import capstone.petitehero.utilities.JWTUtil;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.ArrayList;
 
 @RestController
 @RequestMapping(value = "test")

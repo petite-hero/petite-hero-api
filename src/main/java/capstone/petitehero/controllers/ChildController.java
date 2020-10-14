@@ -6,12 +6,13 @@ import capstone.petitehero.dtos.request.quest.QuestCreateRequestDTO;
 import capstone.petitehero.dtos.request.task.TaskCreateRequestDTO;
 import capstone.petitehero.dtos.response.quest.QuestCreateResponseDTO;
 import capstone.petitehero.dtos.response.task.TaskCreateResponseDTO;
-import capstone.petitehero.entities.Child;
-import capstone.petitehero.entities.Parent_Child;
-import capstone.petitehero.entities.Quest;
-import capstone.petitehero.entities.Task;
+import capstone.petitehero.entities.*;
+import capstone.petitehero.repositories.AccountRepository;
 import capstone.petitehero.repositories.ParentChildRepository;
+import capstone.petitehero.repositories.ParentRepository;
+import capstone.petitehero.repositories.TaskRepository;
 import capstone.petitehero.services.ChildService;
+import capstone.petitehero.services.ParentService;
 import capstone.petitehero.services.QuestService;
 import capstone.petitehero.services.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +38,23 @@ public class ChildController {
     private QuestService questService;
 
     @Autowired
+    private AccountRepository accountRepository;
+
+    @Autowired
+    private TaskRepository taskRepository;
+
+    @Autowired
     private ParentChildRepository parentChildRepository;
+
+    @RequestMapping(value = "/test", method = RequestMethod.POST)
+    @ResponseBody
+    public String ggeggege(){
+        Task task = new Task();
+        task.setCreatedDate(new Date());
+        taskRepository.save(task);
+
+        return "OK";
+    }
 
     @RequestMapping(value = "/task", method = RequestMethod.POST)
     @ResponseBody
@@ -75,8 +92,10 @@ public class ChildController {
                 task.setIsDeleted(Boolean.FALSE);
                 task.setChild(child);
                 task.setStatus("CREATED");
-                Parent_Child parent_child = parentChildRepository.findParent_ChildByChild_ChildId(childId);
-                task.setParent(parent_child.getParent());
+//                Parent_Child parent_child = parentChildRepository.findParent_ChildByChild_ChildId(childId);
+                Account creatorAccount = accountRepository.findAccountByUsername(taskCreateRequestDTO.getCreatorPhoneNumber());
+
+//                task.setParent(creatorAccount.getParentInformation());
                 TaskCreateResponseDTO result = taskService.addTaskByParent(task);
 
                 if (result != null) {
@@ -144,8 +163,10 @@ public class ChildController {
 
                 quest.setChild(child);
                 quest.setIsDeleted(Boolean.FALSE);
-                Parent_Child parent_child = parentChildRepository.findParent_ChildByChild_ChildId(childId);
-                quest.setParent(parent_child.getParent());
+//                Parent_Child parent_child = parentChildRepository.findParent_ChildByChild_ChildId(childId);
+                Account creatorAccount = accountRepository.findAccountByUsername(questCreateRequestDTO.getCreatorPhoneNumber());
+
+//                quest.setParent(creatorAccount.getParentInformation());
 
                 QuestCreateResponseDTO result = questService.addQuestByParent(quest);
 

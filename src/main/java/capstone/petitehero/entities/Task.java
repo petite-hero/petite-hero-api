@@ -41,7 +41,7 @@ public class Task implements Serializable {
 
     @Column
     @Temporal(TemporalType.TIMESTAMP)
-    private Date modifiedDate;
+    private Date submitDate;
 
     @Column
     @Temporal(TemporalType.TIMESTAMP)

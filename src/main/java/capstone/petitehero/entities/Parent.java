@@ -17,11 +17,8 @@ import java.util.Date;
 public class Parent implements Serializable {
 
     @Id
-    @Column(length = 15)
-    private String parentPhoneNumber;
-
-    @Column(length = 15)
-    private String password;
+    @GeneratedValue
+    private Long id;
 
     @Column(length = 30)
     private String firstName;
@@ -86,4 +83,8 @@ public class Parent implements Serializable {
     @ToString.Exclude // Không sử dụng trong toString()
     @JsonBackReference
     private Collection<Task> parent_taskCollection;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "phone_number")
+    private Account account;
 }

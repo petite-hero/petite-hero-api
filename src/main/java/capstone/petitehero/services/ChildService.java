@@ -33,25 +33,18 @@ public class ChildService {
             if (childResult.getLanguage() != null) {
                 if (childResult.getLanguage().booleanValue()) {
                     result.setLanguage("Vietnamese");
-                    if (childResult.getGender() != null) {
-                        if (childResult.getGender().booleanValue()) {
-                            result.setGender("Nam");
-                        } else {
-                            result.setGender("Nữ");
-                        }
-                    }
                 } else {
                     result.setLanguage("English");
-                    if (childResult.getGender() != null) {
-                        if (childResult.getGender().booleanValue()) {
-                            result.setGender("Male");
-                        } else {
-                            result.setGender("Female");
-                        }
-                    }
                 }
             }
-            Parent parentResult = parentRepository.findParentByParentPhoneNumberEquals(parentPhoneNumber);
+            if (childResult.getGender() != null) {
+                if (childResult.getGender().booleanValue()) {
+                    result.setGender("Male");
+                } else {
+                    result.setGender("Female");
+                }
+            }
+            Parent parentResult = parentRepository.findParentByAccount_Username(parentPhoneNumber);
             Parent_Child parent_child = new Parent_Child();
             parent_child.setChild(childResult);
             parent_child.setParent(parentResult);

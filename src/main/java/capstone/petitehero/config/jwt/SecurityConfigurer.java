@@ -32,8 +32,8 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
                 .authorizeRequests().antMatchers("/test/token").permitAll()
                 .antMatchers("/v2/api-docs", "/configuration/**", "/swagger*/**", "/webjars/**").permitAll()
                 .antMatchers("/admin/login").permitAll()
-                .antMatchers("/admin/register").permitAll()
-                .antMatchers("/parent/register").permitAll()
+                .antMatchers("/account/admin/register").permitAll()
+                .antMatchers("/account/parent/register").permitAll()
                 .antMatchers("/parent/register-profile").permitAll()
                 .antMatchers("/parent/{phone}/children").permitAll()
                 .antMatchers("/child/{childId}/tasks").permitAll()
@@ -46,6 +46,7 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
                 .antMatchers("/task/list/{childId}").permitAll()
                 .antMatchers("/quest/list/{childId}").permitAll()
                 .antMatchers("/quest/{questId}").permitAll()
+                .antMatchers("/child/test").permitAll()
                 .anyRequest().authenticated()
                 .and().sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);

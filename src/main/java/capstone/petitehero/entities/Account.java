@@ -9,7 +9,7 @@ import java.io.Serializable;
 @Entity
 @Getter
 @Setter
-public class Admin implements Serializable {
+public class Account implements Serializable {
 
     @Id
     @Column(length = 30)
@@ -17,4 +17,7 @@ public class Admin implements Serializable {
 
     @Column(length = 30)
     private String password;
+
+    @Column
+    private String role;
 }

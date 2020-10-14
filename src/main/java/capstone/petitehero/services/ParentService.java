@@ -1,10 +1,13 @@
 package capstone.petitehero.services;
 
+import capstone.petitehero.dtos.response.parent.ParentProfileRegisterResponseDTO;
 import capstone.petitehero.dtos.response.parent.ParentRegisterResponseDTO;
 import capstone.petitehero.entities.Parent;
 import capstone.petitehero.repositories.ParentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.text.SimpleDateFormat;
 
 @Service
 public class ParentService {
@@ -12,45 +15,60 @@ public class ParentService {
     @Autowired
     private ParentRepository parentRepository;
 
-    public ParentRegisterResponseDTO saveParentToSystem(Parent parentHaveOnlyPhoneNumber) {
+    public ParentRegisterResponseDTO registerByParent(Parent parentHaveOnlyPhoneNumber) {
         Parent parentResult = parentRepository.save(parentHaveOnlyPhoneNumber);
         if (parentResult != null) {
-            ParentRegisterResponseDTO result = new ParentRegisterResponseDTO();
+             ParentRegisterResponseDTO result = new ParentRegisterResponseDTO();
+             result.setPhoneNumber(parentResult.getAccount().getUsername());
 
-            result.setPhoneNumber(parentResult.getParentPhoneNumber());
+             SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss");
+             result.setExpiredDate(sdf.format(parentResult.getExpiredDate()));
+
+             result.setMaxChildAllow(new Integer(3));
+             result.setMaxCollaboratorAllow(new Integer(1));
+             if (parentResult.getIsFreeTrial().booleanValue()) {
+                 result.setAccountType("Free Trial");
+             } else {
+                 result.setAccountType("Petite Hero Account");
+             }
+//             result.setOTP()
+            return result;
+        }
+        return null;
+    }
+
+    public ParentProfileRegisterResponseDTO saveParentInformationToSystem(Parent parentProfile) {
+        Parent parentResult = parentRepository.save(parentProfile);
+        if (parentResult != null) {
+            ParentProfileRegisterResponseDTO result = new ParentProfileRegisterResponseDTO();
+
+            result.setPhoneNumber(parentResult.getAccount().getUsername());
             result.setFirstName(parentResult.getFirstName());
             result.setLastName(parentResult.getLastName());
             result.setPhoto(parentResult.getPhoto());
             if (parentResult.getLanguage() != null) {
                 if (parentResult.getLanguage().booleanValue()) {
-                    if (parentResult.getGender() != null) {
-                        if (parentResult.getGender().booleanValue()) {
-                            result.setGender("Nam");
-                        } else {
-                            result.setGender("Nữ");
-                        }
-                    }
                     result.setLanguage("Vietnamese");
                 } else {
-                    if (parentResult.getGender() != null) {
-                        if (parentResult.getGender().booleanValue()) {
-                            result.setGender("Male");
-                        } else {
-                            result.setGender("Female");
-                        }
-                    }
                     result.setLanguage("English");
                 }
             }
-            result.setMaxChildren(parentResult.getMaxChildren());
-            result.setMaxParent(parentResult.getMaxParent());
+            if (parentResult.getGender() != null) {
+                if (parentResult.getGender().booleanValue()) {
+                    result.setGender("Male");
+                } else {
+                    result.setGender("Female");
+                }
+            }
+            result.setMaxChildAllow(parentResult.getMaxChildren());
+            result.setMaxCollaboratorAllow(parentResult.getMaxParent());
 
-            // TODO format datetime
-            result.setExpiredDate(parentResult.getExpiredDate());
+            SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss");
+            result.setExpiredDate(sdf.format(parentResult.getExpiredDate()));
             if (parentResult.getIsFreeTrial().booleanValue()){
-                result.setIsFreeTrial("Free Trial");
+                result.setAccountType("Free Trial");
             } else {
-                result.setIsFreeTrial("Petite Hero Account");
+                result.setAccountType("Petite Hero Account");
             }
 
             return result;
@@ -59,6 +77,6 @@ public class ParentService {
     }
 
     public Parent findParentByPhoneNumber(String phoneNumber) {
-        return parentRepository.findParentByParentPhoneNumberEquals(phoneNumber);
+        return parentRepository.findParentByAccount_Username(phoneNumber);
     }
 }

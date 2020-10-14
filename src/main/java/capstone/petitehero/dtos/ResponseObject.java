@@ -13,4 +13,11 @@ public class ResponseObject {
 
     public ResponseObject() {
     }
+
+    public ResponseObject(int code, String msg) {
+        this.code = code;
+        this.msg = msg;
+    }
+
+
 }

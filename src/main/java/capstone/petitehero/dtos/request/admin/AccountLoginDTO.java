@@ -7,7 +7,7 @@ import java.io.Serializable;
 
 @Getter
 @Setter
-public class AdminLoginDTO implements Serializable {
+public class AccountLoginDTO implements Serializable {
 
     private String username;
     private String password;

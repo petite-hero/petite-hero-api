@@ -7,5 +7,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ParentRepository extends JpaRepository<Parent, Long> {
 
-    Parent findParentByParentPhoneNumberEquals(String phoneNumber);
+    Parent findParentByAccount_Username(String phoneNumber);
 }

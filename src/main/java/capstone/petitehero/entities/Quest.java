@@ -44,10 +44,6 @@ public class Quest implements Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdDate;
 
-    @Column
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date modifiedDate;
-
     @Column(length = 30)
     private String status;
 
