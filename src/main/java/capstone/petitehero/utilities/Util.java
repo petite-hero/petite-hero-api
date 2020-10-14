@@ -15,8 +15,7 @@ public class Util {
     public static ResponseObject createResponse() {
         ResponseObject result = new ResponseObject();
         result.setCode(Constants.CODE_200);
-        result.setMsg(null);
-        result.setErrorMsg(Constants.NO_ERROR);
+        result.setMsg(Constants.NO_ERROR);
         result.setData(null);
         return result;
     }

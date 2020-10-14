@@ -58,7 +58,7 @@ public class LocationService {
 
         if (location == null) {
             result.setData(null);
-            result.setErrorMsg("Bad request - No data provided");
+            result.setMsg("Bad request - No data provided");
             result.setCode(Constants.CODE_400);
         } else {
             result.setData(sentLocation);
@@ -105,7 +105,7 @@ public class LocationService {
         Child child = childRepository.getOne(childId);
 
         if (child == null) {
-            result.setErrorMsg("Bad Request - Child ID doesn't exist");
+            result.setMsg("Bad Request - Child ID doesn't exist");
             result.setCode(Constants.CODE_400);
             return result;
         }
