@@ -71,4 +71,8 @@ public class AccountService {
         }
         return null;
     }
+
+    public Account findParentAccountByPhoneNumber(String phoneNumber) {
+        return accountRepository.findAccountByUsername(phoneNumber);
+    }
 }

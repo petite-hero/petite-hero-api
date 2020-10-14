@@ -19,14 +19,14 @@ public class Parent_Child implements Serializable {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "parent_phone_number")
+    @JoinColumn(name = "parent_id")
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     @JsonManagedReference
     private Parent parent;
 
     @ManyToOne
-    @JoinColumn(name = "parent_collaborator")
+    @JoinColumn(name = "collaborator_id")
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     @JsonManagedReference

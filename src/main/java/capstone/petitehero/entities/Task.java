@@ -51,14 +51,14 @@ public class Task implements Serializable {
     private Boolean isDeleted;
 
     @ManyToOne
-    @JoinColumn(name = "assignee")
+    @JoinColumn(name = "assignee_id")
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     @JsonManagedReference
     private Child child;
 
     @ManyToOne
-    @JoinColumn(name = "creator_phone_number")
+    @JoinColumn(name = "creator_id")
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     @JsonManagedReference

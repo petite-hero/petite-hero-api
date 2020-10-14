@@ -10,6 +10,7 @@ import java.io.Serializable;
 public class AddChildRequestDTO implements Serializable {
 
     private String firstName;
+    private Integer yob;
     private String lastName;
     private String nickName;
     private String gender;

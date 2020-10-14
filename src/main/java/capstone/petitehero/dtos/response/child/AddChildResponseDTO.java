@@ -9,11 +9,15 @@ import java.io.Serializable;
 @Getter
 public class AddChildResponseDTO implements Serializable {
 
+    private Long childId;
     private String firstName;
     private String lastName;
     private String nickName;
+    private Integer age;
     private String gender;
     private String language;
     private String photo;
+    private Long token;
+    private String parentPhoneNumber;
 
 }

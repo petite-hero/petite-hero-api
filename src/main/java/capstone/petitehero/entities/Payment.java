@@ -33,7 +33,7 @@ public class Payment implements Serializable {
     private String status;
 
     @ManyToOne
-    @JoinColumn(name = "parent_phone_number")
+    @JoinColumn(name = "parent_id")
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     @JsonManagedReference
