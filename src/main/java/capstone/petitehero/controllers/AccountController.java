@@ -1,6 +1,8 @@
 package capstone.petitehero.controllers;
 
+import capstone.petitehero.config.common.Constants;
 import capstone.petitehero.dtos.ResponseObject;
+import capstone.petitehero.dtos.common.JWTString;
 import capstone.petitehero.dtos.request.admin.AccountLoginDTO;
 import capstone.petitehero.dtos.request.parent.ParentRegisterDTO;
 import capstone.petitehero.dtos.response.account.AccountLoginResponseDTO;
@@ -27,9 +29,6 @@ public class AccountController {
     private AccountService accountService;
 
     @Autowired
-    private AuthenticationManager authenticationManager;
-
-    @Autowired
     private ParentService parentService;
 
     @RequestMapping(value = "/admin/register", method = RequestMethod.POST)
@@ -37,19 +36,19 @@ public class AccountController {
     public ResponseEntity<Object> register(@RequestBody AccountLoginDTO accountLoginDTO) {
         ResponseObject responseObject;
         if (accountLoginDTO.getUsername() == null) {
-            responseObject = new ResponseObject(400, "Missing username in request body");
+            responseObject = new ResponseObject(Constants.CODE_400, "Missing username in request body");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
         if (accountLoginDTO.getPassword() == null) {
-            responseObject = new ResponseObject(400, "Missing password in request body");
+            responseObject = new ResponseObject(Constants.CODE_400, "Missing password in request body");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
         if (accountLoginDTO.getUsername().isEmpty()) {
-            responseObject = new ResponseObject(400, "Username cannot be empty");
+            responseObject = new ResponseObject(Constants.CODE_400, "Username cannot be empty");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
         if (accountLoginDTO.getPassword().isEmpty()) {
-            responseObject = new ResponseObject(400, "Password cannot be empty");
+            responseObject = new ResponseObject(Constants.CODE_400, "Password cannot be empty");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
         Account account = new Account();
@@ -60,14 +59,14 @@ public class AccountController {
         try {
             AccountLoginResponseDTO result = accountService.registerByAdmin(account);
             if (result != null) {
-                responseObject = new ResponseObject(200, "OK");
+                responseObject = new ResponseObject(Constants.CODE_200, "OK");
                 responseObject.setData(result);
                 return new ResponseEntity<>(responseObject, HttpStatus.OK);
             }
-            responseObject = new ResponseObject(500, "Server is down cannot register");
+            responseObject = new ResponseObject(Constants.CODE_500, "Server is down cannot register");
             return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (DuplicateKeyException duplicateKeyException) {
-            responseObject = new ResponseObject(400, duplicateKeyException.getMessage());
+            responseObject = new ResponseObject(Constants.CODE_400, duplicateKeyException.getMessage());
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
     }
@@ -81,11 +80,11 @@ public class AccountController {
 
         // validate phone number of parent
         if (parentRegisterDTO.getPhoneNumber() == null || parentRegisterDTO.getPhoneNumber().isEmpty()) {
-            responseObject = new ResponseObject(400, "Parent's phone number cannot be missing or be empty when register");
+            responseObject = new ResponseObject(Constants.CODE_400, "Parent's phone number cannot be missing or be empty when register");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
         if (!util.validatePhoneNumberParent(parentRegisterDTO.getPhoneNumber())) {
-            responseObject = new ResponseObject(400, "Phone number is not in right format" +
+            responseObject = new ResponseObject(Constants.CODE_400, "Phone number is not in right format" +
                     "Phone number should be (1234567890) or (123( |-)456( |-)7890)");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
@@ -116,15 +115,15 @@ public class AccountController {
                 parent.setAccount(accountResult);
                 ParentRegisterResponseDTO parentResult = parentService.registerByParent(parent);
                 if (parentResult != null) {
-                    responseObject = new ResponseObject(200, "OK");
+                    responseObject = new ResponseObject(Constants.CODE_200, "OK");
                     responseObject.setData(parentResult);
                     return new ResponseEntity<>(responseObject, HttpStatus.OK);
                 }
             }
-            responseObject = new ResponseObject(500, "Server is down cannot save your account to the system");
+            responseObject = new ResponseObject(Constants.CODE_500, "Server is down cannot save your account to the system");
             return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (DuplicateKeyException duplicateKeyException) {
-            responseObject = new ResponseObject(400, duplicateKeyException.getMessage());
+            responseObject = new ResponseObject(Constants.CODE_400, duplicateKeyException.getMessage());
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
     }
@@ -135,30 +134,32 @@ public class AccountController {
         ResponseObject responseObject;
         //validate mandatory fields
         if (accountLoginDTO.getUsername() == null) {
-            responseObject = new ResponseObject(400, "Missing username in request body");
+            responseObject = new ResponseObject(Constants.CODE_400, "Missing username in request body");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
         if (accountLoginDTO.getPassword() == null) {
-            responseObject = new ResponseObject(400, "Missing password in request body");
+            responseObject = new ResponseObject(Constants.CODE_400, "Missing password in request body");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
         if (accountLoginDTO.getUsername().isEmpty()) {
-            responseObject = new ResponseObject(400, "Username cannot be empty");
+            responseObject = new ResponseObject(Constants.CODE_400, "Username cannot be empty");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
         if (accountLoginDTO.getPassword().isEmpty()) {
-            responseObject = new ResponseObject(400, "Password cannot be empty");
+            responseObject = new ResponseObject(Constants.CODE_400, "Password cannot be empty");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
         // end validate mandatory fields
 
         String jwtString = accountService.loginAccount(accountLoginDTO);
         if (jwtString != null) {
-            responseObject = new ResponseObject(200, "OK");
-            responseObject.setData(jwtString);
+            JWTString result = new JWTString();
+            result.setJwt(jwtString);
+            responseObject = new ResponseObject(Constants.CODE_200, "OK");
+            responseObject.setData(result);
             return new ResponseEntity<>(responseObject, HttpStatus.OK);
         }
-        responseObject = new ResponseObject(404, "Wrong username or password. Pls try again");
+        responseObject = new ResponseObject(Constants.CODE_404, "Wrong username or password. Pls try again");
         return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
     }
 }

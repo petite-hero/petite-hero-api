@@ -10,6 +10,7 @@ import lombok.ToString;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Date;
 
 @Entity
 @Setter
@@ -26,6 +27,9 @@ public class Child implements Serializable {
     @Column(length = 30)
     private String lastName;
 
+    @Column
+    private Integer yob;
+
     @Column(length = Integer.MAX_VALUE)
     private String photo;
 
@@ -40,6 +44,10 @@ public class Child implements Serializable {
 
     @Column
     private Boolean isDisable;
+
+    @Column
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date createdDate;
 
     @OneToMany(mappedBy = "child", cascade = CascadeType.ALL)
     @EqualsAndHashCode.Exclude // không sử dụng trường này trong equals và hashcode
