@@ -37,7 +37,7 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
                 .antMatchers("/parent/register-profile").permitAll()
                 .antMatchers("/parent/{phone}/children").permitAll()
                 .antMatchers("/child/{childId}/tasks").permitAll()
-                .antMatchers("/location/addNewLocation").permitAll()
+                .antMatchers("/location/current-location").permitAll()
                 .antMatchers("/location/list/{child}/{time}").permitAll()
                 .antMatchers("/location/latest/{child}").permitAll()
                 .antMatchers("/child/task").permitAll()
