@@ -54,34 +54,33 @@ public class ChildService {
                     result.setGender("Female");
                 }
             }
-            result.setToken(childResult.getCreatedDate().getTime());
+            result.setToken(childResult.getCreatedDate());
 
             return result;
         }
         return null;
     }
 
-    public VerifyParentResponseDTO verifyParentByScanQRCode(Long childId, String parentPhoneNumber) {
+    public VerifyParentResponseDTO verifyParentByScanQRCode(Child child, String parentPhoneNumber) {
         VerifyParentResponseDTO result = new VerifyParentResponseDTO();
 
         // find child information for adding to db
-        Child childResult = childRepository.findChildByChildIdEqualsAndIsDisable(childId, Boolean.FALSE);
-        if (childResult != null) {
+        if (child != null) {
 
             // set information for childResult
             ChildInformation childInformation = new ChildInformation();
-            childInformation.setChildId(childResult.getChildId());
-            childInformation.setFirstName(childResult.getFirstName());
-            childInformation.setLastName(childResult.getLastName());
-            childInformation.setNickName(childResult.getNickName());
-            if (childResult.getGender() != null) {
-                if (childResult.getGender().booleanValue()) {
+            childInformation.setChildId(child.getChildId());
+            childInformation.setFirstName(child.getFirstName());
+            childInformation.setLastName(child.getLastName());
+            childInformation.setNickName(child.getNickName());
+            if (child.getGender() != null) {
+                if (child.getGender().booleanValue()) {
                     childInformation.setGender("Male");
                 } else {
                     childInformation.setGender("Female");
                 }
             }
-            childInformation.setPhoto(childResult.getPhoto());
+            childInformation.setPhoto(child.getPhoto());
 //            if (childResult.getYob().toString() != null && !childResult.getYob().toString().isEmpty()) {
 //                int year = Calendar.getInstance().get(Calendar.YEAR);
 //                childInformation.setAge(year - childResult.getYob());
@@ -108,9 +107,9 @@ public class ChildService {
             result.setParentInformation(parentInformation);
         }
 
-        if (parentResult != null && childResult != null) {
+        if (parentResult != null && child != null) {
             Parent_Child parent_child = new Parent_Child();
-            parent_child.setChild(childResult);
+            parent_child.setChild(child);
             parent_child.setParent(parentResult);
 
             parentChildRepository.save(parent_child);
@@ -121,5 +120,9 @@ public class ChildService {
 
     public Child findChildByChildId(Long childId, Boolean isDisable) {
         return childRepository.findChildByChildIdEqualsAndIsDisable(childId, isDisable);
+    }
+
+    public Child saveChildToSystem(Child child) {
+        return childRepository.save(child);
     }
 }

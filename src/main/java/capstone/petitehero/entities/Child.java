@@ -1,7 +1,6 @@
 package capstone.petitehero.entities;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -10,7 +9,6 @@ import lombok.ToString;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.Date;
 
 @Entity
 @Setter
@@ -46,8 +44,10 @@ public class Child implements Serializable {
     private Boolean isDisable;
 
     @Column
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date createdDate;
+    private Long createdDate;
+
+    @Column(length = Integer.MAX_VALUE)
+    private String tokenDevices;
 
     @OneToMany(mappedBy = "child", cascade = CascadeType.ALL)
     @EqualsAndHashCode.Exclude // không sử dụng trường này trong equals và hashcode

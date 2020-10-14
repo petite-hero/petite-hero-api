@@ -59,14 +59,25 @@ public class ChildController {
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
 
-        VerifyParentResponseDTO result = childService.verifyParentByScanQRCode(verifyParentRequestDTO.getChildId(), verifyParentRequestDTO.getParentPhoneNumber());
-        if (result != null) {
-            responseObject = new ResponseObject(Constants.CODE_200, "Children verify successfully. Now parent and children can see each other");
-            responseObject.setData(result);
-            return new ResponseEntity<>(responseObject, HttpStatus.OK);
+        Child child = childService.findChildByChildId(verifyParentRequestDTO.getChildId(), Boolean.FALSE);
+
+        if (verifyParentRequestDTO.getToken().longValue() == child.getCreatedDate()) {
+
+            child.setTokenDevices(verifyParentRequestDTO.getDeviceToken());
+            childService.saveChildToSystem(child);
+
+            VerifyParentResponseDTO result = childService.verifyParentByScanQRCode(child, verifyParentRequestDTO.getParentPhoneNumber());
+            if (result != null) {
+                responseObject = new ResponseObject(Constants.CODE_200, "Verify successfully. Now parent and children can see each other");
+                responseObject.setData(result);
+                return new ResponseEntity<>(responseObject, HttpStatus.OK);
+            }
+            responseObject = new ResponseObject(Constants.CODE_500, "Server is down child cannot verify parent");
+            return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+        } else {
+            responseObject = new ResponseObject(Constants.CODE_400, "Token is not match");
+            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
-        responseObject = new ResponseObject(Constants.CODE_500, "Server is down child cannot verify parent");
-        return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @RequestMapping(value = "/task", method = RequestMethod.POST)

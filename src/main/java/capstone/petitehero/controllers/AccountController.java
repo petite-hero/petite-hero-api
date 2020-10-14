@@ -100,6 +100,7 @@ public class AccountController {
         parent.setMaxParent(1);
         parent.setIsDisable(Boolean.FALSE);
         Calendar calendar = Calendar.getInstance();
+        System.out.println(calendar.getTime());
         calendar.add(Calendar.DATE, 30);
         parent.setExpiredDate(calendar.getTime()); // trial 1 month
 
