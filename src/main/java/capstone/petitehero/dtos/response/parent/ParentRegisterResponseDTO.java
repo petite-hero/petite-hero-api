@@ -14,5 +14,4 @@ public class ParentRegisterResponseDTO implements Serializable {
     private String accountType;
     private Integer maxChildAllow;
     private Integer maxCollaboratorAllow;
-//    private String OTP
 }

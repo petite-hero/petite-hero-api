@@ -16,7 +16,6 @@ import capstone.petitehero.utilities.Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Calendar;
@@ -98,11 +97,11 @@ public class AccountController {
         parent.setIsFreeTrial(Boolean.TRUE);
         parent.setMaxChildren(3);
         parent.setMaxParent(1);
-        parent.setIsDisable(Boolean.FALSE);
+        parent.setIsDisabled(Boolean.FALSE);
         Calendar calendar = Calendar.getInstance();
         System.out.println(calendar.getTime());
         calendar.add(Calendar.DATE, 30);
-        parent.setExpiredDate(calendar.getTime()); // trial 1 month
+        parent.setExpiredDate(calendar.getTime().getTime()); // trial 1 month
 
         // create account and save parent information to account
         Account account = new Account();

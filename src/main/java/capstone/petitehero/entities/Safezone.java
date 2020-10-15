@@ -8,6 +8,8 @@ import lombok.ToString;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.sql.Time;
+import java.time.LocalTime;
 import java.util.Date;
 
 @Entity
@@ -19,26 +21,37 @@ public class Safezone implements Serializable {
     @GeneratedValue
     private Long safezoneId;
 
-    @Column
-    private Double xCoordinate;
+    @Column(length = 20)
+    private String name;
 
     @Column
-    private Double yCoordinate;
+    private Double latitude;
 
     @Column
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date timeIn;
+    private Double longitude;
 
     @Column
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date timeOut;
+    @Temporal(value = TemporalType.TIME)
+    private Date fromTime;
 
     @Column
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date timePadding;
+    @Temporal(value = TemporalType.TIME)
+    private Date toTime;
+
+    @Column
+    private Long date;
+
+    @Column(length = 20)
+    private String repeatOn;
 
     @Column
     private Integer radius;
+
+    @Column
+    private Boolean isDisabled;
+
+    @Column(length = 20)
+    private String type;
 
     @ManyToOne
     @JoinColumn(name = "child_id")
@@ -46,4 +59,11 @@ public class Safezone implements Serializable {
     @ToString.Exclude
     @JsonManagedReference
     private Child child;
+
+    @ManyToOne
+    @JoinColumn(name = "creator_id")
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    @JsonManagedReference
+    private Parent parent;
 }

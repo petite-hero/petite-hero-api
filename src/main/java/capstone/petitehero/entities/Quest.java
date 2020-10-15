@@ -41,8 +41,7 @@ public class Quest implements Serializable {
     private String questBadge;
 
     @Column
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date createdDate;
+    private Long createdDate;
 
     @Column(length = 30)
     private String status;

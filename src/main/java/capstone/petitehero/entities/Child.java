@@ -41,13 +41,13 @@ public class Child implements Serializable {
     private Boolean gender;
 
     @Column
-    private Boolean isDisable;
+    private Boolean isDisabled;
 
     @Column
     private Long createdDate;
 
     @Column(length = Integer.MAX_VALUE)
-    private String tokenDevices;
+    private String pushToken;
 
     @OneToMany(mappedBy = "child", cascade = CascadeType.ALL)
     @EqualsAndHashCode.Exclude // không sử dụng trường này trong equals và hashcode

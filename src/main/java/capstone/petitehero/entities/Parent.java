@@ -39,8 +39,7 @@ public class Parent implements Serializable {
     private Boolean isFreeTrial;
 
     @Column
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date expiredDate;
+    private Long expiredDate;
 
     @Column
     private Integer maxChildren;
@@ -49,10 +48,13 @@ public class Parent implements Serializable {
     private Integer maxParent;
 
     @Column
-    private Boolean isDisable;
+    private Boolean isDisabled;
 
     @Column
     private String OTP;
+
+    @Column(length = Integer.MAX_VALUE)
+    private String pushToken;
 
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
     @EqualsAndHashCode.Exclude // không sử dụng trường này trong equals và hashcode

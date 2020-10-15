@@ -20,14 +20,13 @@ public class LocationHistory implements Serializable {
     private Long locationHistoryId;
 
     @Column
-    private Double xCoordinate;
+    private Double latitude;
 
     @Column
-    private Double yCoordinate;
+    private Double longitude;
 
     @Column
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date time;
+    private Long time;
 
     @Column(length = 30)
     private String status;
@@ -40,22 +39,5 @@ public class LocationHistory implements Serializable {
     private Child child;
 
     public LocationHistory() {
-    }
-
-    public LocationHistory(Double xCoordinate, Double yCoordinate, Date time, String status, Child child) {
-        this.xCoordinate = xCoordinate;
-        this.yCoordinate = yCoordinate;
-        this.time = time;
-        this.status = status;
-        this.child = child;
-    }
-
-    public LocationHistory(Long locationHistoryId, Double xCoordinate, Double yCoordinate, Date time, String status, Child child) {
-        this.locationHistoryId = locationHistoryId;
-        this.xCoordinate = xCoordinate;
-        this.yCoordinate = yCoordinate;
-        this.time = time;
-        this.status = status;
-        this.child = child;
     }
 }

@@ -32,20 +32,16 @@ public class Task implements Serializable {
     private String proofPhoto;
 
     @Column
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date createdDate;
+    private Long createdDate;
 
     @Column
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date assignDate;
+    private Long assignDate;
 
     @Column
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date submitDate;
+    private Long submitDate;
 
     @Column
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date deadLine;
+    private Long deadLine;
 
     @Column
     private Boolean isDeleted;

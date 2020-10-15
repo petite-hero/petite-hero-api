@@ -48,9 +48,9 @@ public class LocationService {
         Child child = childRepository.getOne(sentLocation.getChild());
 
         LocationHistory addedLocation = new LocationHistory();
-        addedLocation.setXCoordinate(sentLocation.getLatitude());
-        addedLocation.setYCoordinate(sentLocation.getLongitude());
-        addedLocation.setTime(new Date(sentLocation.getTime()));
+        addedLocation.setLatitude(sentLocation.getLatitude());
+        addedLocation.setLongitude(sentLocation.getLongitude());
+        addedLocation.setTime(new Date(sentLocation.getTime()).getTime());
         addedLocation.setStatus(sentLocation.getStatus());
         addedLocation.setChild(child);
 
@@ -85,13 +85,13 @@ public class LocationService {
         System.out.println("time criteria: " + new Date(timeCriteria));
         for (LocationHistory location : rawData) {
 
-            if (location.getTime().getTime() > timeCriteria) {
+            if (location.getTime() > timeCriteria) {
                 System.out.println("obj time: " + location.getTime());
                 GetListByTimeResponseDTO temp = new GetListByTimeResponseDTO();
-                temp.setLatitude(location.getXCoordinate());
-                temp.setLongitude(location.getYCoordinate());
+                temp.setLatitude(location.getLatitude());
+                temp.setLongitude(location.getLongitude());
                 temp.setStatus(location.getStatus());
-                temp.setTime(location.getTime().getTime());
+                temp.setTime(location.getTime());
                 filteredData.add(temp);
             }
         }
@@ -112,8 +112,8 @@ public class LocationService {
 
         LocationHistory location = locationRepository.findLastestLocation(childId);
         GetLastestLocationResponseDTO lastestLocation = new GetLastestLocationResponseDTO();
-        lastestLocation.setLatitude(location.getXCoordinate());
-        lastestLocation.setLongitude(location.getYCoordinate());
+        lastestLocation.setLatitude(location.getLatitude());
+        lastestLocation.setLongitude(location.getLongitude());
         lastestLocation.setStatus(location.getStatus());
         result.setData(lastestLocation);
         result.setMsg("Get data successfully!");

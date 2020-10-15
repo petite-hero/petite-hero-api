@@ -12,8 +12,6 @@ import capstone.petitehero.dtos.response.quest.QuestCreateResponseDTO;
 import capstone.petitehero.dtos.response.task.TaskCreateResponseDTO;
 import capstone.petitehero.entities.*;
 import capstone.petitehero.repositories.AccountRepository;
-import capstone.petitehero.repositories.ParentChildRepository;
-import capstone.petitehero.repositories.TaskRepository;
 import capstone.petitehero.services.ChildService;
 import capstone.petitehero.services.QuestService;
 import capstone.petitehero.services.TaskService;
@@ -46,7 +44,7 @@ public class ChildController {
     @ResponseBody
     public ResponseEntity<Object> verifyParentByQRCode(@RequestBody VerifyParentRequestDTO verifyParentRequestDTO) {
         ResponseObject responseObject;
-        if (verifyParentRequestDTO.getDeviceToken() == null || verifyParentRequestDTO.getDeviceToken().isEmpty()) {
+        if (verifyParentRequestDTO.getPushToken() == null || verifyParentRequestDTO.getPushToken().isEmpty()) {
             responseObject = new ResponseObject(Constants.CODE_400, "Device token cannot be missing or empty");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
@@ -63,7 +61,7 @@ public class ChildController {
 
         if (verifyParentRequestDTO.getToken().longValue() == child.getCreatedDate()) {
 
-            child.setTokenDevices(verifyParentRequestDTO.getDeviceToken());
+            child.setPushToken(verifyParentRequestDTO.getPushToken());
             childService.saveChildToSystem(child);
 
             VerifyParentResponseDTO result = childService.verifyParentByScanQRCode(child, verifyParentRequestDTO.getParentPhoneNumber());
@@ -110,9 +108,9 @@ public class ChildController {
                 Task task = new Task();
                 task.setName(taskCreateRequestDTO.getName());
                 task.setDescription(taskCreateRequestDTO.getDescription());
-                task.setAssignDate(new Date());
-                task.setDeadLine(new Date());
-                task.setCreatedDate(new Date());
+                task.setAssignDate(new Date().getTime());
+                task.setDeadLine(new Date().getTime());
+                task.setCreatedDate(new Date().getTime());
                 task.setIsDeleted(Boolean.FALSE);
                 task.setChild(child);
                 task.setStatus("CREATED");
@@ -181,7 +179,7 @@ public class ChildController {
                 quest.setRewardPhoto(questCreateRequestDTO.getRewardPhoto());
                 quest.setCriteria(questCreateRequestDTO.getCriteria());
 
-                quest.setCreatedDate(new Date());
+                quest.setCreatedDate(new Date().getTime());
                 quest.setProgress(new Integer(0));
                 quest.setStatus("IN PROGRESS");
 

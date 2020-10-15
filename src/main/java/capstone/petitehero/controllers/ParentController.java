@@ -164,7 +164,7 @@ public class ParentController {
             } else {
                 child.setLanguage(Boolean.FALSE);
             }
-            child.setIsDisable(Boolean.FALSE);
+            child.setIsDisabled(Boolean.FALSE);
             child.setCreatedDate(new Date().getTime());
 
             AddChildResponseDTO result = childService.addChildForParent(child);

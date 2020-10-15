@@ -18,6 +18,6 @@ public class Account implements Serializable {
     @Column(length = 30)
     private String password;
 
-    @Column
+    @Column(length = 20)
     private String role;
 }

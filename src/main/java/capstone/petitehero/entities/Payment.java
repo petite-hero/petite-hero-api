@@ -23,11 +23,10 @@ public class Payment implements Serializable {
     private String content;
 
     @Column
-    private Double money;
+    private Double amount;
 
     @Column
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date date;
+    private Long date;
 
     @Column(length = 30)
     private String status;

@@ -13,8 +13,6 @@ import capstone.petitehero.repositories.ParentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Calendar;
-
 @Service
 public class ChildService {
 
@@ -119,7 +117,7 @@ public class ChildService {
     }
 
     public Child findChildByChildId(Long childId, Boolean isDisable) {
-        return childRepository.findChildByChildIdEqualsAndIsDisable(childId, isDisable);
+        return childRepository.findChildByChildIdEqualsAndIsDisabled(childId, isDisable);
     }
 
     public Child saveChildToSystem(Child child) {

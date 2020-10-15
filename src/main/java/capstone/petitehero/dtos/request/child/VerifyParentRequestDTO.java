@@ -10,7 +10,7 @@ import java.io.Serializable;
 public class VerifyParentRequestDTO implements Serializable {
 
     private Long childId;
-    private String deviceToken;
+    private String pushToken;
     private String parentPhoneNumber;
     private Long token;
 }
