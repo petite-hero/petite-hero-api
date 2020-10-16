@@ -4,6 +4,7 @@ import capstone.petitehero.config.common.Constants;
 import capstone.petitehero.dtos.ResponseObject;
 import capstone.petitehero.dtos.request.child.AddChildRequestDTO;
 import capstone.petitehero.dtos.request.parent.ParentRegisterRequestDTO;
+import capstone.petitehero.dtos.request.parent.UpdatePushTokenRequestDTO;
 import capstone.petitehero.dtos.response.child.AddChildResponseDTO;
 import capstone.petitehero.dtos.response.parent.ParentProfileRegisterResponseDTO;
 import capstone.petitehero.entities.Account;
@@ -18,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
+import java.util.HashMap;
 
 @RestController
 @RequestMapping(value = "/parent")
@@ -180,5 +182,11 @@ public class ParentController {
             responseObject = new ResponseObject(Constants.CODE_404, "Cannot find your account in system to add child");
             return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @RequestMapping(value = "/token", method = RequestMethod.PUT)
+    @ResponseBody
+    public ResponseObject updateAccountPushToken (@RequestBody UpdatePushTokenRequestDTO data) {
+        return parentService.updateAccountPushToken(data);
     }
 }

@@ -1,9 +1,13 @@
 package capstone.petitehero.services;
 
+import capstone.petitehero.config.common.Constants;
+import capstone.petitehero.dtos.ResponseObject;
+import capstone.petitehero.dtos.request.parent.UpdatePushTokenRequestDTO;
 import capstone.petitehero.dtos.response.parent.ParentProfileRegisterResponseDTO;
 import capstone.petitehero.dtos.response.parent.ParentRegisterResponseDTO;
 import capstone.petitehero.entities.Parent;
 import capstone.petitehero.repositories.ParentRepository;
+import capstone.petitehero.utilities.Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -78,5 +82,28 @@ public class ParentService {
 
     public Parent findParentByPhoneNumber(String phoneNumber) {
         return parentRepository.findParentByAccount_Username(phoneNumber);
+    }
+
+
+    public ResponseObject updateAccountPushToken(UpdatePushTokenRequestDTO data) {
+        ResponseObject result = Util.createResponse();
+        try {
+            Parent parent = parentRepository.getOne(data.getAccountId());
+            if (parent == null) {
+                result.setData(null);
+                result.setMsg("Bad request - Parent doesn't exist");
+                result.setCode(Constants.CODE_400);
+            } else {
+                parent.setPushToken(data.getPushToken());
+
+                result.setData(parentRepository.save(parent));
+                result.setMsg(Constants.NO_ERROR);
+            }
+        } catch (Exception e) {
+            result.setData(null);
+            result.setMsg("Server Error: " + e.toString());
+            result.setCode(Constants.CODE_500);
+        }
+        return  result;
     }
 }

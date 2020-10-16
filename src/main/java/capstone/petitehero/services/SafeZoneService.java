@@ -113,7 +113,7 @@ public class SafeZoneService {
             result.setMsg("Server Error: " + e.toString());
             result.setCode(Constants.CODE_500);
         }
-        return  result;
+        return result;
     }
 
     public ResponseObject getSafeZoneDetail(Long safezoneId) {

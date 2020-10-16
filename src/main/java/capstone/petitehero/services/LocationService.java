@@ -1,6 +1,7 @@
 package capstone.petitehero.services;
 
 import capstone.petitehero.config.common.Constants;
+import capstone.petitehero.dtos.ParentChildPushTokenDTO;
 import capstone.petitehero.dtos.ResponseObject;
 import capstone.petitehero.dtos.request.location.AddLocationRequestDTO;
 import capstone.petitehero.dtos.response.location.GetLastestLocationResponseDTO;
@@ -37,96 +38,106 @@ public class LocationService {
     @Autowired
     private ChildRepository childRepository;
 
+
     @PersistenceContext
     private EntityManager entityManager;
 
     public ResponseObject recordLocationFromSW (AddLocationRequestDTO sentLocation) {
         ResponseObject result = Util.createResponse();
+        try {
+            Child child = childRepository.getOne(sentLocation.getChild());
+            if (child == null) {
+                result.setData(null);
+                result.setMsg("Bad request - Child doesn't exist");
+                result.setCode(Constants.CODE_400);
+            } else {
+                LocationHistory addedLocation = new LocationHistory();
+                addedLocation.setLatitude(sentLocation.getLatitude());
+                addedLocation.setLongitude(sentLocation.getLongitude());
+                addedLocation.setTime(sentLocation.getTime());
+                addedLocation.setStatus(sentLocation.getStatus());
+                addedLocation.setChild(child);
+                LocationHistory location = locationRepository.save(addedLocation);
 
-        Child child = childRepository.getOne(sentLocation.getChild());
+                ArrayList<String> tokens = locationRepository.getParentPushToken(sentLocation.getChild());
+                pushSilentNotifications(sentLocation, tokens);
 
-        LocationHistory addedLocation = new LocationHistory();
-        addedLocation.setLatitude(sentLocation.getLatitude());
-        addedLocation.setLongitude(sentLocation.getLongitude());
-        addedLocation.setTime(sentLocation.getTime());
-        addedLocation.setStatus(sentLocation.getStatus());
-        addedLocation.setChild(child);
-
-        LocationHistory location = locationRepository.save(addedLocation);
-
-        if (location == null) {
+                if (location == null) {
+                    result.setData(null);
+                    result.setMsg("Bad request - No data provided");
+                    result.setCode(Constants.CODE_400);
+                } else {
+                    result.setData(sentLocation);
+                    result.setMsg(Constants.NO_ERROR);
+                }
+            }
+        } catch (Exception e) {
             result.setData(null);
-            result.setMsg("Bad request - No data provided");
-            result.setCode(Constants.CODE_400);
-        } else {
-            result.setData(sentLocation);
-            result.setMsg("Added successfully!");
+            result.setMsg("Server Error: " + e.toString());
+            result.setCode(Constants.CODE_500);
         }
         return result;
     }
 
     public ResponseObject getListByTime(Long childId, Long from, Long to) {
         ResponseObject result = Util.createResponse();
+        try {
+            List<LocationHistory> rawData = locationRepository.getListByTime(childId, from, to);
+            List<GetListByTimeResponseDTO> filteredData = new ArrayList<>();
 
-        List<LocationHistory> rawData = locationRepository.getListByTime(childId, from, to);
-        List<GetListByTimeResponseDTO> filteredData = new ArrayList<>();
+            for (LocationHistory location : rawData) {
+                GetListByTimeResponseDTO temp = new GetListByTimeResponseDTO();
+                temp.setLatitude(location.getLatitude());
+                temp.setLongitude(location.getLongitude());
+                temp.setStatus(location.getStatus());
+                temp.setTime(location.getTime());
+                filteredData.add(temp);
+            }
 
-        for (LocationHistory location : rawData) {
-            GetListByTimeResponseDTO temp = new GetListByTimeResponseDTO();
-            temp.setLatitude(location.getLatitude());
-            temp.setLongitude(location.getLongitude());
-            temp.setStatus(location.getStatus());
-            temp.setTime(location.getTime());
-            filteredData.add(temp);
+            result.setData(filteredData);
+            result.setMsg("Get data successfully!");
+        } catch (Exception e) {
+            result.setData(null);
+            result.setMsg("Server Error: " + e.toString());
+            result.setCode(Constants.CODE_500);
         }
-
-        result.setData(filteredData);
-        result.setMsg("Get data successfully!");
         return result;
     }
 
     public ResponseObject getLatestChildLocation(Long childId) {
         ResponseObject result = Util.createResponse();
-        Child child = childRepository.getOne(childId);
+        try {
+            Child child = childRepository.getOne(childId);
 
-        if (child == null) {
-            result.setMsg("Bad Request - Child ID doesn't exist");
-            result.setCode(Constants.CODE_400);
-            return result;
+            if (child == null) {
+                result.setMsg("Bad Request - Child ID doesn't exist");
+                result.setCode(Constants.CODE_400);
+                return result;
+            }
+
+            LocationHistory location = locationRepository.findLastestLocation(childId);
+            GetLastestLocationResponseDTO latestLocation = new GetLastestLocationResponseDTO();
+            latestLocation.setLatitude(location.getLatitude());
+            latestLocation.setLongitude(location.getLongitude());
+            latestLocation.setStatus(location.getStatus());
+            result.setData(latestLocation);
+            result.setMsg("Get data successfully!");
+        } catch (Exception e) {
+            result.setData(null);
+            result.setMsg("Server Error: " + e.toString());
+            result.setCode(Constants.CODE_500);
         }
-
-        LocationHistory location = locationRepository.findLastestLocation(childId);
-        GetLastestLocationResponseDTO latestLocation = new GetLastestLocationResponseDTO();
-        latestLocation.setLatitude(location.getLatitude());
-        latestLocation.setLongitude(location.getLongitude());
-        latestLocation.setStatus(location.getStatus());
-        result.setData(latestLocation);
-        result.setMsg("Get data successfully!");
         return result;
     }
 
 
-    public void pushNotifications(String titleMsg, String bodyMsg) {
+    public void pushSilentNotifications(Object data, ArrayList<String> pushTokens) {
         HttpClient httpClient = HttpClientBuilder.create().build();
         try {
             HttpPost request = new HttpPost(Constants.EXPO_PUSH_NOTI_URL);
-
             HashMap<String, Object> body = new HashMap<String, Object>();
-
-//            body.put("title", titleMsg);
-//            body.put("body", bodyMsg);
-            body.put("sound", "default");
-			body.put("data", "{\"name\":\"Enri\"}");
-            // body.put("subtitle", "This is Subtitle message");
-            // body.put("badge", "1"); // this indicates the number of notification number on your application icon
-
-//            ArrayList<String> pushToTokens = new ArrayList<String>();
-//            for (HashMap.Entry<Long, String> entry : pushTokens.entrySet()) {
-////				if (!pushToTokens.contains(entry.getValue())) {
-//                pushToTokens.add(entry.getValue());
-////				}
-//            }
-            body.put("to", "ExponentPushToken[te1ST8Mh6fwgf_AlThdTl3]");
+			body.put("data", new Gson().toJson(data));
+            body.put("to", pushTokens);
             StringEntity bodyJson = new StringEntity(new Gson().toJson(body));
 
             // headers specified by Expo to request push notifications
