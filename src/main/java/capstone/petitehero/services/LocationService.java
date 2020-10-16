@@ -3,7 +3,6 @@ package capstone.petitehero.services;
 import capstone.petitehero.config.common.Constants;
 import capstone.petitehero.dtos.ResponseObject;
 import capstone.petitehero.dtos.request.location.AddLocationRequestDTO;
-import capstone.petitehero.dtos.request.location.GetListByTimeRequestDTO;
 import capstone.petitehero.dtos.response.location.GetLastestLocationResponseDTO;
 import capstone.petitehero.dtos.response.location.GetListByTimeResponseDTO;
 import capstone.petitehero.entities.Child;
@@ -20,7 +19,6 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
-import org.springframework.data.jpa.repository.query.JpaQueryCreator;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
@@ -50,7 +48,7 @@ public class LocationService {
         LocationHistory addedLocation = new LocationHistory();
         addedLocation.setLatitude(sentLocation.getLatitude());
         addedLocation.setLongitude(sentLocation.getLongitude());
-        addedLocation.setTime(new Date(sentLocation.getTime()).getTime());
+        addedLocation.setTime(sentLocation.getTime());
         addedLocation.setStatus(sentLocation.getStatus());
         addedLocation.setChild(child);
 
@@ -67,34 +65,21 @@ public class LocationService {
         return result;
     }
 
-    public ResponseObject getListByTime(Long childId, int time) {
+    public ResponseObject getListByTime(Long childId, Long from, Long to) {
         ResponseObject result = Util.createResponse();
 
-        Long timeCriteria = System.currentTimeMillis() - (time * Constants.ONE_HOUR_IN_MILLISECOND);
-        
-        Child child = childRepository.getOne(childId);
-
-        LocationHistory criteriaLocation = new LocationHistory();
-        criteriaLocation.setChild(child);
-        Example<LocationHistory> criteria = Example.of(criteriaLocation);
-
-        List<LocationHistory> rawData = locationRepository.findAll(criteria);
+        List<LocationHistory> rawData = locationRepository.getListByTime(childId, from, to);
         List<GetListByTimeResponseDTO> filteredData = new ArrayList<>();
 
-
-        System.out.println("time criteria: " + new Date(timeCriteria));
         for (LocationHistory location : rawData) {
-
-            if (location.getTime() > timeCriteria) {
-                System.out.println("obj time: " + location.getTime());
-                GetListByTimeResponseDTO temp = new GetListByTimeResponseDTO();
-                temp.setLatitude(location.getLatitude());
-                temp.setLongitude(location.getLongitude());
-                temp.setStatus(location.getStatus());
-                temp.setTime(location.getTime());
-                filteredData.add(temp);
-            }
+            GetListByTimeResponseDTO temp = new GetListByTimeResponseDTO();
+            temp.setLatitude(location.getLatitude());
+            temp.setLongitude(location.getLongitude());
+            temp.setStatus(location.getStatus());
+            temp.setTime(location.getTime());
+            filteredData.add(temp);
         }
+
         result.setData(filteredData);
         result.setMsg("Get data successfully!");
         return result;
@@ -111,11 +96,11 @@ public class LocationService {
         }
 
         LocationHistory location = locationRepository.findLastestLocation(childId);
-        GetLastestLocationResponseDTO lastestLocation = new GetLastestLocationResponseDTO();
-        lastestLocation.setLatitude(location.getLatitude());
-        lastestLocation.setLongitude(location.getLongitude());
-        lastestLocation.setStatus(location.getStatus());
-        result.setData(lastestLocation);
+        GetLastestLocationResponseDTO latestLocation = new GetLastestLocationResponseDTO();
+        latestLocation.setLatitude(location.getLatitude());
+        latestLocation.setLongitude(location.getLongitude());
+        latestLocation.setStatus(location.getStatus());
+        result.setData(latestLocation);
         result.setMsg("Get data successfully!");
         return result;
     }
@@ -142,7 +127,6 @@ public class LocationService {
 ////				}
 //            }
             body.put("to", "ExponentPushToken[te1ST8Mh6fwgf_AlThdTl3]");
-//            System.out.println(pushToTokens);
             StringEntity bodyJson = new StringEntity(new Gson().toJson(body));
 
             // headers specified by Expo to request push notifications
@@ -212,4 +196,25 @@ public class LocationService {
 //            ex.printStackTrace();
 //        }
 //    }
+
+// getListByTime
+//        Long timeCriteria = System.currentTimeMillis() - (time * Constants.ONE_HOUR_IN_MILLISECOND);
+//        Child child = childRepository.getOne(childId);
+//        LocationHistory criteriaLocation = new LocationHistory();
+//        criteriaLocation.setChild(child);
+//        Example<LocationHistory> criteria = Example.of(criteriaLocation);
+//        List<LocationHistory> rawData = locationRepository.findAll(criteria);
+//        List<GetListByTimeResponseDTO> filteredData = new ArrayList<>()
+//        System.out.println("time criteria: " + new Date(timeCriteria));
+//        for (LocationHistory location : rawData) {
+//            if (location.getTime() >= from && location.getTime() <= to) {
+//                System.out.println("obj time: " + location.getTime());
+//                GetListByTimeResponseDTO temp = new GetListByTimeResponseDTO();
+//                temp.setLatitude(location.getLatitude());
+//                temp.setLongitude(location.getLongitude());
+//                temp.setStatus(location.getStatus());
+//                temp.setTime(location.getTime());
+//                filteredData.add(temp);
+//            }
+//        }
 }
