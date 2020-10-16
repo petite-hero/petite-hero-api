@@ -4,6 +4,7 @@ import capstone.petitehero.config.common.Constants;
 import capstone.petitehero.dtos.ResponseErrorDTO;
 import capstone.petitehero.dtos.ResponseObject;
 import capstone.petitehero.dtos.ResponseSuccessDTO;
+import capstone.petitehero.dtos.request.child.VerifyChildParentRequestDTO;
 import capstone.petitehero.dtos.request.child.VerifyParentRequestDTO;
 import capstone.petitehero.dtos.request.quest.QuestCreateRequestDTO;
 import capstone.petitehero.dtos.request.task.TaskCreateRequestDTO;
@@ -13,6 +14,7 @@ import capstone.petitehero.dtos.response.task.TaskCreateResponseDTO;
 import capstone.petitehero.entities.*;
 import capstone.petitehero.repositories.AccountRepository;
 import capstone.petitehero.services.ChildService;
+import capstone.petitehero.services.ParentService;
 import capstone.petitehero.services.QuestService;
 import capstone.petitehero.services.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,10 +40,13 @@ public class ChildController {
     private QuestService questService;
 
     @Autowired
+    private ParentService parentService;
+
+    @Autowired
     private AccountRepository accountRepository;
 
-    @RequestMapping(value = "/verify/parent", method = RequestMethod.POST)
-    @ResponseBody
+//    @RequestMapping(value = "/verify/parent", method = RequestMethod.POST)
+//    @ResponseBody
     public ResponseEntity<Object> verifyParentByQRCode(@RequestBody VerifyParentRequestDTO verifyParentRequestDTO) {
         ResponseObject responseObject;
         if (verifyParentRequestDTO.getPushToken() == null || verifyParentRequestDTO.getPushToken().isEmpty()) {
@@ -76,6 +81,70 @@ public class ChildController {
             responseObject = new ResponseObject(Constants.CODE_400, "Token is not match");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @RequestMapping(value = "/verify/parent", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<Object> verifyChildParentByQRCode(@RequestBody VerifyChildParentRequestDTO verifyChildParentRequestDTO) {
+        ResponseObject responseObject;
+
+        Child child = new Child();
+        child.setFirstName(verifyChildParentRequestDTO.getFirstName());
+        child.setLastName(verifyChildParentRequestDTO.getLastName());
+        child.setNickName(verifyChildParentRequestDTO.getNickname());
+        if (verifyChildParentRequestDTO.getGender().equalsIgnoreCase("Male")) {
+            child.setGender(Boolean.TRUE);
+        } else {
+            child.setGender(Boolean.FALSE);
+        }
+
+        if (verifyChildParentRequestDTO.getLanguage().equalsIgnoreCase("Vietnamese")) {
+            child.setLanguage(Boolean.TRUE);
+        } else {
+            child.setLanguage(Boolean.FALSE);
+        }
+
+        child.setPushToken(verifyChildParentRequestDTO.getPushToken());
+        child.setPhoto(verifyChildParentRequestDTO.getPhoto());
+        child.setYob(verifyChildParentRequestDTO.getYob());
+        child.setIsDisabled(Boolean.FALSE);
+
+        Parent parent = parentService.findParentByPhoneNumber(verifyChildParentRequestDTO.getPhoneNumber());
+
+        if (parent != null) {
+
+            childService.saveChildToSystem(child);
+
+            VerifyParentResponseDTO result = childService.verifyParentByScanQRCode(child, parent.getAccount().getUsername());
+            if (result != null) {
+                responseObject = new ResponseObject(Constants.CODE_200, "Verify successfully. Now parent and children can see each other");
+                responseObject.setData(result);
+                return new ResponseEntity<>(responseObject, HttpStatus.OK);
+            }
+            responseObject = new ResponseObject(Constants.CODE_500, "Server is down child cannot verify parent");
+            return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+
+        } else {
+            responseObject = new ResponseObject(Constants.CODE_404, "Cannot find that parent in the system");
+            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+        }
+//        if (verifyParentRequestDTO.getToken().longValue() == child.getCreatedDate()) {
+//
+//            child.setPushToken(verifyParentRequestDTO.getPushToken());
+//            childService.saveChildToSystem(child);
+
+//            VerifyParentResponseDTO result = childService.verifyParentByScanQRCode(child, verifyParentRequestDTO.getParentPhoneNumber());
+//            if (result != null) {
+//                responseObject = new ResponseObject(Constants.CODE_200, "Verify successfully. Now parent and children can see each other");
+//                responseObject.setData(result);
+//                return new ResponseEntity<>(responseObject, HttpStatus.OK);
+//            }
+//            responseObject = new ResponseObject(Constants.CODE_500, "Server is down child cannot verify parent");
+//            return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+//        } else {
+//            responseObject = new ResponseObject(Constants.CODE_400, "Token is not match");
+//            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+//        }
     }
 
     @RequestMapping(value = "/task", method = RequestMethod.POST)

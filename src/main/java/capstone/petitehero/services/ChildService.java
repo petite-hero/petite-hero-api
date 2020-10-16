@@ -59,6 +59,71 @@ public class ChildService {
         return null;
     }
 
+//    public VerifyParentResponseDTO verifyParentByScanQRCode(Child child, String parentPhoneNumber) {
+//        VerifyParentResponseDTO result = new VerifyParentResponseDTO();
+//
+//        // find child information for adding to db
+//        if (child != null) {
+//
+//            // set information for childResult
+//            ChildInformation childInformation = new ChildInformation();
+//            childInformation.setChildId(child.getChildId());
+//            childInformation.setFirstName(child.getFirstName());
+//            childInformation.setLastName(child.getLastName());
+//            childInformation.setNickName(child.getNickName());
+//            if (child.getGender() != null) {
+//                if (child.getGender().booleanValue()) {
+//                    childInformation.setGender("Male");
+//                } else {
+//                    childInformation.setGender("Female");
+//                }
+//            }
+//            childInformation.setPhoto(child.getPhoto());
+////            if (childResult.getYob().toString() != null && !childResult.getYob().toString().isEmpty()) {
+////                int year = Calendar.getInstance().get(Calendar.YEAR);
+////                childInformation.setAge(year - childResult.getYob());
+////            }
+//            result.setChildInformation(childInformation);
+//        }
+//
+//        // find parent information for adding to db
+//        Parent parentResult = parentRepository.findParentByAccount_Username(parentPhoneNumber);
+//        if (parentResult != null) {
+//            ParentInformation parentInformation = new ParentInformation();
+//
+//            // set parent information
+//            parentInformation.setFirstName(parentResult.getFirstName());
+//            parentInformation.setLastName(parentResult.getLastName());
+//            parentInformation.setPhoneNumber(parentResult.getAccount().getUsername());
+//            if (parentResult.getGender() != null) {
+//                if (parentResult.getGender().booleanValue()) {
+//                    parentInformation.setGender("Male");
+//                } else {
+//                    parentInformation.setGender("Female");
+//                }
+//            }
+//            result.setParentInformation(parentInformation);
+//        }
+//
+//        if (parentResult != null && child != null) {
+//            Parent_Child parent_child = new Parent_Child();
+//            parent_child.setChild(child);
+//            parent_child.setParent(parentResult);
+//
+//            parentChildRepository.save(parent_child);
+//            return result;
+//        }
+//        return null;
+//    }
+
+    public Child findChildByChildId(Long childId, Boolean isDisable) {
+        return childRepository.findChildByChildIdEqualsAndIsDisabled(childId, isDisable);
+    }
+
+    public Child saveChildToSystem(Child child) {
+        return childRepository.save(child);
+    }
+
     public VerifyParentResponseDTO verifyParentByScanQRCode(Child child, String parentPhoneNumber) {
         VerifyParentResponseDTO result = new VerifyParentResponseDTO();
 
@@ -114,13 +179,5 @@ public class ChildService {
             return result;
         }
         return null;
-    }
-
-    public Child findChildByChildId(Long childId, Boolean isDisable) {
-        return childRepository.findChildByChildIdEqualsAndIsDisabled(childId, isDisable);
-    }
-
-    public Child saveChildToSystem(Child child) {
-        return childRepository.save(child);
     }
 }

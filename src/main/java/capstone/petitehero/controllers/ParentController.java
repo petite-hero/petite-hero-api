@@ -7,8 +7,6 @@ import capstone.petitehero.dtos.request.parent.ParentRegisterRequestDTO;
 import capstone.petitehero.dtos.request.parent.UpdatePushTokenRequestDTO;
 import capstone.petitehero.dtos.response.child.AddChildResponseDTO;
 import capstone.petitehero.dtos.response.parent.ParentProfileRegisterResponseDTO;
-import capstone.petitehero.entities.Account;
-import capstone.petitehero.entities.Child;
 import capstone.petitehero.entities.Parent;
 import capstone.petitehero.services.AccountService;
 import capstone.petitehero.services.ChildService;
@@ -18,8 +16,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Date;
-import java.util.HashMap;
 
 @RestController
 @RequestMapping(value = "/parent")
@@ -112,6 +108,78 @@ public class ParentController {
         return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+//    @RequestMapping(value = "/{phone}/children", method = RequestMethod.POST)
+//    @ResponseBody
+//    // Add child for parent
+//    public ResponseEntity<Object> addNewChild(@PathVariable("phone") String parentPhoneNumber, @RequestBody AddChildRequestDTO addChildRequestDTO) {
+//        ResponseObject responseObject;
+//
+//        // validate mandatory fields
+//        if (addChildRequestDTO.getFirstName() == null || addChildRequestDTO.getFirstName().isEmpty()) {
+//            responseObject = new ResponseObject(Constants.CODE_400, "Child's first name cannot be missing or empty");
+//            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+//        }
+//        if (addChildRequestDTO.getLastName() == null || addChildRequestDTO.getLastName().isEmpty()) {
+//            responseObject = new ResponseObject(Constants.CODE_400, "Child's first name cannot be missing or empty");
+//            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+//        }
+//        if (addChildRequestDTO.getYob() == null || addChildRequestDTO.getYob().toString().isEmpty()) {
+//            responseObject = new ResponseObject(Constants.CODE_400, "Child's year of birth cannot be missing or empty");
+//            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+//        }
+//        if (addChildRequestDTO.getGender() == null || addChildRequestDTO.getGender().isEmpty()) {
+//            responseObject = new ResponseObject(Constants.CODE_400, "Gender cannot be missing or be empty");
+//            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+//        }
+//        if (addChildRequestDTO.getLanguage() == null || addChildRequestDTO.getLanguage().isEmpty()) {
+//            responseObject = new ResponseObject(Constants.CODE_400, "Language cannot be missing or be empty");
+//            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+//        }
+//        // end validate mandatory fields
+//
+//        Account parentAccount = accountService.findParentAccountByPhoneNumber(parentPhoneNumber);
+//
+//        if (parentAccount != null) {
+//            Child child = new Child();
+//            child.setFirstName(addChildRequestDTO.getFirstName());
+//            child.setLastName(addChildRequestDTO.getLastName());
+//            child.setYob(addChildRequestDTO.getYob());
+//            if (addChildRequestDTO.getNickName() != null) {
+//                child.setNickName(addChildRequestDTO.getNickName());
+//            }
+//            if (addChildRequestDTO.getPhoto() != null) {
+//                child.setPhoto(addChildRequestDTO.getPhoto());
+//            }
+//
+//            if (addChildRequestDTO.getGender().equalsIgnoreCase("Male")) {
+//                child.setGender(Boolean.TRUE);
+//            } else {
+//                child.setGender(Boolean.FALSE);
+//            }
+//
+//            if (addChildRequestDTO.getLanguage().equalsIgnoreCase("Vietnamese")) {
+//                child.setLanguage(Boolean.TRUE);
+//            } else {
+//                child.setLanguage(Boolean.FALSE);
+//            }
+//            child.setIsDisabled(Boolean.FALSE);
+//            child.setCreatedDate(new Date().getTime());
+//
+//            AddChildResponseDTO result = childService.addChildForParent(child);
+//            if (result != null) {
+//                result.setParentPhoneNumber(parentPhoneNumber);
+//                responseObject = new ResponseObject(Constants.CODE_200, "OK");
+//                responseObject.setData(result);
+//                return new ResponseEntity<>(responseObject, HttpStatus.OK);
+//            }
+//            responseObject = new ResponseObject(Constants.CODE_500, "Server is down cannot add your child to the system");
+//            return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+//        } else {
+//            responseObject = new ResponseObject(Constants.CODE_404, "Cannot find your account in system to add child");
+//            return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
+
     @RequestMapping(value = "/{phone}/children", method = RequestMethod.POST)
     @ResponseBody
     // Add child for parent
@@ -141,35 +209,19 @@ public class ParentController {
         }
         // end validate mandatory fields
 
-        Account parentAccount = accountService.findParentAccountByPhoneNumber(parentPhoneNumber);
+//        Account parentAccount = accountService.findParentAccountByPhoneNumber(parentPhoneNumber);
 
-        if (parentAccount != null) {
-            Child child = new Child();
-            child.setFirstName(addChildRequestDTO.getFirstName());
-            child.setLastName(addChildRequestDTO.getLastName());
-            child.setYob(addChildRequestDTO.getYob());
-            if (addChildRequestDTO.getNickName() != null) {
-                child.setNickName(addChildRequestDTO.getNickName());
-            }
-            if (addChildRequestDTO.getPhoto() != null) {
-                child.setPhoto(addChildRequestDTO.getPhoto());
-            }
+//        if (parentAccount != null) {
 
-            if (addChildRequestDTO.getGender().equalsIgnoreCase("Male")) {
-                child.setGender(Boolean.TRUE);
-            } else {
-                child.setGender(Boolean.FALSE);
-            }
+            AddChildResponseDTO result = new AddChildResponseDTO();
 
-            if (addChildRequestDTO.getLanguage().equalsIgnoreCase("Vietnamese")) {
-                child.setLanguage(Boolean.TRUE);
-            } else {
-                child.setLanguage(Boolean.FALSE);
-            }
-            child.setIsDisabled(Boolean.FALSE);
-            child.setCreatedDate(new Date().getTime());
-
-            AddChildResponseDTO result = childService.addChildForParent(child);
+            result.setNickName(addChildRequestDTO.getNickName());
+            result.setFirstName(addChildRequestDTO.getFirstName());
+            result.setLastName(addChildRequestDTO.getLastName());
+            result.setLanguage(addChildRequestDTO.getLanguage());
+            result.setPhoto(addChildRequestDTO.getPhoto());
+            result.setGender(addChildRequestDTO.getGender());
+            result.setYob(addChildRequestDTO.getYob());
             if (result != null) {
                 result.setParentPhoneNumber(parentPhoneNumber);
                 responseObject = new ResponseObject(Constants.CODE_200, "OK");
@@ -178,10 +230,10 @@ public class ParentController {
             }
             responseObject = new ResponseObject(Constants.CODE_500, "Server is down cannot add your child to the system");
             return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
-        } else {
-            responseObject = new ResponseObject(Constants.CODE_404, "Cannot find your account in system to add child");
-            return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+//        } else {
+//            responseObject = new ResponseObject(Constants.CODE_404, "Cannot find your account in system to add child");
+//            return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
     }
 
     @RequestMapping(value = "/token", method = RequestMethod.PUT)

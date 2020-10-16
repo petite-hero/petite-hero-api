@@ -13,7 +13,7 @@ public class AddChildResponseDTO implements Serializable {
     private String firstName;
     private String lastName;
     private String nickName;
-    private Integer age;
+    private Integer yob;
     private String gender;
     private String language;
     private String photo;
