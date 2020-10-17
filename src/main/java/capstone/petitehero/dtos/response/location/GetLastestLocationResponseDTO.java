@@ -9,12 +9,12 @@ public class GetLastestLocationResponseDTO {
 
     private Double latitude;
     private Double longitude;
-    private String status;
+    private Boolean status;
 
     public GetLastestLocationResponseDTO() {
     }
 
-    public GetLastestLocationResponseDTO(Double latitude, Double longitude, String status) {
+    public GetLastestLocationResponseDTO(Double latitude, Double longitude, Boolean status) {
         this.latitude = latitude;
         this.longitude = longitude;
         this.status = status;

@@ -9,14 +9,14 @@ public class AddLocationRequestDTO {
     private Double latitude;
     private Double longitude;
     private Long time;
-    private String status;
+    private Boolean status;
     private Long child;
 
     public AddLocationRequestDTO() {
 
     }
 
-    public AddLocationRequestDTO(Double latitude, Double longitude, Long time, String status, Long child) {
+    public AddLocationRequestDTO(Double latitude, Double longitude, Long time, Boolean status, Long child) {
         this.latitude = latitude;
         this.longitude = longitude;
         this.time = time;

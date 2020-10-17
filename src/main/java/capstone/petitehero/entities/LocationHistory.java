@@ -28,8 +28,8 @@ public class LocationHistory implements Serializable {
     @Column
     private Long time;
 
-    @Column(length = 30)
-    private String status;
+    @Column
+    private Boolean status;
 
     @ManyToOne
     @JoinColumn(name = "child_id")

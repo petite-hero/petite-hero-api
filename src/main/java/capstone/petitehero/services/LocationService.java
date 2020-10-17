@@ -59,14 +59,15 @@ public class LocationService {
                 addedLocation.setChild(child);
                 LocationHistory location = locationRepository.save(addedLocation);
 
-                ArrayList<String> tokens = locationRepository.getParentPushToken(sentLocation.getChild());
-                pushSilentNotifications(sentLocation, tokens);
-
                 if (location == null) {
                     result.setData(null);
                     result.setMsg("Bad request - No data provided");
                     result.setCode(Constants.CODE_400);
                 } else {
+                    if (!location.getStatus()) {
+                        ArrayList<String> tokens = locationRepository.getParentPushToken(sentLocation.getChild());
+                        pushSilentNotifications(sentLocation, tokens);
+                    }
                     result.setData(sentLocation);
                     result.setMsg(Constants.NO_ERROR);
                 }

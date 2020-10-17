@@ -9,6 +9,8 @@ public class Constants {
     public static final boolean IS_DELETED = true;
     public static final boolean IS_NOT_READ = false;
     public static final boolean IS_READ = true;
+    public static final boolean SAFE = true;
+    public static final boolean NOT_SAFE = false;
 
     // role values
     public static final String USER = "User";

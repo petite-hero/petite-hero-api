@@ -9,12 +9,12 @@ public class GetListByTimeResponseDTO {
     private Double latitude;
     private Double longitude;
     private Long time;
-    private String status;
+    private Boolean status;
 
     public GetListByTimeResponseDTO() {
     }
 
-    public GetListByTimeResponseDTO(Double latitude, Double longitude, Long time, String status) {
+    public GetListByTimeResponseDTO(Double latitude, Double longitude, Long time, Boolean status) {
         this.latitude = latitude;
         this.longitude = longitude;
         this.time = time;
