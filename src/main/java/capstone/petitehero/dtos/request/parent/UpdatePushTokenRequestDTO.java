@@ -6,14 +6,14 @@ import lombok.Setter;
 @Getter
 @Setter
 public class UpdatePushTokenRequestDTO {
-    private Long accountId;
+    private String username;
     private String pushToken;
 
     public UpdatePushTokenRequestDTO() {
     }
 
-    public UpdatePushTokenRequestDTO(Long accountId, String pushToken) {
-        this.accountId = accountId;
+    public UpdatePushTokenRequestDTO(String username, String pushToken) {
+        this.username = username;
         this.pushToken = pushToken;
     }
 }

@@ -88,7 +88,7 @@ public class ParentService {
     public ResponseObject updateAccountPushToken(UpdatePushTokenRequestDTO data) {
         ResponseObject result = Util.createResponse();
         try {
-            Parent parent = parentRepository.getOne(data.getAccountId());
+            Parent parent = parentRepository.findParentByAccount_Username(data.getUsername());
             if (parent == null) {
                 result.setData(null);
                 result.setMsg("Bad request - Parent doesn't exist");
