@@ -20,10 +20,10 @@ public class LocationController {
     private SafeZoneService safeZoneService;
 
 
-    @RequestMapping(value = "/current-location", method = RequestMethod.POST)
+    @RequestMapping(value = "/current-location/{emergency}", method = RequestMethod.POST)
     @ResponseBody
-    public ResponseObject addNewLocationFromSW(@RequestBody AddLocationRequestDTO location) {
-        return locationService.recordLocationFromSW(location);
+    public ResponseObject addNewLocationFromSW(@RequestBody AddLocationRequestDTO location, @PathVariable Boolean emergency) {
+        return locationService.recordLocationFromSW(location, emergency);
     }
 
     @RequestMapping(value = "/list/{child}/{from}/{to}", method = RequestMethod.GET)

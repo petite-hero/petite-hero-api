@@ -22,10 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -39,10 +36,7 @@ public class LocationService {
     private ChildRepository childRepository;
 
 
-    @PersistenceContext
-    private EntityManager entityManager;
-
-    public ResponseObject recordLocationFromSW (AddLocationRequestDTO sentLocation) {
+    public ResponseObject recordLocationFromSW (AddLocationRequestDTO sentLocation, Boolean emergency) {
         ResponseObject result = Util.createResponse();
         try {
             Child child = childRepository.getOne(sentLocation.getChild());
@@ -64,9 +58,15 @@ public class LocationService {
                     result.setMsg("Bad request - No data provided");
                     result.setCode(Constants.CODE_400);
                 } else {
-                    if (!location.getStatus()) {
+                    if (emergency) {
                         ArrayList<String> tokens = locationRepository.getParentPushToken(sentLocation.getChild());
                         pushSilentNotifications(sentLocation, tokens);
+                    } else {
+                        LocationHistory latestLocation = (LocationHistory) getLatestChildLocation(sentLocation.getChild()).getData();
+                        if (location.getStatus() != latestLocation.getStatus()) {
+                            ArrayList<String> tokens = locationRepository.getParentPushToken(sentLocation.getChild());
+                            pushSilentNotifications(sentLocation, tokens);
+                        }
                     }
                     result.setData(sentLocation);
                     result.setMsg(Constants.NO_ERROR);
@@ -79,6 +79,8 @@ public class LocationService {
         }
         return result;
     }
+
+
 
     public ResponseObject getListByTime(Long childId, Long from, Long to) {
         ResponseObject result = Util.createResponse();
@@ -132,6 +134,19 @@ public class LocationService {
     }
 
 
+
+    public ResponseObject updateEmergencyStatus(Long childId) {
+        ResponseObject result = Util.createResponse();
+        try {
+
+        } catch (Exception e) {
+            result.setData(null);
+            result.setMsg("Server Error: " + e.toString());
+            result.setCode(Constants.CODE_500);
+        }
+        return result;
+    }
+
     public void pushSilentNotifications(Object data, ArrayList<String> pushTokens) {
         HttpClient httpClient = HttpClientBuilder.create().build();
         try {
@@ -153,7 +168,7 @@ public class LocationService {
             System.out.println(response.getStatusLine());
 
         } catch (Exception ex) {
-            System.out.println("===> Error at Push Notification API");
+            System.out.println("===> Error at Push Notification API: " + ex.toString());
             ex.printStackTrace();
         }
     }
