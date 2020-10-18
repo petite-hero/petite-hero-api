@@ -2,7 +2,7 @@ package capstone.petitehero.controllers;
 
 import capstone.petitehero.config.common.Constants;
 import capstone.petitehero.dtos.ResponseObject;
-import capstone.petitehero.dtos.common.JWTString;
+import capstone.petitehero.dtos.response.account.LoginResponseDTO;
 import capstone.petitehero.dtos.request.admin.AccountLoginDTO;
 import capstone.petitehero.dtos.request.parent.ParentRegisterDTO;
 import capstone.petitehero.dtos.response.account.AccountLoginResponseDTO;
@@ -99,7 +99,6 @@ public class AccountController {
         parent.setMaxParent(1);
         parent.setIsDisabled(Boolean.FALSE);
         Calendar calendar = Calendar.getInstance();
-        System.out.println(calendar.getTime());
         calendar.add(Calendar.DATE, 30);
         parent.setExpiredDate(calendar.getTime().getTime()); // trial 1 month
 
@@ -151,10 +150,8 @@ public class AccountController {
         }
         // end validate mandatory fields
 
-        String jwtString = accountService.loginAccount(accountLoginDTO);
-        if (jwtString != null) {
-            JWTString result = new JWTString();
-            result.setJwt(jwtString);
+        LoginResponseDTO result = accountService.loginAccount(accountLoginDTO);
+        if (result != null) {
             responseObject = new ResponseObject(Constants.CODE_200, "OK");
             responseObject.setData(result);
             return new ResponseEntity<>(responseObject, HttpStatus.OK);

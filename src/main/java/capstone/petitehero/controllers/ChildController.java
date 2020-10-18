@@ -4,10 +4,12 @@ import capstone.petitehero.config.common.Constants;
 import capstone.petitehero.dtos.ResponseErrorDTO;
 import capstone.petitehero.dtos.ResponseObject;
 import capstone.petitehero.dtos.ResponseSuccessDTO;
-import capstone.petitehero.dtos.request.child.VerifyChildParentRequestDTO;
+import capstone.petitehero.dtos.request.child.UpdateChildProfileRequestDTO;
 import capstone.petitehero.dtos.request.child.VerifyParentRequestDTO;
 import capstone.petitehero.dtos.request.quest.QuestCreateRequestDTO;
 import capstone.petitehero.dtos.request.task.TaskCreateRequestDTO;
+import capstone.petitehero.dtos.response.child.DeleteChildResponseDTO;
+import capstone.petitehero.dtos.response.child.UpdateChildProfileResponseDTO;
 import capstone.petitehero.dtos.response.child.VerifyParentResponseDTO;
 import capstone.petitehero.dtos.response.quest.QuestCreateResponseDTO;
 import capstone.petitehero.dtos.response.task.TaskCreateResponseDTO;
@@ -17,10 +19,12 @@ import capstone.petitehero.services.ChildService;
 import capstone.petitehero.services.ParentService;
 import capstone.petitehero.services.QuestService;
 import capstone.petitehero.services.TaskService;
+import capstone.petitehero.utilities.Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -45,8 +49,9 @@ public class ChildController {
     @Autowired
     private AccountRepository accountRepository;
 
-//    @RequestMapping(value = "/verify/parent", method = RequestMethod.POST)
-//    @ResponseBody
+    @RequestMapping(value = "/verify/parent", method = RequestMethod.POST)
+    @ResponseBody
+    // verify parent from child and system get the smart watch push token
     public ResponseEntity<Object> verifyParentByQRCode(@RequestBody VerifyParentRequestDTO verifyParentRequestDTO) {
         ResponseObject responseObject;
         if (verifyParentRequestDTO.getPushToken() == null || verifyParentRequestDTO.getPushToken().isEmpty()) {
@@ -67,7 +72,6 @@ public class ChildController {
         if (verifyParentRequestDTO.getToken().longValue() == child.getCreatedDate()) {
 
             child.setPushToken(verifyParentRequestDTO.getPushToken());
-            childService.saveChildToSystem(child);
 
             VerifyParentResponseDTO result = childService.verifyParentByScanQRCode(child, verifyParentRequestDTO.getParentPhoneNumber());
             if (result != null) {
@@ -83,68 +87,67 @@ public class ChildController {
         }
     }
 
-    @RequestMapping(value = "/verify/parent", method = RequestMethod.POST)
+    @RequestMapping(value = "/{childId}", method = RequestMethod.DELETE)
     @ResponseBody
-    public ResponseEntity<Object> verifyChildParentByQRCode(@RequestBody VerifyChildParentRequestDTO verifyChildParentRequestDTO) {
+    public ResponseEntity<Object> disableChildById(@PathVariable("childId") Long childId) {
         ResponseObject responseObject;
 
-        Child child = new Child();
-        child.setFirstName(verifyChildParentRequestDTO.getFirstName());
-        child.setLastName(verifyChildParentRequestDTO.getLastName());
-        child.setNickName(verifyChildParentRequestDTO.getNickname());
-        if (verifyChildParentRequestDTO.getGender().equalsIgnoreCase("Male")) {
-            child.setGender(Boolean.TRUE);
-        } else {
-            child.setGender(Boolean.FALSE);
-        }
+            DeleteChildResponseDTO result = childService.disableChildById(childId);
 
-        if (verifyChildParentRequestDTO.getLanguage().equalsIgnoreCase("Vietnamese")) {
-            child.setLanguage(Boolean.TRUE);
-        } else {
-            child.setLanguage(Boolean.FALSE);
-        }
-
-        child.setPushToken(verifyChildParentRequestDTO.getPushToken());
-        child.setPhoto(verifyChildParentRequestDTO.getPhoto());
-        child.setYob(verifyChildParentRequestDTO.getYob());
-        child.setIsDisabled(Boolean.FALSE);
-
-        Parent parent = parentService.findParentByPhoneNumber(verifyChildParentRequestDTO.getPhoneNumber());
-
-        if (parent != null) {
-
-            childService.saveChildToSystem(child);
-
-            VerifyParentResponseDTO result = childService.verifyParentByScanQRCode(child, parent.getAccount().getUsername());
             if (result != null) {
-                responseObject = new ResponseObject(Constants.CODE_200, "Verify successfully. Now parent and children can see each other");
+                responseObject = new ResponseObject(Constants.CODE_200, "OK");
                 responseObject.setData(result);
                 return new ResponseEntity<>(responseObject, HttpStatus.OK);
             }
-            responseObject = new ResponseObject(Constants.CODE_500, "Server is down child cannot verify parent");
-            return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+        responseObject = new ResponseObject(Constants.CODE_500, "Cannot deleted your children in the system");
+        return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 
-        } else {
-            responseObject = new ResponseObject(Constants.CODE_404, "Cannot find that parent in the system");
-            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+    @RequestMapping(value = "/{childId}", method = RequestMethod.PUT)
+    @ResponseBody
+    public ResponseEntity<Object> updateChildProfileById(@PathVariable("childId") Long childId,
+                                                         @ModelAttribute UpdateChildProfileRequestDTO updateChildProfileRequestDTO,
+                                                         @RequestParam(value = "childPhoto", required = false) MultipartFile childPhoto) {
+        ResponseObject responseObject;
+        Child child = childService.findChildByChildId(childId, Boolean.FALSE);
+        if (updateChildProfileRequestDTO.getFirstName() != null && !updateChildProfileRequestDTO.getFirstName().isEmpty()) {
+            child.setFirstName(updateChildProfileRequestDTO.getFirstName());
         }
-//        if (verifyParentRequestDTO.getToken().longValue() == child.getCreatedDate()) {
-//
-//            child.setPushToken(verifyParentRequestDTO.getPushToken());
-//            childService.saveChildToSystem(child);
+        if (updateChildProfileRequestDTO.getLastName() != null && !updateChildProfileRequestDTO.getLastName().isEmpty()) {
+            child.setLastName(updateChildProfileRequestDTO.getLastName());
+        }
+        if (updateChildProfileRequestDTO.getAge() != null && !updateChildProfileRequestDTO.getAge().toString().isEmpty()) {
+            child.setYob(updateChildProfileRequestDTO.getAge());
+        }
+        if (updateChildProfileRequestDTO.getNickName() != null && !updateChildProfileRequestDTO.getNickName().isEmpty()) {
+            child.setNickName(updateChildProfileRequestDTO.getNickName());
+        }
+        if (updateChildProfileRequestDTO.getGender() != null && !updateChildProfileRequestDTO.getGender().isEmpty()) {
+            if (updateChildProfileRequestDTO.getGender().equalsIgnoreCase("Male")) {
+                child.setGender(Boolean.TRUE);
+            } else {
+                child.setGender(Boolean.FALSE);
+            }
+        }
+        if (updateChildProfileRequestDTO.getLanguage() != null && !updateChildProfileRequestDTO.getLanguage().isEmpty()) {
+            if (updateChildProfileRequestDTO.getLanguage().equalsIgnoreCase("Vietnamese")) {
+                child.setLanguage(Boolean.TRUE);
+            } else {
+                child.setLanguage(Boolean.FALSE);
+            }
+        }
+        if (childPhoto != null) {
+            child.setPhoto(Util.saveImageToSystem(childId.toString(), "Avatar Updated", childPhoto));
+        }
 
-//            VerifyParentResponseDTO result = childService.verifyParentByScanQRCode(child, verifyParentRequestDTO.getParentPhoneNumber());
-//            if (result != null) {
-//                responseObject = new ResponseObject(Constants.CODE_200, "Verify successfully. Now parent and children can see each other");
-//                responseObject.setData(result);
-//                return new ResponseEntity<>(responseObject, HttpStatus.OK);
-//            }
-//            responseObject = new ResponseObject(Constants.CODE_500, "Server is down child cannot verify parent");
-//            return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
-//        } else {
-//            responseObject = new ResponseObject(Constants.CODE_400, "Token is not match");
-//            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
-//        }
+        UpdateChildProfileResponseDTO result = childService.updateChildProfile(child);
+        if (result != null) {
+            responseObject = new ResponseObject(Constants.CODE_200, "OK");
+            responseObject.setData(result);
+            return new ResponseEntity<>(responseObject, HttpStatus.OK);
+        }
+        responseObject = new ResponseObject(500, "Cannot update children profile");
+        return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @RequestMapping(value = "/task", method = RequestMethod.POST)

@@ -56,6 +56,9 @@ public class Parent implements Serializable {
     @Column(length = Integer.MAX_VALUE)
     private String pushToken;
 
+    @Column(length = 100)
+    private String email;
+
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
     @EqualsAndHashCode.Exclude // không sử dụng trường này trong equals và hashcode
     @ToString.Exclude // Không sử dụng trong toString()

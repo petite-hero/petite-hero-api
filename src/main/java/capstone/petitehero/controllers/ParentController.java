@@ -2,19 +2,31 @@ package capstone.petitehero.controllers;
 
 import capstone.petitehero.config.common.Constants;
 import capstone.petitehero.dtos.ResponseObject;
+import capstone.petitehero.dtos.common.ChildInformation;
 import capstone.petitehero.dtos.request.child.AddChildRequestDTO;
 import capstone.petitehero.dtos.request.parent.ParentRegisterRequestDTO;
+import capstone.petitehero.dtos.request.parent.ParentUpdateProfileRequestDTO;
 import capstone.petitehero.dtos.request.parent.UpdatePushTokenRequestDTO;
 import capstone.petitehero.dtos.response.child.AddChildResponseDTO;
 import capstone.petitehero.dtos.response.parent.ParentProfileRegisterResponseDTO;
+import capstone.petitehero.dtos.response.parent.ParentUpdateProfileResponseDTO;
+import capstone.petitehero.entities.Child;
 import capstone.petitehero.entities.Parent;
 import capstone.petitehero.services.AccountService;
 import capstone.petitehero.services.ChildService;
+import capstone.petitehero.services.ParentChildService;
 import capstone.petitehero.services.ParentService;
+import capstone.petitehero.utilities.Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.Date;
+import java.util.List;
+
+import static org.springframework.http.MediaType.*;
 
 
 @RestController
@@ -28,12 +40,16 @@ public class ParentController {
     private ChildService childService;
 
     @Autowired
+    private ParentChildService parentChildService;
+
+    @Autowired
     private AccountService accountService;
 
-    @RequestMapping(value = "/register-profile", method = RequestMethod.POST)
+    @RequestMapping(value = "/register-profile", method = RequestMethod.POST, consumes = ALL_VALUE)
     @ResponseBody
     // parent input basic information for them profile.
-    public ResponseEntity<Object> updateProfileAfterRegister(@RequestBody ParentRegisterRequestDTO parentRegisterRequestDTO) {
+    public ResponseEntity<Object> updateProfileAfterRegister(@ModelAttribute ParentRegisterRequestDTO parentRegisterRequestDTO,
+                                                             @RequestParam(value = "avatar", required = false) MultipartFile uploadFile) {
         ResponseObject responseObject;
 
         // validate mandatory fields
@@ -44,6 +60,16 @@ public class ParentController {
         if (parentRegisterRequestDTO.getLastName() == null || parentRegisterRequestDTO.getLastName().isEmpty()) {
             responseObject = new ResponseObject(Constants.CODE_400, "Last name cannot be missing or be empty");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+        }
+        if (parentRegisterRequestDTO.getEmail() == null || parentRegisterRequestDTO.getEmail().isEmpty()) {
+            responseObject = new ResponseObject(Constants.CODE_400, "Email cannot be missing or be empty");
+            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+        } else {
+            Util util = new Util();
+            if (!util.validateEmail(parentRegisterRequestDTO.getEmail())) {
+                responseObject = new ResponseObject(Constants.CODE_400, "Email is not valid");
+                return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+            }
         }
         if (parentRegisterRequestDTO.getPassword() == null || parentRegisterRequestDTO.getPassword().isEmpty()) {
             responseObject = new ResponseObject(Constants.CODE_400, "Password cannot be missing or be empty");
@@ -75,6 +101,7 @@ public class ParentController {
                 parent.setFirstName(parentRegisterRequestDTO.getFirstName());
                 parent.setLastName(parentRegisterRequestDTO.getLastName());
                 parent.getAccount().setPassword(parentRegisterRequestDTO.getPassword());
+                parent.setEmail(parentRegisterRequestDTO.getEmail());
 
                 if (parentRegisterRequestDTO.getGender().equalsIgnoreCase("Male")) {
                     parent.setGender(Boolean.TRUE);
@@ -88,6 +115,12 @@ public class ParentController {
                     parent.setLanguage(Boolean.FALSE);
                 }
                 // end add basic parent information
+
+                // save avatar for parent
+                if (uploadFile != null && !uploadFile.isEmpty()) {
+
+                    parent.setPhoto(Util.saveImageToSystem(parentRegisterRequestDTO.getPhoneNumber(), "Avatar Added", uploadFile));
+                }
 
                 ParentProfileRegisterResponseDTO result = parentService.saveParentInformationToSystem(parent);
                 if (result != null) {
@@ -108,82 +141,60 @@ public class ParentController {
         return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-//    @RequestMapping(value = "/{phone}/children", method = RequestMethod.POST)
-//    @ResponseBody
-//    // Add child for parent
-//    public ResponseEntity<Object> addNewChild(@PathVariable("phone") String parentPhoneNumber, @RequestBody AddChildRequestDTO addChildRequestDTO) {
-//        ResponseObject responseObject;
-//
-//        // validate mandatory fields
-//        if (addChildRequestDTO.getFirstName() == null || addChildRequestDTO.getFirstName().isEmpty()) {
-//            responseObject = new ResponseObject(Constants.CODE_400, "Child's first name cannot be missing or empty");
-//            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
-//        }
-//        if (addChildRequestDTO.getLastName() == null || addChildRequestDTO.getLastName().isEmpty()) {
-//            responseObject = new ResponseObject(Constants.CODE_400, "Child's first name cannot be missing or empty");
-//            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
-//        }
-//        if (addChildRequestDTO.getYob() == null || addChildRequestDTO.getYob().toString().isEmpty()) {
-//            responseObject = new ResponseObject(Constants.CODE_400, "Child's year of birth cannot be missing or empty");
-//            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
-//        }
-//        if (addChildRequestDTO.getGender() == null || addChildRequestDTO.getGender().isEmpty()) {
-//            responseObject = new ResponseObject(Constants.CODE_400, "Gender cannot be missing or be empty");
-//            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
-//        }
-//        if (addChildRequestDTO.getLanguage() == null || addChildRequestDTO.getLanguage().isEmpty()) {
-//            responseObject = new ResponseObject(Constants.CODE_400, "Language cannot be missing or be empty");
-//            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
-//        }
-//        // end validate mandatory fields
-//
-//        Account parentAccount = accountService.findParentAccountByPhoneNumber(parentPhoneNumber);
-//
-//        if (parentAccount != null) {
-//            Child child = new Child();
-//            child.setFirstName(addChildRequestDTO.getFirstName());
-//            child.setLastName(addChildRequestDTO.getLastName());
-//            child.setYob(addChildRequestDTO.getYob());
-//            if (addChildRequestDTO.getNickName() != null) {
-//                child.setNickName(addChildRequestDTO.getNickName());
-//            }
-//            if (addChildRequestDTO.getPhoto() != null) {
-//                child.setPhoto(addChildRequestDTO.getPhoto());
-//            }
-//
-//            if (addChildRequestDTO.getGender().equalsIgnoreCase("Male")) {
-//                child.setGender(Boolean.TRUE);
-//            } else {
-//                child.setGender(Boolean.FALSE);
-//            }
-//
-//            if (addChildRequestDTO.getLanguage().equalsIgnoreCase("Vietnamese")) {
-//                child.setLanguage(Boolean.TRUE);
-//            } else {
-//                child.setLanguage(Boolean.FALSE);
-//            }
-//            child.setIsDisabled(Boolean.FALSE);
-//            child.setCreatedDate(new Date().getTime());
-//
-//            AddChildResponseDTO result = childService.addChildForParent(child);
-//            if (result != null) {
-//                result.setParentPhoneNumber(parentPhoneNumber);
-//                responseObject = new ResponseObject(Constants.CODE_200, "OK");
-//                responseObject.setData(result);
-//                return new ResponseEntity<>(responseObject, HttpStatus.OK);
-//            }
-//            responseObject = new ResponseObject(Constants.CODE_500, "Server is down cannot add your child to the system");
-//            return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
-//        } else {
-//            responseObject = new ResponseObject(Constants.CODE_404, "Cannot find your account in system to add child");
-//            return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
+    @RequestMapping(value = "/{phone}", method = RequestMethod.PUT, consumes = ALL_VALUE)
+    @ResponseBody
+    //updated profile for parent
+    public ResponseEntity<Object> updateParentProfile(@PathVariable("phone") String parentPhoneNumber,
+                                                      @ModelAttribute ParentUpdateProfileRequestDTO parentUpdateProfileRequestDTO,
+                                                      @RequestParam(value = "avatar", required = false) MultipartFile parentAvatar) {
+        ResponseObject responseObject;
 
-    @RequestMapping(value = "/{phone}/children", method = RequestMethod.POST)
+        Parent parent = parentService.findParentByPhoneNumber(parentPhoneNumber);
+
+        if (parentUpdateProfileRequestDTO.getFirstName() != null && !parentUpdateProfileRequestDTO.getFirstName().isEmpty()) {
+            parent.setFirstName(parentUpdateProfileRequestDTO.getFirstName());
+        }
+        if (parentUpdateProfileRequestDTO.getLastName() != null && !parentUpdateProfileRequestDTO.getLastName().isEmpty()) {
+            parent.setLastName(parentUpdateProfileRequestDTO.getLastName());
+        }
+        if (parentUpdateProfileRequestDTO.getEmail() != null && !parentUpdateProfileRequestDTO.getEmail().isEmpty()) {
+            parent.setEmail(parentUpdateProfileRequestDTO.getEmail());
+        }
+        if (parentUpdateProfileRequestDTO.getGender() != null && !parentUpdateProfileRequestDTO.getGender().isEmpty()) {
+            if (parentUpdateProfileRequestDTO.getGender().equalsIgnoreCase("Male")) {
+                parent.setGender(Boolean.TRUE);
+            } else {
+                parent.setGender(Boolean.FALSE);
+            }
+        }
+        if (parentUpdateProfileRequestDTO.getLanguage() != null && !parentUpdateProfileRequestDTO.getLanguage().isEmpty()) {
+            if (parentUpdateProfileRequestDTO.getLanguage().equalsIgnoreCase("Vietnamese")) {
+                parent.setLanguage(Boolean.TRUE);
+            } else {
+                parent.setLanguage(Boolean.FALSE);
+            }
+        }
+
+        if (parentAvatar != null) {
+            parent.setPhoto(Util.saveImageToSystem(parentPhoneNumber, "Avatar Updated", parentAvatar));
+        }
+
+        ParentUpdateProfileResponseDTO result = parentService.updateParentProfile(parent);
+        if (result != null) {
+            responseObject = new ResponseObject(Constants.CODE_200, "OK");
+            responseObject.setData(result);
+            return new ResponseEntity<>(responseObject, HttpStatus.OK);
+        }
+        responseObject = new ResponseObject(Constants.CODE_500, "Server is down cannot update your profile");
+        return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @RequestMapping(value = "/{phone}/children", method = RequestMethod.POST, consumes = ALL_VALUE)
     @ResponseBody
     // Add child for parent
-    public ResponseEntity<Object> addNewChild(@PathVariable("phone") String parentPhoneNumber, @RequestBody AddChildRequestDTO addChildRequestDTO) {
+    public ResponseEntity<Object> addNewChild(@PathVariable("phone") String parentPhoneNumber,
+                                              @ModelAttribute AddChildRequestDTO addChildRequestDTO,
+                                              @RequestParam(value = "childAvatar", required = false) MultipartFile childPhoto) {
         ResponseObject responseObject;
 
         // validate mandatory fields
@@ -209,19 +220,33 @@ public class ParentController {
         }
         // end validate mandatory fields
 
-//        Account parentAccount = accountService.findParentAccountByPhoneNumber(parentPhoneNumber);
+        Parent parentAccount = parentService.findParentByPhoneNumber(parentPhoneNumber);
 
-//        if (parentAccount != null) {
+        if (parentAccount != null) {
+            Child child = new Child();
+            child.setFirstName(addChildRequestDTO.getFirstName());
+            child.setLastName(addChildRequestDTO.getLastName());
+            child.setYob(addChildRequestDTO.getYob());
+            if (addChildRequestDTO.getNickName() != null) {
+                child.setNickName(addChildRequestDTO.getNickName());
+            }
 
-            AddChildResponseDTO result = new AddChildResponseDTO();
+            if (addChildRequestDTO.getGender().equalsIgnoreCase("Male")) {
+                child.setGender(Boolean.TRUE);
+            } else {
+                child.setGender(Boolean.FALSE);
+            }
 
-            result.setNickName(addChildRequestDTO.getNickName());
-            result.setFirstName(addChildRequestDTO.getFirstName());
-            result.setLastName(addChildRequestDTO.getLastName());
-            result.setLanguage(addChildRequestDTO.getLanguage());
-            result.setPhoto(addChildRequestDTO.getPhoto());
-            result.setGender(addChildRequestDTO.getGender());
-            result.setYob(addChildRequestDTO.getYob());
+            if (addChildRequestDTO.getLanguage().equalsIgnoreCase("Vietnamese")) {
+                child.setLanguage(Boolean.TRUE);
+            } else {
+                child.setLanguage(Boolean.FALSE);
+            }
+            child.setIsDisabled(Boolean.FALSE);
+            child.setCreatedDate(new Date().getTime());
+
+
+            AddChildResponseDTO result = childService.addChildForParent(child, parentAccount, childPhoto);
             if (result != null) {
                 result.setParentPhoneNumber(parentPhoneNumber);
                 responseObject = new ResponseObject(Constants.CODE_200, "OK");
@@ -230,15 +255,56 @@ public class ParentController {
             }
             responseObject = new ResponseObject(Constants.CODE_500, "Server is down cannot add your child to the system");
             return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
-//        } else {
-//            responseObject = new ResponseObject(Constants.CODE_404, "Cannot find your account in system to add child");
-//            return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
+        } else {
+            responseObject = new ResponseObject(Constants.CODE_404, "Cannot find your account in system to add child");
+            return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @RequestMapping(value = "/{childId}/regenerate-qrcode", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<Object> regenerateQRCodeForChildVerify(@PathVariable("childId") Long childId) {
+        ResponseObject responseObject;
+
+        AddChildResponseDTO result = childService.regenerateQRCodeForChildVerify(childId);
+        if (result != null) {
+            responseObject = new ResponseObject(Constants.CODE_200, "OK");
+            responseObject.setData(result);
+            return new ResponseEntity<>(responseObject, HttpStatus.OK);
+        }
+        responseObject = new ResponseObject(Constants.CODE_500, "Cannot regenerate qr code for child to verify");
+        return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @RequestMapping(value = "/token", method = RequestMethod.PUT)
     @ResponseBody
     public ResponseObject updateAccountPushToken (@RequestBody UpdatePushTokenRequestDTO data) {
         return parentService.updateAccountPushToken(data);
+    }
+
+    @RequestMapping(value = "/{phone}/collaborators", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<Object> getListCollaboratorOfParent(@PathVariable("phone") String phoneNumber) {
+        return null;
+    }
+
+    @RequestMapping(value = "/{phone}/children", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<Object> getListChildrenOfParent(@PathVariable("phone") String phoneNumber) {
+        ResponseObject responseObject;
+
+        List<ChildInformation> result = parentChildService.getListChildOfParent(phoneNumber);
+        if (result != null) {
+            if (result.isEmpty()) {
+                responseObject = new ResponseObject(Constants.CODE_200, "Your list children is empty");
+                return new ResponseEntity<>(responseObject, HttpStatus.OK);
+            } else {
+                responseObject = new ResponseObject(Constants.CODE_200, "OK");
+                responseObject.setData(result);
+                return new ResponseEntity<>(responseObject, HttpStatus.OK);
+            }
+        }
+        responseObject = new ResponseObject(Constants.CODE_500, "Cannot get your children in the system");
+        return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

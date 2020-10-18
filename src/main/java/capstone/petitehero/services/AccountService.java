@@ -3,6 +3,7 @@ package capstone.petitehero.services;
 import capstone.petitehero.config.jwt.PetiteHeroUserDetailService;
 import capstone.petitehero.dtos.request.admin.AccountLoginDTO;
 import capstone.petitehero.dtos.response.account.AccountLoginResponseDTO;
+import capstone.petitehero.dtos.response.account.LoginResponseDTO;
 import capstone.petitehero.entities.Account;
 import capstone.petitehero.exceptions.DuplicateKeyException;
 import capstone.petitehero.repositories.AccountRepository;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -53,7 +55,7 @@ public class AccountService {
         }
     }
 
-    public String loginAccount(AccountLoginDTO accountLoginDTO) {
+    public LoginResponseDTO loginAccount(AccountLoginDTO accountLoginDTO) {
         Account account = accountRepository.findAdminByUsernameEqualsAndPasswordEquals(accountLoginDTO.getUsername(), accountLoginDTO.getPassword());
         if (account != null) {
             try {
@@ -64,9 +66,18 @@ public class AccountService {
 
                 UserDetails userDetails = petiteHeroUserDetailService.loadUserByUsername(account.getUsername());
 
-                return jwtUtil.generateToken(userDetails);
-            } catch (Exception e) {
-                return "Server down";
+                String token = jwtUtil.generateToken(userDetails);
+
+                LoginResponseDTO result = new LoginResponseDTO();
+                if (account.getRole().equals("Parent")) {
+                    result.setJwt(token);
+                    result.setPhoneNumber(account.getUsername());
+                } else {
+                    result.setJwt(token);
+                }
+                return result;
+            } catch (UsernameNotFoundException usernameNotFoundException) {
+                return null;
             }
         }
         return null;

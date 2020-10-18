@@ -28,6 +28,7 @@ public class Constants {
     public static final String COMMITED = "6";
     public static final String FINISHED_CONFIRMED = "7";
     public static final String CANNOT_FINISH_CONFIRMED = "8";
+    public static final String UPLOAD_FOLDER = "images/";
 
     // error messages
     public static final String NO_VALUE_PRESENT = "No value present";

@@ -2,6 +2,7 @@ package capstone.petitehero.dtos.request.parent;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.Serializable;
 
@@ -16,4 +17,5 @@ public class ParentRegisterRequestDTO implements Serializable {
     private String lastName;
     private String gender;
     private String language;
+    private String email;
 }

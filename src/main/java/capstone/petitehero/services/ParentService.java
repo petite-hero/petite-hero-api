@@ -5,6 +5,7 @@ import capstone.petitehero.dtos.ResponseObject;
 import capstone.petitehero.dtos.request.parent.UpdatePushTokenRequestDTO;
 import capstone.petitehero.dtos.response.parent.ParentProfileRegisterResponseDTO;
 import capstone.petitehero.dtos.response.parent.ParentRegisterResponseDTO;
+import capstone.petitehero.dtos.response.parent.ParentUpdateProfileResponseDTO;
 import capstone.petitehero.entities.Parent;
 import capstone.petitehero.repositories.ParentRepository;
 import capstone.petitehero.utilities.Util;
@@ -49,7 +50,10 @@ public class ParentService {
             result.setPhoneNumber(parentResult.getAccount().getUsername());
             result.setFirstName(parentResult.getFirstName());
             result.setLastName(parentResult.getLastName());
-            result.setPhoto(parentResult.getPhoto());
+
+            if (parentResult.getPhoto() != null && !parentResult.getPhoto().isEmpty()) {
+                result.setPhoto(Util.fromImageFileToBase64String(parentResult.getPhoto()));
+            }
             if (parentResult.getLanguage() != null) {
                 if (parentResult.getLanguage().booleanValue()) {
                     result.setLanguage("Vietnamese");
@@ -105,5 +109,38 @@ public class ParentService {
             result.setCode(Constants.CODE_500);
         }
         return  result;
+    }
+
+    public ParentUpdateProfileResponseDTO updateParentProfile(Parent parent) {
+        Parent parentResult = parentRepository.save(parent);
+
+        if (parentResult != null) {
+            ParentUpdateProfileResponseDTO result = new ParentUpdateProfileResponseDTO();
+
+            result.setFirstName(parentResult.getFirstName());
+            result.setLastName(parentResult.getLastName());
+            result.setEmail(parentResult.getEmail());
+            if (parentResult.getGender() != null) {
+                if (parentResult.getGender().booleanValue()) {
+                    result.setGender("Male");
+                } else {
+                    result.setGender("Female");
+                }
+            }
+            if (parentResult.getLanguage() != null) {
+                if (parentResult.getLanguage().booleanValue()) {
+                    result.setLanguage("Vietnamese");
+                } else {
+                    result.setLanguage("English");
+                }
+            }
+            if (parentResult.getPhoto() != null && !parentResult.getPhoto().isEmpty()) {
+                result.setPhoto(Util.fromImageFileToBase64String(parentResult.getPhoto()));
+            }
+            result.setStatus("Updated");
+
+            return result;
+        }
+        return null;
     }
 }

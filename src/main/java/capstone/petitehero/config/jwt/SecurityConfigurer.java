@@ -35,7 +35,9 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
                 .antMatchers("/account/admin/register").permitAll()
                 .antMatchers("/account/parent/register").permitAll()
                 .antMatchers("/parent/register-profile").permitAll()
+                .antMatchers("/parent/{phone}").permitAll()
                 .antMatchers("/parent/{phone}/children").permitAll()
+                .antMatchers("/parent/{childId}/regenerate-qrcode").permitAll()
                 .antMatchers("/child/verify/parent").permitAll()
                 .antMatchers("/child/{childId}/tasks").permitAll()
                 .antMatchers("/location/current-location").permitAll()
@@ -51,7 +53,7 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
                 .antMatchers("/task/list/{childId}").permitAll()
                 .antMatchers("/quest/list/{childId}").permitAll()
                 .antMatchers("/quest/{questId}").permitAll()
-                .antMatchers("/child/test").permitAll()
+                .antMatchers("/child/{childId}").permitAll()
                 .anyRequest().authenticated()
                 .and().sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
