@@ -67,4 +67,8 @@ public class Util {
             return null;
         }
     }
+
+    public static boolean validatePasswordForAllAccount(String password) {
+        return password.matches("[a-zA-Z0-9]{6,8}");
+    }
 }

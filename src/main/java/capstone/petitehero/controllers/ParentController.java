@@ -4,6 +4,7 @@ import capstone.petitehero.config.common.Constants;
 import capstone.petitehero.dtos.ResponseObject;
 import capstone.petitehero.dtos.common.ChildInformation;
 import capstone.petitehero.dtos.request.child.AddChildRequestDTO;
+import capstone.petitehero.dtos.request.parent.ParentChangePasswordRequestDTO;
 import capstone.petitehero.dtos.request.parent.ParentRegisterRequestDTO;
 import capstone.petitehero.dtos.request.parent.ParentUpdateProfileRequestDTO;
 import capstone.petitehero.dtos.request.parent.UpdatePushTokenRequestDTO;
@@ -75,10 +76,18 @@ public class ParentController {
             responseObject = new ResponseObject(Constants.CODE_400, "Password cannot be missing or be empty");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
+        if (!Util.validatePasswordForAllAccount(parentRegisterRequestDTO.getPassword())) {
+            responseObject = new ResponseObject(Constants.CODE_400, "Password should between 6-8 characters and no special characters");
+            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+        }
         if (parentRegisterRequestDTO.getConfirmPassword() == null || parentRegisterRequestDTO.getConfirmPassword().isEmpty()) {
             responseObject = new ResponseObject(Constants.CODE_400, "Confirm password cannot be missing or be empty");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         } else {
+            if (!Util.validatePasswordForAllAccount(parentRegisterRequestDTO.getConfirmPassword())) {
+                responseObject = new ResponseObject(Constants.CODE_400, "Password should between 6-8 characters and no special characters");
+                return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+            }
             if (!parentRegisterRequestDTO.getPassword().equals(parentRegisterRequestDTO.getConfirmPassword())) {
                 responseObject = new ResponseObject(Constants.CODE_400, "Password and confirm password is not match");
                 return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
@@ -280,6 +289,51 @@ public class ParentController {
     @ResponseBody
     public ResponseObject updateAccountPushToken (@RequestBody UpdatePushTokenRequestDTO data) {
         return parentService.updateAccountPushToken(data);
+    }
+
+    @RequestMapping(value = "/{phone}/password", method = RequestMethod.PUT)
+    @ResponseBody
+    public ResponseEntity<Object> changePasswordForParent(@PathVariable("phone") String parentPhoneNumber,
+                                                          @RequestBody ParentChangePasswordRequestDTO parentChangePasswordRequestDTO) {
+        ResponseObject responseObject;
+        if (parentChangePasswordRequestDTO.getPassword() == null || parentChangePasswordRequestDTO.getPassword().isEmpty()) {
+            responseObject = new ResponseObject(Constants.CODE_400, "New password cannot be null");
+            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+        }
+        if (!Util.validatePasswordForAllAccount(parentChangePasswordRequestDTO.getPassword())) {
+            responseObject = new ResponseObject(Constants.CODE_400, "Password should between 6-8 characters and no special characters");
+            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+        }
+        if (parentChangePasswordRequestDTO.getConfirmPassword() == null || parentChangePasswordRequestDTO.getConfirmPassword().isEmpty()) {
+            responseObject = new ResponseObject(Constants.CODE_400, "Confirm password cannot be null");
+            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+        } else {
+            if (!Util.validatePasswordForAllAccount(parentChangePasswordRequestDTO.getConfirmPassword())) {
+                responseObject = new ResponseObject(Constants.CODE_400, "Password should between 6-8 characters and no special characters");
+                return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+            }
+            if (!parentChangePasswordRequestDTO.getConfirmPassword().equals(parentChangePasswordRequestDTO.getPassword())) {
+                responseObject = new ResponseObject(Constants.CODE_400, "Password and confirm password is not match");
+                return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+            }
+        }
+
+        Parent parent = parentService.findParentByPhoneNumber(parentPhoneNumber);
+        if (parent != null) {
+            parent.getAccount().setPassword(parentChangePasswordRequestDTO.getPassword());
+
+            String result = parentService.changeParentAccountPassword(parent);
+            if (result != null) {
+                responseObject = new ResponseObject(Constants.CODE_200, "OK");
+                responseObject.setData(result);
+                return new ResponseEntity<>(responseObject, HttpStatus.OK);
+            }
+        } else {
+            responseObject = new ResponseObject(Constants.CODE_404, "Cannot found your parent account in the system");
+            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+        }
+        responseObject = new ResponseObject(Constants.CODE_500, "Server is down cannot change password");
+        return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @RequestMapping(value = "/{phone}/collaborators", method = RequestMethod.GET)

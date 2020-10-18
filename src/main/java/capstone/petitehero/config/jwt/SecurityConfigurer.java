@@ -37,6 +37,7 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
                 .antMatchers("/parent/register-profile").permitAll()
                 .antMatchers("/parent/{phone}").permitAll()
                 .antMatchers("/parent/{phone}/children").permitAll()
+                .antMatchers("/parent/{phone}/password").permitAll()
                 .antMatchers("/parent/{childId}/regenerate-qrcode").permitAll()
                 .antMatchers("/child/verify/parent").permitAll()
                 .antMatchers("/child/{childId}/tasks").permitAll()

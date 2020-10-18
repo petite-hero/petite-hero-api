@@ -143,4 +143,12 @@ public class ParentService {
         }
         return null;
     }
+
+    public String changeParentAccountPassword(Parent parent){
+        Parent result = parentRepository.save(parent);
+        if (result != null) {
+            return "New password has updated";
+        }
+        return null;
+    }
 }
