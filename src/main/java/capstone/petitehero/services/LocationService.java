@@ -151,9 +151,9 @@ public class LocationService {
             } else {
                 PushSilentNotiSWDTO data = new PushSilentNotiSWDTO();
                 if (emergency) {
-                    data.setTitle(Constants.EMERGENCY);
+                    data.setData(Constants.EMERGENCY);
                 } else {
-                    data.setTitle(Constants.STOP_EMERGENCY);
+                    data.setData(Constants.STOP_EMERGENCY);
                 }
                 getLatestChildLocation(childId);
                 pushSilentNotificationSW(data, child.getPushToken());
