@@ -4,6 +4,7 @@ import capstone.petitehero.config.common.Constants;
 import capstone.petitehero.dtos.ParentChildPushTokenDTO;
 import capstone.petitehero.dtos.ResponseObject;
 import capstone.petitehero.dtos.request.location.AddLocationRequestDTO;
+import capstone.petitehero.dtos.request.location.PushSilentNotiSWDTO;
 import capstone.petitehero.dtos.response.location.GetLastestLocationResponseDTO;
 import capstone.petitehero.dtos.response.location.GetListByTimeResponseDTO;
 import capstone.petitehero.entities.Child;
@@ -21,7 +22,10 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
+import sun.net.www.protocol.http.HttpURLConnection;
 
+import java.io.*;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -63,13 +67,13 @@ public class LocationService {
                 } else {
                     if (emergency) {
                         ArrayList<String> tokens = locationRepository.getParentPushToken(sentLocation.getChild());
-                        pushSilentNotifications(sentLocation, tokens);
+                        pushSilentNotificationMobile(sentLocation, tokens);
                     } else {
                         LocationHistory latestLocation = locationRepository.findLatestLocation(child.getChildId());
 //                        LocationHistory latestLocation = (LocationHistory) getLatestChildLocation(sentLocation.getChild()).getData();
                         if (location.getStatus() != latestLocation.getStatus()) {
                             ArrayList<String> tokens = locationRepository.getParentPushToken(sentLocation.getChild());
-                            pushSilentNotifications(sentLocation, tokens);
+                            pushSilentNotificationMobile(sentLocation, tokens);
                         }
                     }
                     result.setData(sentLocation);
@@ -137,12 +141,24 @@ public class LocationService {
         return result;
     }
 
-
-
     public ResponseObject updateEmergencyStatus(Long childId, Boolean emergency) {
         ResponseObject result = Util.createResponse();
         try {
-
+            Child child = childRepository.getOne(childId);
+            if (child == null) {
+                result.setMsg("Bad Request - Child ID doesn't exist");
+                result.setCode(Constants.CODE_400);
+            } else {
+                PushSilentNotiSWDTO data = new PushSilentNotiSWDTO();
+                if (emergency) {
+                    data.setTitle(Constants.EMERGENCY);
+                } else {
+                    data.setTitle(Constants.STOP_EMERGENCY);
+                }
+                getLatestChildLocation(childId);
+                pushSilentNotificationSW(data, child.getPushToken());
+                result.setMsg("Update emergency successfully!");
+            }
         } catch (Exception e) {
             result.setData(null);
             result.setMsg(Constants.SERVER_ERROR + e.toString());
@@ -151,12 +167,12 @@ public class LocationService {
         return result;
     }
 
-    public void pushSilentNotifications(Object data, ArrayList<String> pushTokens) {
+    public void pushSilentNotificationMobile(Object data, ArrayList<String> pushTokens) {
         HttpClient httpClient = HttpClientBuilder.create().build();
         try {
             HttpPost request = new HttpPost(Constants.EXPO_PUSH_NOTI_URL);
             HashMap<String, Object> body = new HashMap<String, Object>();
-			body.put("data", new Gson().toJson(data));
+            body.put("data", new Gson().toJson(data));
             body.put("to", pushTokens);
             StringEntity bodyJson = new StringEntity(new Gson().toJson(body));
 
@@ -165,6 +181,30 @@ public class LocationService {
             request.setHeader(HttpHeaders.ACCEPT, "application/json");
             request.setHeader(HttpHeaders.ACCEPT_ENCODING, "gzip, deflate");
             request.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
+            request.setEntity(bodyJson);
+
+            HttpResponse response = httpClient.execute(request);
+            // handle response here...
+            System.out.println(response.getStatusLine());
+
+        } catch (Exception ex) {
+            System.out.println(Constants.SERVER_ERROR + ex.toString());
+            ex.printStackTrace();
+        }
+    }
+
+    public static void pushSilentNotificationSW(Object data, String pushToken) {
+        HttpClient httpClient = HttpClientBuilder.create().build();
+        try {
+            HttpPost request = new HttpPost(Constants.FCM_PUSH_NOTI_URL);
+            HashMap<String, Object> body = new HashMap<String, Object>();
+            body.put("data", data);
+            body.put("to", pushToken);
+            StringEntity bodyJson = new StringEntity(new Gson().toJson(body));
+
+            // headers specified by FCM to request push notifications
+            request.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
+            request.setHeader(HttpHeaders.AUTHORIZATION, Constants.FCM_SERVER_KEY);
             request.setEntity(bodyJson);
 
             HttpResponse response = httpClient.execute(request);
@@ -248,4 +288,9 @@ public class LocationService {
 //                filteredData.add(temp);
 //            }
 //        }
+//    public static void main(String[] args) {
+//        PushSilentNotiSWDTO obj = new PushSilentNotiSWDTO("emergency", "This is body", null);
+//        PushSilentNotiSWDTO obj = new PushSilentNotiSWDTO("stop_emergency", "This is body", null);
+//        pushSilentNotificationSW(obj,"fHyv-M43R2mFkEeAFB4Y0V:APA91bErIx0LNb5EHDIasKlu2Or_3ZZ6z9buxB85MGTTmCRiGFgZR-c0JKk5F58T81B9xYxWDB6VhsF_mzrxcHq8J_ru9kJzWf0ARgZnBAD0r3aP483aZtPecblYODl_6JDnDBRLpEWf");
+//}
 }

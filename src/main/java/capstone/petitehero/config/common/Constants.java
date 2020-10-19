@@ -42,9 +42,14 @@ public class Constants {
     public static final boolean SUCCESS = true;
     public static final boolean FAILED = false;
 
+    public static final String EMERGENCY = "emergency";
+    public static final String STOP_EMERGENCY = "stop_emergency";
+
     public static final String SERVER_ERROR = "Server Error: ";
 
     public static final String EXPO_PUSH_NOTI_URL = "https://exp.host/--/api/v2/push/send";
+    public static final String FCM_PUSH_NOTI_URL = "https://fcm.googleapis.com/fcm/send";
+    public static final String FCM_SERVER_KEY = "key=AAAAWmX8LRw:APA91bHacypoqkRBPkNfT7IN82EHqpvhE9DG_zI_2GmXWAqdlcPb6iX7gLVja2EgsUb1_hUS2E_oV_ZuMCcy8am0vvxLrLt-vbahzg5owmXsOZKKLJSJDLUsoM0Pf-zz3psSb_Wsuexa";
 
     public static final Long ONE_HOUR_IN_MILLISECOND = Long.parseLong("3600000");
 }
