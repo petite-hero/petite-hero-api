@@ -61,7 +61,7 @@ public class LocationController {
 
     @RequestMapping(value = "/emergency/{child}/{emergency}", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseObject getSafeZoneDetail(@PathVariable(value = "child") Long child, @PathVariable(value = "emergency") Boolean emergency) {
+    public ResponseObject updateEmergencyState(@PathVariable(value = "child") Long child, @PathVariable(value = "emergency") Boolean emergency) {
         return locationService.updateEmergencyStatus(child ,emergency);
     }
 }
