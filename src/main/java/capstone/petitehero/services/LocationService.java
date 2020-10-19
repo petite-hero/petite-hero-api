@@ -74,7 +74,7 @@ public class LocationService {
             }
         } catch (Exception e) {
             result.setData(null);
-            result.setMsg("Server Error: " + e.toString());
+            result.setMsg(Constants.SERVER_ERROR + e.toString());
             result.setCode(Constants.CODE_500);
         }
         return result;
@@ -101,7 +101,7 @@ public class LocationService {
             result.setMsg("Get data successfully!");
         } catch (Exception e) {
             result.setData(null);
-            result.setMsg("Server Error: " + e.toString());
+            result.setMsg(Constants.SERVER_ERROR + e.toString());
             result.setCode(Constants.CODE_500);
         }
         return result;
@@ -127,7 +127,7 @@ public class LocationService {
             result.setMsg("Get data successfully!");
         } catch (Exception e) {
             result.setData(null);
-            result.setMsg("Server Error: " + e.toString());
+            result.setMsg(Constants.SERVER_ERROR + e.toString());
             result.setCode(Constants.CODE_500);
         }
         return result;
@@ -135,13 +135,13 @@ public class LocationService {
 
 
 
-    public ResponseObject updateEmergencyStatus(Long childId) {
+    public ResponseObject updateEmergencyStatus(Long childId, Boolean emergency) {
         ResponseObject result = Util.createResponse();
         try {
 
         } catch (Exception e) {
             result.setData(null);
-            result.setMsg("Server Error: " + e.toString());
+            result.setMsg(Constants.SERVER_ERROR + e.toString());
             result.setCode(Constants.CODE_500);
         }
         return result;
@@ -168,7 +168,7 @@ public class LocationService {
             System.out.println(response.getStatusLine());
 
         } catch (Exception ex) {
-            System.out.println("===> Error at Push Notification API: " + ex.toString());
+            System.out.println(Constants.SERVER_ERROR + ex.toString());
             ex.printStackTrace();
         }
     }

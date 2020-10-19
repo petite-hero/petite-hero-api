@@ -58,4 +58,10 @@ public class LocationController {
     public ResponseObject getSafeZoneDetail(@PathVariable(value = "safezoneId") Long safezoneId) {
         return safeZoneService.getSafeZoneDetail(safezoneId);
     }
+
+    @RequestMapping(value = "/emergency/{child}/{emergency}", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseObject getSafeZoneDetail(@PathVariable(value = "child") Long child, @PathVariable(value = "emergency") Boolean emergency) {
+        return locationService.updateEmergencyStatus(child ,emergency);
+    }
 }

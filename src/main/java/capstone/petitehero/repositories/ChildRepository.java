@@ -8,4 +8,5 @@ import org.springframework.stereotype.Repository;
 public interface ChildRepository extends JpaRepository<Child, Long> {
 
     Child findChildByChildIdEqualsAndIsDisabled(Long childId, Boolean isDisable);
+
 }

@@ -9,16 +9,15 @@ public class Constants {
     public static final boolean IS_DELETED = true;
     public static final boolean IS_NOT_READ = false;
     public static final boolean IS_READ = true;
-    public static final boolean SAFE = true;
-    public static final boolean NOT_SAFE = false;
 
     // role values
-    public static final String USER = "User";
-    public static final String MANAGER = "Manager";
-    public static final String ADMIN = "Admin";
+    public static final String PARENT = "parent";
+    public static final String ADMIN = "admin";
 
 
     // status values
+    public static final boolean SAFE = true;
+    public static final boolean NOT_SAFE = false;
     public static final String WAITING_FOR_ACCEPT = "0";
     public static final String ACCEPTED = "1";
     public static final String DECLINED = "2";
@@ -43,7 +42,7 @@ public class Constants {
     public static final boolean SUCCESS = true;
     public static final boolean FAILED = false;
 
-    public static final String SERVER_ERROR = "Server error";
+    public static final String SERVER_ERROR = "Server Error: ";
 
     public static final String EXPO_PUSH_NOTI_URL = "https://exp.host/--/api/v2/push/send";
 

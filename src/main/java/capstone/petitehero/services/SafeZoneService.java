@@ -83,7 +83,7 @@ public class SafeZoneService {
             }
         } catch (Exception e) {
             result.setData(null);
-            result.setMsg("Server Error: " + e.toString());
+            result.setMsg(Constants.SERVER_ERROR + e.toString());
             result.setCode(Constants.CODE_500);
         }
         return  result;
@@ -102,7 +102,7 @@ public class SafeZoneService {
                 List<GetListByDateResponseDTO> filteredData = new ArrayList<>();
                 GetListByDateResponseDTO temp;
                 for (Safezone safezone : rawData) {
-                    temp = new GetListByDateResponseDTO(safezone.getSafezoneId(), safezone.getName(), safezone.getLatitude(), safezone.getLongitude(), safezone.getFromTime(), safezone.getToTime(), safezone.getType());
+                    temp = new GetListByDateResponseDTO(safezone.getSafezoneId(), safezone.getName(), safezone.getLatitude(), safezone.getLongitude(), safezone.getRadius(), safezone.getRepeatOn(), safezone.getFromTime(), safezone.getToTime(), safezone.getType());
                     filteredData.add(temp);
                 }
                 result.setData(filteredData);
@@ -110,7 +110,7 @@ public class SafeZoneService {
             }
         } catch (Exception e) {
             result.setData(null);
-            result.setMsg("Server Error: " + e.toString());
+            result.setMsg(Constants.SERVER_ERROR + e.toString());
             result.setCode(Constants.CODE_500);
         }
         return result;
@@ -145,92 +145,9 @@ public class SafeZoneService {
             }
         } catch (Exception e) {
             result.setData(null);
-            result.setMsg("Server Error: " + e.toString());
+            result.setMsg(Constants.SERVER_ERROR + e.toString());
             result.setCode(Constants.CODE_500);
         }
-        return  result;
+        return result;
     }
-
-
-
-//    public ResponseObject getListByTime(Long childId, Long from, Long to) {
-//        ResponseObject result = Util.createResponse();
-//
-//        List<LocationHistory> rawData = locationRepository.getListByTime(childId, from, to);
-//        List<GetListByTimeResponseDTO> filteredData = new ArrayList<>();
-//
-//        for (LocationHistory location : rawData) {
-//            GetListByTimeResponseDTO temp = new GetListByTimeResponseDTO();
-//            temp.setLatitude(location.getLatitude());
-//            temp.setLongitude(location.getLongitude());
-//            temp.setStatus(location.getStatus());
-//            temp.setTime(location.getTime());
-//            filteredData.add(temp);
-//        }
-//
-//        result.setData(filteredData);
-//        result.setMsg("Get data successfully!");
-//        return result;
-//    }
-//
-//    public ResponseObject getLatestChildLocation(Long childId) {
-//        ResponseObject result = Util.createResponse();
-//        Child child = childRepository.getOne(childId);
-//
-//        if (child == null) {
-//            result.setMsg("Bad Request - Child ID doesn't exist");
-//            result.setCode(Constants.CODE_400);
-//            return result;
-//        }
-//
-//        LocationHistory location = locationRepository.findLastestLocation(childId);
-//        GetLastestLocationResponseDTO latestLocation = new GetLastestLocationResponseDTO();
-//        latestLocation.setLatitude(location.getLatitude());
-//        latestLocation.setLongitude(location.getLongitude());
-//        latestLocation.setStatus(location.getStatus());
-//        result.setData(latestLocation);
-//        result.setMsg("Get data successfully!");
-//        return result;
-//    }
-//
-//
-//    public void pushNotifications(String titleMsg, String bodyMsg) {
-//        HttpClient httpClient = HttpClientBuilder.create().build();
-//        try {
-//            HttpPost request = new HttpPost(Constants.EXPO_PUSH_NOTI_URL);
-//
-//            HashMap<String, Object> body = new HashMap<String, Object>();
-//
-////            body.put("title", titleMsg);
-////            body.put("body", bodyMsg);
-//            body.put("sound", "default");
-//			body.put("data", "{\"name\":\"Enri\"}");
-//            // body.put("subtitle", "This is Subtitle message");
-//            // body.put("badge", "1"); // this indicates the number of notification number on your application icon
-//
-////            ArrayList<String> pushToTokens = new ArrayList<String>();
-////            for (HashMap.Entry<Long, String> entry : pushTokens.entrySet()) {
-//////				if (!pushToTokens.contains(entry.getValue())) {
-////                pushToTokens.add(entry.getValue());
-//////				}
-////            }
-//            body.put("to", "ExponentPushToken[te1ST8Mh6fwgf_AlThdTl3]");
-//            StringEntity bodyJson = new StringEntity(new Gson().toJson(body));
-//
-//            // headers specified by Expo to request push notifications
-//            request.setHeader(HttpHeaders.HOST, "exp.host");
-//            request.setHeader(HttpHeaders.ACCEPT, "application/json");
-//            request.setHeader(HttpHeaders.ACCEPT_ENCODING, "gzip, deflate");
-//            request.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
-//            request.setEntity(bodyJson);
-//
-//            HttpResponse response = httpClient.execute(request);
-//            // handle response here...
-//            System.out.println(response.getStatusLine());
-//
-//        } catch (Exception ex) {
-//            System.out.println("===> Error at Push Notification API");
-//            ex.printStackTrace();
-//        }
-//    }
 }

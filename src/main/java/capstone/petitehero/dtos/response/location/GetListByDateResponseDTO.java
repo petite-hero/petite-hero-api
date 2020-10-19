@@ -12,6 +12,8 @@ public class GetListByDateResponseDTO {
     private String name;
     private Double latitude;
     private Double longitude;
+    private Integer radius;
+    private String repeatOn;
     private Date fromTime;
     private Date toTime;
     private String type;
@@ -20,11 +22,13 @@ public class GetListByDateResponseDTO {
 
     }
 
-    public GetListByDateResponseDTO(Long safezoneId, String name, Double latitude, Double longitude, Date fromTime, Date toTime, String type) {
+    public GetListByDateResponseDTO(Long safezoneId, String name, Double latitude, Double longitude, Integer radius, String repeatOn, Date fromTime, Date toTime, String type) {
         this.safezoneId = safezoneId;
         this.name = name;
         this.latitude = latitude;
         this.longitude = longitude;
+        this.radius = radius;
+        this.repeatOn = repeatOn;
         this.fromTime = fromTime;
         this.toTime = toTime;
         this.type = type;
