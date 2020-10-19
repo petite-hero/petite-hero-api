@@ -29,6 +29,7 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -150,4 +151,21 @@ public class SafeZoneService {
         }
         return result;
     }
+
+//    public void pushSWNotification() {
+//        try {
+//            FileInputStream serviceAccount =
+//                    new FileInputStream("pure-display-290409-firebase-adminsdk-rhjpl-af1073d6dc.json");
+//
+//            FirebaseOptions options = new FirebaseOptions.Builder()
+//                    .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+//                    .setDatabaseUrl("https://pure-display-290409.firebaseio.com")
+//                    .build();
+//
+//            FirebaseApp.initializeApp(options);
+//        } catch (Exception e) {
+//
+//        }
+//
+//    }
 }

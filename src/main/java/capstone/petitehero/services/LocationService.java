@@ -39,7 +39,10 @@ public class LocationService {
     public ResponseObject recordLocationFromSW (AddLocationRequestDTO sentLocation, Boolean emergency) {
         ResponseObject result = Util.createResponse();
         try {
+
             Child child = childRepository.getOne(sentLocation.getChild());
+            System.out.println("====> " + child.getChildId());
+            System.out.println("====> " + child.getYob());
             if (child == null) {
                 result.setData(null);
                 result.setMsg("Bad request - Child doesn't exist");
@@ -62,7 +65,8 @@ public class LocationService {
                         ArrayList<String> tokens = locationRepository.getParentPushToken(sentLocation.getChild());
                         pushSilentNotifications(sentLocation, tokens);
                     } else {
-                        LocationHistory latestLocation = (LocationHistory) getLatestChildLocation(sentLocation.getChild()).getData();
+                        LocationHistory latestLocation = locationRepository.findLatestLocation(child.getChildId());
+//                        LocationHistory latestLocation = (LocationHistory) getLatestChildLocation(sentLocation.getChild()).getData();
                         if (location.getStatus() != latestLocation.getStatus()) {
                             ArrayList<String> tokens = locationRepository.getParentPushToken(sentLocation.getChild());
                             pushSilentNotifications(sentLocation, tokens);
@@ -118,7 +122,7 @@ public class LocationService {
                 return result;
             }
 
-            LocationHistory location = locationRepository.findLastestLocation(childId);
+            LocationHistory location = locationRepository.findLatestLocation(childId);
             GetLastestLocationResponseDTO latestLocation = new GetLastestLocationResponseDTO();
             latestLocation.setLatitude(location.getLatitude());
             latestLocation.setLongitude(location.getLongitude());

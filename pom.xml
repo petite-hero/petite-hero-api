@@ -110,7 +110,17 @@
 			<artifactId>commons-io</artifactId>
 			<version>2.6</version>
 		</dependency>
+
+		<!--&lt;!&ndash; https://mvnrepository.com/artifact/com.google.firebase/firebase-messaging &ndash;&gt;-->
+		<!--<dependency>-->
+			<!--<groupId>com.google.firebase</groupId>-->
+			<!--<artifactId>firebase-messaging</artifactId>-->
+			<!--<version>9.0.1</version>-->
+		<!--</dependency>-->
+
+
 	</dependencies>
+
 
 	<build>
 		<plugins>
