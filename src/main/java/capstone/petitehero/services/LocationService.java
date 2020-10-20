@@ -151,11 +151,12 @@ public class LocationService {
             } else {
                 PushSilentNotiSWDTO data = new PushSilentNotiSWDTO();
                 if (emergency) {
-                    data.setData(Constants.EMERGENCY);
+                    data.setTitle(Constants.EMERGENCY);
                 } else {
-                    data.setData(Constants.STOP_EMERGENCY);
+                    data.setTitle(Constants.STOP_EMERGENCY);
                 }
                 getLatestChildLocation(childId);
+                System.out.println("====> Child token: " + child.getPushToken());
                 pushSilentNotificationSW(data, child.getPushToken());
                 result.setMsg("Update emergency successfully!");
             }
@@ -201,6 +202,8 @@ public class LocationService {
             body.put("data", data);
             body.put("to", pushToken);
             StringEntity bodyJson = new StringEntity(new Gson().toJson(body));
+
+            System.out.println("===> Body sent: " + new Gson().toJson(body));
 
             // headers specified by FCM to request push notifications
             request.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
