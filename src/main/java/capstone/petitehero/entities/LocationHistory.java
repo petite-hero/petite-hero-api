@@ -31,6 +31,9 @@ public class LocationHistory implements Serializable {
     @Column
     private Boolean status;
 
+    @Column(length = 10)
+    private String provider;
+
     @ManyToOne
     @JoinColumn(name = "child_id")
     @EqualsAndHashCode.Exclude
