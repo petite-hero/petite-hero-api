@@ -18,13 +18,13 @@ public class AddNewSafeZoneRequestDTO {
     private Integer radius;
     private String type;
     private Long childId;
-    private Long creatorId;
+    private String creator;
 
     public AddNewSafeZoneRequestDTO() {
 
     }
 
-    public AddNewSafeZoneRequestDTO(String name, Double latitude, Double longitude, Date fromTime, Date toTime, Long date, String repeatOn, Integer radius, String type, Long childId, Long creatorId) {
+    public AddNewSafeZoneRequestDTO(String name, Double latitude, Double longitude, Date fromTime, Date toTime, Long date, String repeatOn, Integer radius, String type, Long childId, String creator) {
         this.name = name;
         this.latitude = latitude;
         this.longitude = longitude;
@@ -35,6 +35,6 @@ public class AddNewSafeZoneRequestDTO {
         this.radius = radius;
         this.type = type;
         this.childId = childId;
-        this.creatorId = creatorId;
+        this.creator = creator;
     }
 }

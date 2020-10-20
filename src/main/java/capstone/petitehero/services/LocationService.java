@@ -13,6 +13,7 @@ import capstone.petitehero.repositories.ChildRepository;
 import capstone.petitehero.repositories.LocationRepository;
 import capstone.petitehero.utilities.Util;
 import com.google.gson.Gson;
+import io.swagger.models.auth.In;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -65,19 +66,23 @@ public class LocationService {
                     result.setMsg("Bad request - No data provided");
                     result.setCode(Constants.CODE_400);
                 } else {
+                    ArrayList<String> tokens = locationRepository.getParentPushToken(sentLocation.getChild());
+                    Integer pushStatus = 100;
                     if (emergency) {
-                        ArrayList<String> tokens = locationRepository.getParentPushToken(sentLocation.getChild());
-                        pushSilentNotificationMobile(sentLocation, tokens);
+                        pushStatus = pushSilentNotificationMobile(sentLocation, tokens);
                     } else {
                         LocationHistory latestLocation = locationRepository.findLatestLocation(child.getChildId());
-//                        LocationHistory latestLocation = (LocationHistory) getLatestChildLocation(sentLocation.getChild()).getData();
                         if (location.getStatus() != latestLocation.getStatus()) {
-                            ArrayList<String> tokens = locationRepository.getParentPushToken(sentLocation.getChild());
-                            pushSilentNotificationMobile(sentLocation, tokens);
+                            pushStatus = pushSilentNotificationMobile(sentLocation, tokens);
                         }
                     }
+
+                    if (pushStatus == Constants.CODE_200) {
+                        result.setMsg(Constants.NO_ERROR);
+                    } else if (pushStatus == Constants.CODE_500) {
+                        result.setMsg("Error at pushSilentNotificationMobile");
+                    }
                     result.setData(sentLocation);
-                    result.setMsg(Constants.NO_ERROR);
                 }
             }
         } catch (Exception e) {
@@ -157,8 +162,12 @@ public class LocationService {
                 }
                 getLatestChildLocation(childId);
                 System.out.println("====> Child token: " + child.getPushToken());
-                pushSilentNotificationSW(data, child.getPushToken());
-                result.setMsg("Update emergency successfully!");
+                Integer pushStatus = pushSilentNotificationSW(data, child.getPushToken());
+                if (pushStatus == Constants.CODE_200) {
+                    result.setMsg("Update emergency successfully!");
+                } else if (pushStatus == Constants.CODE_500) {
+                    result.setMsg("Error at pushSilentNotificationSW");
+                }
             }
         } catch (Exception e) {
             result.setData(null);
@@ -168,8 +177,9 @@ public class LocationService {
         return result;
     }
 
-    public void pushSilentNotificationMobile(Object data, ArrayList<String> pushTokens) {
+    public Integer pushSilentNotificationMobile(Object data, ArrayList<String> pushTokens) {
         HttpClient httpClient = HttpClientBuilder.create().build();
+        Integer result;
         try {
             HttpPost request = new HttpPost(Constants.EXPO_PUSH_NOTI_URL);
             HashMap<String, Object> body = new HashMap<String, Object>();
@@ -184,18 +194,24 @@ public class LocationService {
             request.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
             request.setEntity(bodyJson);
 
+            // get response
             HttpResponse response = httpClient.execute(request);
+
             // handle response here...
-            System.out.println(response.getStatusLine());
+            result = response.getStatusLine().getStatusCode();
+            System.out.println(result);
 
         } catch (Exception ex) {
+            result = Constants.CODE_500;
             System.out.println(Constants.SERVER_ERROR + ex.toString());
             ex.printStackTrace();
         }
+        return result;
     }
 
-    public static void pushSilentNotificationSW(Object data, String pushToken) {
+    public Integer pushSilentNotificationSW(Object data, String pushToken) {
         HttpClient httpClient = HttpClientBuilder.create().build();
+        Integer result;
         try {
             HttpPost request = new HttpPost(Constants.FCM_PUSH_NOTI_URL);
             HashMap<String, Object> body = new HashMap<String, Object>();
@@ -210,14 +226,18 @@ public class LocationService {
             request.setHeader(HttpHeaders.AUTHORIZATION, Constants.FCM_SERVER_KEY);
             request.setEntity(bodyJson);
 
+            // get response
             HttpResponse response = httpClient.execute(request);
-            // handle response here...
-            System.out.println(response.getStatusLine());
 
+            // handle response here...
+            result = response.getStatusLine().getStatusCode();
+            System.out.println(result);
         } catch (Exception ex) {
+            result = Constants.CODE_500;
             System.out.println(Constants.SERVER_ERROR + ex.toString());
             ex.printStackTrace();
         }
+        return result;
     }
 
 ////    public void pushNotifications(String titleMsg, String bodyMsg, HashMap<Long, String> pushTokens) {

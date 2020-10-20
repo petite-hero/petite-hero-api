@@ -50,7 +50,7 @@ public class SafeZoneService {
         ResponseObject result = Util.createResponse();
         try {
             Child child = childRepository.getOne(sentSafeZone.getChildId());
-            Parent parent = parentRepository.getOne(sentSafeZone.getCreatorId());
+            Parent parent = parentRepository.findParentByAccount_Username(sentSafeZone.getCreator());
 
             if (child == null || parent == null) {
                 result.setData(null);
