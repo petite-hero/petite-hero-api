@@ -58,6 +58,7 @@ public class LocationService {
                 addedLocation.setLongitude(sentLocation.getLongitude());
                 addedLocation.setTime(sentLocation.getTime());
                 addedLocation.setStatus(sentLocation.getStatus());
+                addedLocation.setProvider(sentLocation.getProvider());
                 addedLocation.setChild(child);
                 LocationHistory location = locationRepository.save(addedLocation);
 

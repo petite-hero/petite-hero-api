@@ -11,16 +11,18 @@ public class AddLocationRequestDTO {
     private Long time;
     private Boolean status;
     private Long child;
+    private String provider;
 
     public AddLocationRequestDTO() {
 
     }
 
-    public AddLocationRequestDTO(Double latitude, Double longitude, Long time, Boolean status, Long child) {
+    public AddLocationRequestDTO(Double latitude, Double longitude, Long time, Boolean status, Long child, String provider) {
         this.latitude = latitude;
         this.longitude = longitude;
         this.time = time;
         this.status = status;
         this.child = child;
+        this.provider = provider;
     }
 }
