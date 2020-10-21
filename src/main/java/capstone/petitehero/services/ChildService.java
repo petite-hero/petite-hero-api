@@ -1,12 +1,8 @@
 package capstone.petitehero.services;
 
-import capstone.petitehero.config.common.Constants;
 import capstone.petitehero.dtos.common.ChildInformation;
 import capstone.petitehero.dtos.common.ParentInformation;
-import capstone.petitehero.dtos.response.child.AddChildResponseDTO;
-import capstone.petitehero.dtos.response.child.DeleteChildResponseDTO;
-import capstone.petitehero.dtos.response.child.UpdateChildProfileResponseDTO;
-import capstone.petitehero.dtos.response.child.VerifyParentResponseDTO;
+import capstone.petitehero.dtos.response.child.*;
 import capstone.petitehero.entities.Child;
 import capstone.petitehero.entities.Parent;
 import capstone.petitehero.entities.Parent_Child;
@@ -40,18 +36,10 @@ public class ChildService {
             result.setFirstName(childResult.getFirstName());
             result.setLastName(childResult.getLastName());
             result.setNickName(childResult.getNickName());
-            result.setPhoto(childResult.getPhoto());
 
             if (childResult.getYob().toString() != null && !childResult.getYob().toString().isEmpty()) {
                 int year = Calendar.getInstance().get(Calendar.YEAR);
-                result.setYob(year - childResult.getYob());
-            }
-            if (childResult.getLanguage() != null) {
-                if (childResult.getLanguage().booleanValue()) {
-                    result.setLanguage("Vietnamese");
-                } else {
-                    result.setLanguage("English");
-                }
+                result.setAge(year - childResult.getYob());
             }
             if (childResult.getGender() != null) {
                 if (childResult.getGender().booleanValue()) {
@@ -66,9 +54,8 @@ public class ChildService {
 
                 childResult.setPhoto(Util.saveImageToSystem(childResult.getChildId().toString(), "Avatar Added", childPhoto));
 
-                result.setPhoto(Util.fromImageFileToBase64String(childResult.getPhoto()));
             }
-            result.setToken(childResult.getCreatedDate());
+//            result.setToken(childResult.getCreatedDate());
 
             Parent_Child parent_child = new Parent_Child();
             parent_child.setParent(parent);
@@ -155,7 +142,7 @@ public class ChildService {
             AddChildResponseDTO result = new AddChildResponseDTO();
 
             result.setChildId(childResult.getChildId());
-            result.setToken(childResult.getCreatedDate().longValue());
+//            result.setToken(childResult.getCreatedDate().longValue());
             return result;
         }
         return null;
@@ -198,6 +185,45 @@ public class ChildService {
                 result.setPhoto(Util.fromImageFileToBase64String(child.getPhoto()));
             }
             result.setStatus("Updated");
+
+            return result;
+        }
+        return null;
+    }
+
+    public ChildDetailResponseDTO getDetailOfChild(Long childId) {
+        Child childResult = childRepository.findChildByChildIdEqualsAndIsDisabled(childId, Boolean.FALSE);
+
+        if (childResult != null) {
+            ChildDetailResponseDTO result = new ChildDetailResponseDTO();
+
+            result.setFirstName(childResult.getFirstName());
+            result.setLastName(childResult.getLastName());
+            result.setNickName(childResult.getNickName());
+            Calendar calendar = Calendar.getInstance();
+            int currentYear = calendar.get(Calendar.YEAR);
+            result.setAge(currentYear - childResult.getYob());
+
+            if (childResult.getPhoto() != null && !childResult.getPhoto().isEmpty()) {
+                result.setPhoto(Util.fromImageFileToBase64String(childResult.getPhoto()));
+            }
+            if (childResult.getGender() != null) {
+                if (childResult.getGender().booleanValue()) {
+                    result.setGender("Male");
+                } else {
+                    result.setGender("Female");
+                }
+            }
+            if (childResult.getLanguage() != null) {
+                if (childResult.getLanguage().booleanValue()) {
+                    result.setLanguage("Vietnamese");
+                } else {
+                    result.setLanguage("Englisg");
+                }
+            }
+
+            //TODO get list collaborator of child if have
+//            result.setCollaborator(null);
 
             return result;
         }

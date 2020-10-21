@@ -1,7 +1,6 @@
 package capstone.petitehero.controllers;
 
-import capstone.petitehero.dtos.ResponseErrorDTO;
-import capstone.petitehero.dtos.ResponseSuccessDTO;
+import capstone.petitehero.dtos.ResponseObject;
 import capstone.petitehero.dtos.response.task.ListTaskResponseDTO;
 import capstone.petitehero.dtos.response.task.TaskDeleteResponseDTO;
 import capstone.petitehero.dtos.response.task.TaskDetailResponseDTO;
@@ -25,47 +24,46 @@ public class TaskController {
     @RequestMapping(value = "/{taskId}", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<Object> getDetailOfTaskById(@PathVariable("taskId") Long taskId) {
-        ResponseErrorDTO responseErrorDTO;
+        ResponseObject responseObject;
 
         TaskDetailResponseDTO result = taskService.getDetailOfTask(taskId);
         if (result != null) {
-            List<Object> listData = new ArrayList<>();
-            listData.add(result);
-            ResponseSuccessDTO responseSuccessDTO = new ResponseSuccessDTO(200, "OK", listData);
-            return new ResponseEntity<>(responseSuccessDTO, HttpStatus.OK);
+            responseObject = new ResponseObject(200, "OK");
+            responseObject.setData(result);
+            return new ResponseEntity<>(responseObject, HttpStatus.OK);
         }
 
-        responseErrorDTO = new ResponseErrorDTO(404, "Cannot found that task in the system");
-        return new ResponseEntity<>(responseErrorDTO, HttpStatus.NOT_FOUND);
+        responseObject = new ResponseObject(404, "Cannot found that task in the system");
+        return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
     }
 
     @RequestMapping(value = "/{taskId}", method = RequestMethod.DELETE)
     @ResponseBody
     public ResponseEntity<Object> deleteTaskById(@PathVariable("taskId") Long taskId) {
-        ResponseErrorDTO responseErrorDTO;
+        ResponseObject responseObject;
 
         TaskDeleteResponseDTO result = taskService.deleteTask(taskId);
         if (result != null) {
-            List<Object> listData = new ArrayList<>();
-            listData.add(result);
-            ResponseSuccessDTO responseSuccessDTO = new ResponseSuccessDTO(200, "OK", listData);
-            return new ResponseEntity<>(responseSuccessDTO, HttpStatus.OK);
+            responseObject = new ResponseObject(200, "OK");
+            responseObject.setData(result);
+            return new ResponseEntity<>(responseObject, HttpStatus.OK);
         }
 
-        responseErrorDTO = new ResponseErrorDTO(404, "Cannot found that task in the system");
-        return new ResponseEntity<>(responseErrorDTO, HttpStatus.NOT_FOUND);
+        responseObject = new ResponseObject(404, "Cannot found that task in the system");
+        return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
     }
 
     @RequestMapping(value = "/list/{childId}", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<Object> getChildListOfTaskByChildId(@PathVariable("childId") Long childId,
+                                                     @RequestParam(value = "status", required = false) String status,
                                                      @RequestParam(value = "date", required = false) Long dateTimestamp) {
-        ResponseErrorDTO responseErrorDTO;
+        ResponseObject responseObject;
         List<ListTaskResponseDTO> listTaskOfChild;
         if (dateTimestamp != null && !dateTimestamp.toString().isEmpty()) {
             if (!dateTimestamp.toString().matches("\\d+")) {
-                responseErrorDTO = new ResponseErrorDTO(400, "Not a right timestamp format");
-                return new ResponseEntity<>(responseErrorDTO, HttpStatus.BAD_REQUEST);
+                responseObject = new ResponseObject(400, "Not a right timestamp format");
+                return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
             } else {
                 listTaskOfChild = taskService.getChildListOfTask(childId, new Date(dateTimestamp));
             }
@@ -73,7 +71,6 @@ public class TaskController {
             listTaskOfChild = taskService.getChildListOfTask(childId, null);
         }
         if (listTaskOfChild != null) {
-            ResponseSuccessDTO responseSuccessDTO;
 
             List<Object> result = new ArrayList<>();
             for (ListTaskResponseDTO listData : listTaskOfChild) {
@@ -81,16 +78,18 @@ public class TaskController {
             }
 
             if (listTaskOfChild.isEmpty()) {
-                responseSuccessDTO = new ResponseSuccessDTO(200, "Child's list of task is empty today", result);
-                return new ResponseEntity<>(responseSuccessDTO, HttpStatus.OK);
+                responseObject = new ResponseObject(200, "Child's list of task is empty today");
+                responseObject.setData(result);
+                return new ResponseEntity<>(responseObject, HttpStatus.OK);
             }
 
-            responseSuccessDTO = new ResponseSuccessDTO(200, "OK", result);
-            return new ResponseEntity<>(responseSuccessDTO, HttpStatus.OK);
+            responseObject = new ResponseObject(200, "OK");
+            responseObject.setData(result);
+            return new ResponseEntity<>(responseObject, HttpStatus.OK);
         }
 
-        responseErrorDTO = new ResponseErrorDTO(500, "Server is down cannot get children list of task");
-        return new ResponseEntity<>(responseErrorDTO, HttpStatus.INTERNAL_SERVER_ERROR);
+        responseObject = new ResponseObject(500, "Server is down cannot get children list of task");
+        return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
 }

@@ -21,7 +21,7 @@ public class QuestService {
     @Autowired
     private QuestRepository questRepository;
 
-    public QuestCreateResponseDTO addQuestByParent(Quest quest) {
+    public QuestCreateResponseDTO addQuestByParentOrCollaborator(Quest quest) {
         Quest questResult = questRepository.save(quest);
 
         if (questResult != null) {

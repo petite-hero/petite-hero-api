@@ -12,7 +12,7 @@ import java.util.List;
 @Getter
 public class QuestCreateRequestDTO implements Serializable {
 
-    private List<Long> childId;
+    private Long childId;
     private String creatorPhoneNumber;
     private String name;
     private String description;

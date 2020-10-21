@@ -257,7 +257,6 @@ public class ParentController {
 
             AddChildResponseDTO result = childService.addChildForParent(child, parentAccount, childPhoto);
             if (result != null) {
-                result.setParentPhoneNumber(parentPhoneNumber);
                 responseObject = new ResponseObject(Constants.CODE_200, "OK");
                 responseObject.setData(result);
                 return new ResponseEntity<>(responseObject, HttpStatus.OK);

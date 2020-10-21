@@ -10,7 +10,7 @@ import java.util.List;
 @Getter
 public class TaskCreateRequestDTO implements Serializable {
 
-    private List<Long> childId;
+    private Long childId;
     private String creatorPhoneNumber;
     private String name;
     private String description;

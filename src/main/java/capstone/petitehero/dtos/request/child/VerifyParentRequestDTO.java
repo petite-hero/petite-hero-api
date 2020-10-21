@@ -11,6 +11,6 @@ public class VerifyParentRequestDTO implements Serializable {
 
     private Long childId;
     private String pushToken;
-    private String parentPhoneNumber;
-    private Long token;
+//    private String parentPhoneNumber;
+//    private Long token;
 }

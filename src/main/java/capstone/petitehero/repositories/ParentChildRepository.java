@@ -11,4 +11,6 @@ import java.util.List;
 public interface ParentChildRepository extends JpaRepository<Parent_Child, Long> {
 
     List<Parent_Child> findParent_ChildrenByParent_Account_UsernameAndChild_IsDisabled(String phoneNumber, Boolean isDisabled);
+
+    Parent_Child findParent_ChildByChild_ChildIdAndChild_IsDisabled(Long childId, Boolean isDisabled);
 }

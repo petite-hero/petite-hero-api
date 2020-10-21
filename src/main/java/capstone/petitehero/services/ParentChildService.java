@@ -2,6 +2,7 @@ package capstone.petitehero.services;
 
 import capstone.petitehero.dtos.common.ChildInformation;
 import capstone.petitehero.entities.Child;
+import capstone.petitehero.entities.Parent;
 import capstone.petitehero.entities.Parent_Child;
 import capstone.petitehero.repositories.ParentChildRepository;
 import capstone.petitehero.utilities.Util;
@@ -57,5 +58,8 @@ public class ParentChildService {
         return null;
     }
 
+    public Parent_Child findChildParentByChildId(Long childId) {
+        return parentChildRepository.findParent_ChildByChild_ChildIdAndChild_IsDisabled(childId, Boolean.FALSE);
+    }
 
 }

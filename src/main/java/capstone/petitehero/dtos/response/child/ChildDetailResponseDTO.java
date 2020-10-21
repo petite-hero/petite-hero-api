@@ -7,7 +7,7 @@ import java.io.Serializable;
 
 @Setter
 @Getter
-public class AddChildResponseDTO implements Serializable {
+public class ChildDetailResponseDTO implements Serializable {
 
     private Long childId;
     private String firstName;
@@ -15,7 +15,7 @@ public class AddChildResponseDTO implements Serializable {
     private String nickName;
     private Integer age;
     private String gender;
-//    private Long token;
-//    private String parentPhoneNumber;
-
+    private String photo;
+    private String language;
+    private String collaborator;
 }

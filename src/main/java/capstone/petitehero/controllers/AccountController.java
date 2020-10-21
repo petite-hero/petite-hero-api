@@ -50,10 +50,6 @@ public class AccountController {
             responseObject = new ResponseObject(Constants.CODE_400, "Password cannot be empty");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
-        if (!Util.validatePasswordForAllAccount(accountLoginDTO.getPassword())) {
-            responseObject = new ResponseObject(Constants.CODE_400, "Password should between 6-8 characters and no special characters");
-            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
-        }
         Account account = new Account();
         account.setUsername(accountLoginDTO.getUsername());
         account.setPassword(accountLoginDTO.getPassword());
