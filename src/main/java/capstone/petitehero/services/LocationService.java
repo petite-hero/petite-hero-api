@@ -133,12 +133,17 @@ public class LocationService {
             }
 
             LocationHistory location = locationRepository.findLatestLocation(childId);
-            GetLastestLocationResponseDTO latestLocation = new GetLastestLocationResponseDTO();
-            latestLocation.setLatitude(location.getLatitude());
-            latestLocation.setLongitude(location.getLongitude());
-            latestLocation.setStatus(location.getStatus());
-            result.setData(latestLocation);
-            result.setMsg("Get data successfully!");
+            if (location == null) {
+                GetLastestLocationResponseDTO latestLocation = new GetLastestLocationResponseDTO();
+                latestLocation.setLatitude(location.getLatitude());
+                latestLocation.setLongitude(location.getLongitude());
+                latestLocation.setStatus(location.getStatus());
+                result.setData(latestLocation);
+                result.setMsg("Get data successfully!");
+            } else {
+                result.setData(null);
+                result.setMsg("Child doesn't have any location history yet");
+            }
         } catch (Exception e) {
             result.setData(null);
             result.setMsg(Constants.SERVER_ERROR + e.toString());
