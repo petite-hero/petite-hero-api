@@ -42,6 +42,8 @@ public class Constants {
     public static final boolean SUCCESS = true;
     public static final boolean FAILED = false;
 
+    public static final String GET_DATA_SUCCESSFULLY = "Get data successfully!";
+
     public static final String EMERGENCY = "emergency";
     public static final String STOP_EMERGENCY = "stop_emergency";
 
