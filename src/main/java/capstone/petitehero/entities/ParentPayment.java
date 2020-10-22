@@ -13,7 +13,7 @@ import java.util.Date;
 @Entity
 @Setter
 @Getter
-public class Payment implements Serializable {
+public class ParentPayment implements Serializable {
 
     @Id
     @GeneratedValue
@@ -30,6 +30,12 @@ public class Payment implements Serializable {
 
     @Column(length = 30)
     private String status;
+
+    @Column(length = 200)
+    private String paymentId;
+
+    @Column(length = 200)
+    private String payerId;
 
     @ManyToOne
     @JoinColumn(name = "parent_id")

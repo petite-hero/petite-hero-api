@@ -65,6 +65,8 @@ public class QuestService {
                 assignee.setGender("Female");
             }
             result.setAssignee(assignee);
+
+            return result;
         }
         return null;
     }

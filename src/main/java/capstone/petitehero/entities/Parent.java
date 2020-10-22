@@ -9,7 +9,6 @@ import lombok.ToString;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.Date;
 
 @Entity
 @Setter
@@ -75,7 +74,7 @@ public class Parent implements Serializable {
     @EqualsAndHashCode.Exclude // không sử dụng trường này trong equals và hashcode
     @ToString.Exclude // Không sử dụng trong toString()
     @JsonBackReference
-    private Collection<Payment> parent_paymentCollection;
+    private Collection<ParentPayment> parent_Parent_paymentCollection;
 
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
     @EqualsAndHashCode.Exclude // không sử dụng trường này trong equals và hashcode

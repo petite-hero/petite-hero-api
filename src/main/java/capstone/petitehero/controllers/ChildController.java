@@ -2,8 +2,6 @@ package capstone.petitehero.controllers;
 
 import capstone.petitehero.config.common.Constants;
 import capstone.petitehero.dtos.ResponseObject;
-import capstone.petitehero.dtos.ResponseObject;
-import capstone.petitehero.dtos.ResponseObject;
 import capstone.petitehero.dtos.request.child.UpdateChildProfileRequestDTO;
 import capstone.petitehero.dtos.request.child.VerifyParentRequestDTO;
 import capstone.petitehero.dtos.request.quest.QuestCreateRequestDTO;
@@ -15,7 +13,6 @@ import capstone.petitehero.dtos.response.child.VerifyParentResponseDTO;
 import capstone.petitehero.dtos.response.quest.QuestCreateResponseDTO;
 import capstone.petitehero.dtos.response.task.TaskCreateResponseDTO;
 import capstone.petitehero.entities.*;
-import capstone.petitehero.repositories.AccountRepository;
 import capstone.petitehero.services.*;
 import capstone.petitehero.utilities.Util;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,9 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 @RestController
 @RequestMapping(value = "/child")
@@ -159,15 +154,14 @@ public class ChildController {
             responseObject = new ResponseObject(Constants.CODE_400, "Task's name cannot be missing or empty");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
-        if (taskCreateRequestDTO.getAssignDate() == null || taskCreateRequestDTO.getAssignDate().isEmpty()) {
+        if (taskCreateRequestDTO.getAssignDate() == null || taskCreateRequestDTO.getAssignDate().toString().isEmpty()) {
             responseObject = new ResponseObject(Constants.CODE_400, "Task's assigned date cannot be missing or empty");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
-        if (taskCreateRequestDTO.getDeadline() == null || taskCreateRequestDTO.getDeadline().isEmpty()) {
+        if (taskCreateRequestDTO.getDeadline() == null || taskCreateRequestDTO.getDeadline().toString().isEmpty()) {
             responseObject = new ResponseObject(Constants.CODE_400, "Task's deadline cannot be missing or empty");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
-        // TODO validate assign date and deadline in format
         // end validate mandatory fields
 
         Child child = childService.findChildByChildId(taskCreateRequestDTO.getChildId(), Boolean.FALSE);
@@ -177,9 +171,9 @@ public class ChildController {
             Task task = new Task();
             task.setName(taskCreateRequestDTO.getName());
             task.setDescription(taskCreateRequestDTO.getDescription());
-            task.setAssignDate(new Date().getTime());
-            task.setDeadLine(new Date().getTime());
-            task.setCreatedDate(new Date().getTime());
+            task.setAssignDate(new Date(taskCreateRequestDTO.getAssignDate()).getTime());
+            task.setDeadLine(new Date(taskCreateRequestDTO.getDeadline()).getTime());
+            task.setCreatedDate(new Date(taskCreateRequestDTO.getCreatedDate()).getTime());
             task.setIsDeleted(Boolean.FALSE);
             task.setChild(child);
             task.setStatus("CREATED");
@@ -230,13 +224,16 @@ public class ChildController {
             }
         }
 
+        if (questCreateRequestDTO.getCreatedDate() == null || questCreateRequestDTO.getCreatedDate().toString().isEmpty()) {
+            responseObject = new ResponseObject(Constants.CODE_400, "Quest's created date cannot be missing or empty");
+            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+        }
+
         if (questCreateRequestDTO.getQuestBadge() == null || questCreateRequestDTO.getQuestBadge().isEmpty()) {
             responseObject = new ResponseObject(Constants.CODE_400, "Quest's badge cannot be missing or empty");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
         //end validate mandatory fields
-//        List<Object> listData = new ArrayList<>();
-//        for (Long childId : questCreateRequestDTO.getChildId()) {
         Child child = childService.findChildByChildId(questCreateRequestDTO.getChildId(), Boolean.FALSE);
 
         if (child != null) {
@@ -249,9 +246,9 @@ public class ChildController {
             quest.setRewardPhoto(questCreateRequestDTO.getRewardPhoto());
             quest.setCriteria(questCreateRequestDTO.getCriteria());
 
-            quest.setCreatedDate(new Date().getTime());
+            quest.setCreatedDate(new Date(questCreateRequestDTO.getCreatedDate()).getTime());
             quest.setProgress(new Integer(0));
-            quest.setStatus("IN PROGRESS");
+            quest.setStatus("INPROGRESS");
 
             quest.setChild(child);
             quest.setIsDeleted(Boolean.FALSE);

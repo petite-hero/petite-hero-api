@@ -136,9 +136,26 @@ public class TaskService {
     public List<ListTaskResponseDTO> getChildListOfTask(Long childId, Date date) {
         List<Task> listTaskResult;
         if (date != null) {
-            listTaskResult = taskRepository.findTasksByChildChildIdAndIsDeleted(childId, Boolean.FALSE);
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(date);
+
+            // set hour, minutes, seconds, milliseconds at start date
+            calendar.set(Calendar.HOUR, -12);
+            calendar.set(Calendar.MINUTE, 0);
+            calendar.set(Calendar.SECOND, 0);
+            calendar.set(Calendar.MILLISECOND, 0);
+            Long startDateTimeStamp = calendar.getTimeInMillis();
+
+            // set hour, minutes, seconds, milliseconds at end date
+            calendar.set(Calendar.HOUR, 23); // you have minus 12 above so you have to +23 to 11H59m59s9999milli PM
+            calendar.set(Calendar.MINUTE, 59);
+            calendar.set(Calendar.SECOND, 59);
+            calendar.set(Calendar.MILLISECOND, 999);
+            Long endDateTimeStamp = calendar.getTimeInMillis();
+
+            listTaskResult = taskRepository.findTasksByChildChildIdAndIsDeletedAndAssignDateIsBetween(childId, Boolean.FALSE, startDateTimeStamp, endDateTimeStamp);
         } else {
-            listTaskResult = taskRepository.findTasksByChildChildIdAndIsDeletedAndAssignDate(childId, Boolean.FALSE, date);
+            listTaskResult = taskRepository.findTasksByChildChildIdAndIsDeleted(childId, Boolean.FALSE);
         }
 
         if (listTaskResult != null) {
@@ -146,7 +163,7 @@ public class TaskService {
             SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss");
             for (Task taskResult: listTaskResult) {
                 ListTaskResponseDTO resultData = new ListTaskResponseDTO();
-                // TODO query on assigned date
+
                 resultData.setName(taskResult.getName());
                 resultData.setStatus(taskResult.getStatus());
                 resultData.setTaskId(taskResult.getTaskId());

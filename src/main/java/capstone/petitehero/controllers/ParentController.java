@@ -8,22 +8,27 @@ import capstone.petitehero.dtos.request.parent.ParentChangePasswordRequestDTO;
 import capstone.petitehero.dtos.request.parent.ParentRegisterRequestDTO;
 import capstone.petitehero.dtos.request.parent.ParentUpdateProfileRequestDTO;
 import capstone.petitehero.dtos.request.parent.UpdatePushTokenRequestDTO;
+import capstone.petitehero.dtos.request.parent.payment.ParentPaymentCreateRequestDTO;
 import capstone.petitehero.dtos.response.child.AddChildResponseDTO;
 import capstone.petitehero.dtos.response.parent.ParentProfileRegisterResponseDTO;
 import capstone.petitehero.dtos.response.parent.ParentUpdateProfileResponseDTO;
+import capstone.petitehero.dtos.response.parent.payment.ParentPaymentCompledResponseDTO;
 import capstone.petitehero.entities.Child;
 import capstone.petitehero.entities.Parent;
-import capstone.petitehero.services.AccountService;
-import capstone.petitehero.services.ChildService;
-import capstone.petitehero.services.ParentChildService;
-import capstone.petitehero.services.ParentService;
+import capstone.petitehero.entities.ParentPayment;
+import capstone.petitehero.services.*;
+import capstone.petitehero.utilities.PaypalUtil;
 import capstone.petitehero.utilities.Util;
+import com.paypal.api.payments.Links;
+import com.paypal.api.payments.Payment;
+import com.paypal.base.rest.PayPalRESTException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.List;
 
@@ -45,6 +50,12 @@ public class ParentController {
 
     @Autowired
     private AccountService accountService;
+
+    @Autowired
+    private PaypalServices paypalServices;
+
+    @Autowired
+    private ParentPaymentService parentPaymentService;
 
     @RequestMapping(value = "/register-profile", method = RequestMethod.POST, consumes = ALL_VALUE)
     @ResponseBody
@@ -359,5 +370,116 @@ public class ParentController {
         }
         responseObject = new ResponseObject(Constants.CODE_500, "Cannot get your children in the system");
         return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @RequestMapping(value = "/{phone}/paypal/payment", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<Object> testPaypal(HttpServletRequest request,
+                                             @PathVariable("phone") String phoneNumber,
+                                             @RequestBody ParentPaymentCreateRequestDTO parentPaymentCreateRequestDTO) {
+        ResponseObject responseObject;
+        Long currentTimeStamp = new Date().getTime();
+        String cancelUrl = PaypalUtil.getBaseURL(request) + "/parent/" + phoneNumber + "/paypal/cancel?createdDate=" + currentTimeStamp;
+        String successUrl = PaypalUtil.getBaseURL(request) + "/parent/" + phoneNumber + "/paypal/success?createdDate=" + currentTimeStamp;
+        try {
+            Payment payment = paypalServices.createPayment(parentPaymentCreateRequestDTO.getAmount(),
+                    "USD",
+                    "paypal",
+                    "sale",
+                    parentPaymentCreateRequestDTO.getDescription(),
+                    cancelUrl,
+                    successUrl);
+            for(Links links : payment.getLinks()){
+                if(links.getRel().equals("approval_url")){
+                    ParentPayment parentPayment = new ParentPayment();
+                    parentPayment.setContent(parentPaymentCreateRequestDTO.getDescription());
+                    parentPayment.setAmount(parentPaymentCreateRequestDTO.getAmount());
+                    parentPayment.setStatus("PENDING");
+
+                    Parent parent = parentService.findParentByPhoneNumber(phoneNumber);
+
+                    parentPayment.setParent(parent);
+                    parentPayment.setDate(currentTimeStamp);
+                    ParentPayment result = parentPaymentService.insertParentPaymentToSystem(parentPayment);
+                    if (result != null) {
+                        responseObject = new ResponseObject(Constants.CODE_200, "OK");
+                        responseObject.setData(links.getHref());
+                        return new ResponseEntity<>(responseObject, HttpStatus.OK);
+                    } else {
+                        responseObject = new ResponseObject(Constants.CODE_500, "Cannot connect to petite hero pls come back again");
+                        return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+                    }
+                }
+            }
+            responseObject = new ResponseObject(Constants.CODE_500, "Cannot connect to paypal");
+            return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (Exception e) {
+            responseObject = new ResponseObject(Constants.CODE_400, "Bad Request for paypal api");
+            responseObject.setData(e.getMessage());
+            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @RequestMapping(value = "/{phone}/paypal/cancel", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<Object> cancelPay(@PathVariable("phone") String parentPhoneNumber,
+                            @RequestParam(value = "createdDate") Long createdDateTimeStamp){
+        ResponseObject responseObject;
+        ParentPayment recentParentPayment = parentPaymentService.findParentPaymentToCompletePayment(parentPhoneNumber, createdDateTimeStamp);
+
+        if (recentParentPayment != null) {
+            recentParentPayment.setStatus("CANCELLED");
+
+            ParentPayment result = parentPaymentService.insertParentPaymentToSystem(recentParentPayment);
+            if (result != null) {
+                responseObject = new ResponseObject(Constants.CODE_200, "OK");
+                responseObject.setData(result.getStatus());
+                return new ResponseEntity<>(responseObject, HttpStatus.OK);
+            } else {
+                responseObject = new ResponseObject(Constants.CODE_500, "Cannot connect to server pls come back again");
+                return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        }
+        responseObject = new ResponseObject(Constants.CODE_404, "Cannot found your current payment.");
+        return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
+    }
+
+    @RequestMapping(value = "/{phone}/paypal/success", method = RequestMethod.GET)
+    public ResponseEntity<Object> successPay(@PathVariable("phone") String parentPhoneNumber,
+                             @RequestParam(value = "createdDate") Long createdDateTimeStamp,
+                             @RequestParam(value = "paymentId") String paymentId,
+                             @RequestParam(value = "PayerID") String payerId){
+        ResponseObject responseObject;
+        try {
+            Payment payment = paypalServices.executePayment(paymentId, payerId);
+            if(payment.getState().equals("approved")){
+                ParentPayment recentParentPayment = parentPaymentService.findParentPaymentToCompletePayment(parentPhoneNumber, createdDateTimeStamp);
+
+                if (recentParentPayment != null) {
+                    recentParentPayment.setStatus("SUCCESS");
+                    recentParentPayment.setPayerId(payerId);
+                    recentParentPayment.setPaymentId(paymentId);
+
+                    ParentPaymentCompledResponseDTO result = parentPaymentService.completedSuccessParentPayment(recentParentPayment);
+                    if (result != null) {
+                        responseObject = new ResponseObject(Constants.CODE_200, "OK");
+                        responseObject.setData(result);
+                        return new ResponseEntity<>(responseObject, HttpStatus.OK);
+                    } else {
+                        responseObject = new ResponseObject(Constants.CODE_500, "Cannot connect to server pls come back again");
+                        return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+                    }
+                } else {
+                    responseObject = new ResponseObject(Constants.CODE_404, "Cannot found your current payment.");
+                    return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
+                }
+            } else {
+                responseObject = new ResponseObject(Constants.CODE_500, "Cannot completed your payment because of some reason");
+                return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } catch (PayPalRESTException e) {
+            responseObject = new ResponseObject(Constants.CODE_500, "Cannot connect to paypal");
+            return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }
