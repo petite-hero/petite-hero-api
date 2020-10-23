@@ -42,7 +42,7 @@ public class ChildController {
     @Autowired
     private ParentChildService parentChildService;
 
-    @RequestMapping(value = "/verify/parent", method = RequestMethod.POST)
+    @RequestMapping(value = "/verify/parent", method = RequestMethod.PUT)
     @ResponseBody
     // verify parent from child and system get the smart watch push token
     public ResponseEntity<Object> verifyParentByQRCode(@RequestBody VerifyParentRequestDTO verifyParentRequestDTO) {

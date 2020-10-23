@@ -75,6 +75,13 @@
 			<version>1.4.2</version>
 		</dependency>
 
+<!--		twilio dependency for sms verification-->
+		<dependency>
+			<groupId>com.twilio.sdk</groupId>
+			<artifactId>twilio</artifactId>
+			<version>8.1.0</version>
+		</dependency>
+
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
