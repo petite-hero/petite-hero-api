@@ -13,6 +13,7 @@ import capstone.petitehero.dtos.response.child.VerifyParentResponseDTO;
 import capstone.petitehero.dtos.response.quest.QuestCreateResponseDTO;
 import capstone.petitehero.dtos.response.task.TaskCreateResponseDTO;
 import capstone.petitehero.entities.*;
+import capstone.petitehero.repositories.ParentRepository;
 import capstone.petitehero.services.*;
 import capstone.petitehero.utilities.Util;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.Date;
 
 @RestController
@@ -42,6 +44,12 @@ public class ChildController {
     @Autowired
     private ParentChildService parentChildService;
 
+    @Autowired
+    private ParentRepository parentRepository;
+
+    @Autowired
+    private LocationService locationService;
+
     @RequestMapping(value = "/verify/parent", method = RequestMethod.PUT)
     @ResponseBody
     // verify parent from child and system get the smart watch push token
@@ -53,6 +61,7 @@ public class ChildController {
         }
 
         Child child = childService.findChildByChildId(verifyParentRequestDTO.getChildId(), Boolean.FALSE);
+        Parent parent = parentRepository.getParentByChildID(verifyParentRequestDTO.getChildId());
 
         if (child != null) {
 
@@ -67,6 +76,11 @@ public class ChildController {
                 if (result != null) {
                     responseObject = new ResponseObject(Constants.CODE_200, "Verify successfully. Now parent and children can see each other");
                     responseObject.setData(result);
+
+                    ArrayList<String> pushTokens = new ArrayList<>();
+                    pushTokens.add(parent.getPushToken());
+                    locationService.pushNotificationMobile("Done setting up child device", verifyParentRequestDTO, pushTokens);
+
                     return new ResponseEntity<>(responseObject, HttpStatus.OK);
                 }
                 responseObject = new ResponseObject(Constants.CODE_500, "Server is down child cannot verify parent");
