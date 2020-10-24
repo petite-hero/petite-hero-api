@@ -79,7 +79,7 @@ public class ChildController {
 
                     ArrayList<String> pushTokens = new ArrayList<>();
                     pushTokens.add(parent.getPushToken());
-                    locationService.pushNotificationMobile("Done setting up child device", verifyParentRequestDTO, pushTokens);
+                    locationService.pushNotificationMobile(Constants.DONE_SETTING_UP_DEVICE, verifyParentRequestDTO, pushTokens);
 
                     return new ResponseEntity<>(responseObject, HttpStatus.OK);
                 }

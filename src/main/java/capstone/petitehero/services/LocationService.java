@@ -44,15 +44,17 @@ public class LocationService {
     public ResponseObject recordLocationFromSW (AddLocationRequestDTO sentLocation, Boolean emergency) {
         ResponseObject result = Util.createResponse();
         try {
-
             Child child = childRepository.getOne(sentLocation.getChild());
-            System.out.println("====> " + child.getChildId());
-            System.out.println("====> " + child.getYob());
+            System.out.println("===> ChildID: " + sentLocation.getChild());
             if (child == null) {
                 result.setData(null);
                 result.setMsg("Bad request - Child doesn't exist");
                 result.setCode(Constants.CODE_400);
             } else {
+                LocationHistory latestLocation = locationRepository.findLatestLocation(child.getChildId());
+                if (latestLocation == null) { // in case child doesn't have any location history yet
+                    latestLocation.setStatus(Constants.NOT_SAFE);
+                }
                 LocationHistory addedLocation = new LocationHistory();
                 addedLocation.setLatitude(sentLocation.getLatitude());
                 addedLocation.setLongitude(sentLocation.getLongitude());
@@ -69,19 +71,19 @@ public class LocationService {
                 } else {
                     ArrayList<String> tokens = locationRepository.getParentPushToken(sentLocation.getChild());
                     Integer pushStatus = 100;
-                    if (emergency) {
+                    if (emergency) { // in case mobile device demands emergency mode
                         pushStatus = pushSilentNotificationMobile(sentLocation, tokens);
-                    } else {
-                        LocationHistory latestLocation = locationRepository.findLatestLocation(child.getChildId());
-                        if (location.getStatus() != latestLocation.getStatus()) {
-                            pushStatus = pushSilentNotificationMobile(sentLocation, tokens);
+                    } else { // in case mobile device doesn't demand emergency mode
+                        if (location.getStatus() != latestLocation.getStatus()) { // notify mobile if child' status changes
+                            String msg = location.getStatus() ? Constants.CHILD_SAFE : Constants.CHILD_NOT_SAFE;
+                            pushStatus = pushNotificationMobile(msg, sentLocation, tokens);
                         }
                     }
 
                     if (pushStatus == Constants.CODE_200) {
                         result.setMsg(Constants.NO_ERROR);
                     } else if (pushStatus == Constants.CODE_500) {
-                        result.setMsg("Error at pushSilentNotificationMobile");
+                        result.setMsg("Error at recordLocationFromSW - pushNotification");
                     }
                     result.setData(sentLocation);
                 }
