@@ -7,6 +7,8 @@ public class Constants {
     // boolean values
     public static final boolean IS_NOT_DELETED = false;
     public static final boolean IS_DELETED = true;
+    public static final boolean IS_NOT_DISABLED = true;
+    public static final boolean IS_DISABLED = true;
     public static final boolean IS_NOT_READ = false;
     public static final boolean IS_READ = true;
 

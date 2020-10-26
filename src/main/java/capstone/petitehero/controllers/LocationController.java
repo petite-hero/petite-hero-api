@@ -64,4 +64,10 @@ public class LocationController {
     public ResponseObject updateEmergencyState(@PathVariable(value = "child") Long child, @PathVariable(value = "emergency") Boolean emergency) {
         return locationService.updateEmergencyStatus(child ,emergency);
     }
+
+    @RequestMapping(value = "/safezone/{safezoneId}", method = RequestMethod.DELETE)
+    @ResponseBody
+    public ResponseObject deleteSafeZone(@PathVariable(value = "safezoneId") Long safezoneId) {
+        return safeZoneService.deleteSafeZone(safezoneId);
+    }
 }

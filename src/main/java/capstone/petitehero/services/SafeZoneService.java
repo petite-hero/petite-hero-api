@@ -152,6 +152,31 @@ public class SafeZoneService {
         return result;
     }
 
+    public ResponseObject deleteSafeZone (Long safezoneId) {
+        ResponseObject result = Util.createResponse();
+        try {
+            Safezone safezone = safeZoneRepository.getOne(safezoneId);
+            if (safezone == null) {
+                result.setData(null);
+                result.setMsg("Bad request - Safe Zone doesn't exist");
+                result.setCode(Constants.CODE_400);
+            } else {
+                safezone.setIsDisabled(Constants.IS_DISABLED);
+                Safezone updatedSafezone = safeZoneRepository.save(safezone);
+                if (updatedSafezone != null) {
+                    updatedSafezone.setChild(null);
+                    result.setData(updatedSafezone);
+                    result.setMsg(Constants.NO_ERROR);
+                }
+            }
+        } catch (Exception e) {
+            result.setData(null);
+            result.setMsg(Constants.SERVER_ERROR + e.toString());
+            result.setCode(Constants.CODE_500);
+        }
+        return result;
+    }
+
 //    public void pushSWNotification() {
 //        try {
 //            FileInputStream serviceAccount =
