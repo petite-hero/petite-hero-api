@@ -8,6 +8,7 @@ import capstone.petitehero.dtos.response.task.TaskDeleteResponseDTO;
 import capstone.petitehero.dtos.response.task.TaskDetailResponseDTO;
 import capstone.petitehero.entities.Task;
 import capstone.petitehero.repositories.TaskRepository;
+import capstone.petitehero.utilities.Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,11 +31,10 @@ public class TaskService {
             TaskCreateResponseDTO result = new TaskCreateResponseDTO();
             result.setTaskId(taskResult.getTaskId());
             result.setDescription(taskResult.getDescription());
-            SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss");
-            result.setDeadline(sdf.format(taskResult.getDeadLine()));
-            result.setAssignDate(sdf.format(taskResult.getAssignDate()));
+            result.setDeadline(Util.formatDateTime(taskResult.getDeadLine()));
+            result.setAssignDate(Util.formatDateTime(taskResult.getAssignDate()));
             // Todo set created date based on format
-            result.setCreatedDate(sdf.format(taskResult.getCreatedDate()));
+            result.setCreatedDate(Util.formatDateTime(taskResult.getCreatedDate()));
             result.setStatus("CREATED");
 
             // information of assigner (colaborator or parent)
@@ -76,10 +76,9 @@ public class TaskService {
             result.setName(taskResult.getName());
             result.setDescription(taskResult.getDescription());
 
-            SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss");
-            result.setDeadline(sdf.format(taskResult.getDeadLine()));
-            result.setAssignDate(sdf.format(taskResult.getAssignDate()));
-            result.setCreatedDate(sdf.format(taskResult.getCreatedDate()));
+            result.setDeadline(Util.formatDateTime(taskResult.getDeadLine()));
+            result.setAssignDate(Util.formatDateTime(taskResult.getAssignDate()));
+            result.setCreatedDate(Util.formatDateTime(taskResult.getCreatedDate()));
 
             // information of assigner (colaborator or parent)
             Assigner assigner = new Assigner();
@@ -138,16 +137,18 @@ public class TaskService {
         if (date != null) {
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(date);
+            calendar.set(Calendar.AM_PM, Calendar.AM);
+
 
             // set hour, minutes, seconds, milliseconds at start date
-            calendar.set(Calendar.HOUR, -12);
+            calendar.set(Calendar.HOUR, 0);
             calendar.set(Calendar.MINUTE, 0);
             calendar.set(Calendar.SECOND, 0);
             calendar.set(Calendar.MILLISECOND, 0);
             Long startDateTimeStamp = calendar.getTimeInMillis();
 
             // set hour, minutes, seconds, milliseconds at end date
-            calendar.set(Calendar.HOUR, 23); // you have minus 12 above so you have to +23 to 11H59m59s9999milli PM
+            calendar.set(Calendar.HOUR, 11);
             calendar.set(Calendar.MINUTE, 59);
             calendar.set(Calendar.SECOND, 59);
             calendar.set(Calendar.MILLISECOND, 999);
@@ -160,14 +161,13 @@ public class TaskService {
 
         if (listTaskResult != null) {
             List<ListTaskResponseDTO> result = new ArrayList<>();
-            SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss");
             for (Task taskResult: listTaskResult) {
                 ListTaskResponseDTO resultData = new ListTaskResponseDTO();
 
                 resultData.setName(taskResult.getName());
                 resultData.setStatus(taskResult.getStatus());
                 resultData.setTaskId(taskResult.getTaskId());
-                resultData.setDeadline(sdf.format(taskResult.getDeadLine()));
+                resultData.setDeadline(Util.formatDateTime(taskResult.getDeadLine()));
 
                 result.add(resultData);
             }

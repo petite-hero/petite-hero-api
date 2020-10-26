@@ -55,7 +55,6 @@ public class ChildService {
                 childResult.setPhoto(Util.saveImageToSystem(childResult.getChildId().toString(), "Avatar Added", childPhoto));
 
             }
-//            result.setToken(childResult.getCreatedDate());
 
             Parent_Child parent_child = new Parent_Child();
             parent_child.setParent(parent);
@@ -104,6 +103,9 @@ public class ChildService {
                 childInformation.setAge(year - child.getYob());
             }
             result.setChildInformation(childInformation);
+
+            // save new child token into db
+            childRepository.save(child);
         }
 
         // find parent information for adding to db
@@ -126,11 +128,11 @@ public class ChildService {
         }
 
         if (parentResult != null && child != null) {
-            Parent_Child parent_child = new Parent_Child();
-            parent_child.setChild(child);
-            parent_child.setParent(parentResult);
-
-            parentChildRepository.save(parent_child);
+//            Parent_Child parent_child = new Parent_Child();
+//            parent_child.setChild(child);
+//            parent_child.setParent(parentResult);
+//
+//            parentChildRepository.save(parent_child);
             return result;
         }
         return null;

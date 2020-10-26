@@ -95,7 +95,7 @@ public class AccountController {
 
         // add license & policy for parent account
         parent.setIsFreeTrial(Boolean.TRUE);
-        parent.setMaxChildren(3);
+        parent.setMaxChildren(1);
         parent.setMaxParent(1);
         parent.setIsDisabled(Boolean.FALSE);
         Calendar calendar = Calendar.getInstance();

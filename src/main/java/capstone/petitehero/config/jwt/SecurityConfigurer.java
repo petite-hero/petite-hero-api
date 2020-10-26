@@ -59,6 +59,11 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
                 .antMatchers("/parent/{phone}/paypal/payment").permitAll()
                 .antMatchers("/parent/{phone}/paypal/success").permitAll()
                 .antMatchers("/parent/{phone}/paypal/cancel").permitAll()
+                .antMatchers("/task/{taskId}/submit").permitAll()
+                .antMatchers("/parent/test").permitAll()
+                .antMatchers("/payment/list").permitAll()
+                .antMatchers("/parent/{phone}/payment/list").permitAll()
+                .antMatchers("/payment/{transactionId}").permitAll()
                 .anyRequest().authenticated()
                 .and().sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);

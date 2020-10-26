@@ -26,8 +26,7 @@ public class ParentService {
              ParentRegisterResponseDTO result = new ParentRegisterResponseDTO();
              result.setPhoneNumber(parentResult.getAccount().getUsername());
 
-             SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss");
-             result.setExpiredDate(sdf.format(parentResult.getExpiredDate()));
+             result.setExpiredDate(Util.formatDateTime(parentResult.getExpiredDate()));
 
              result.setMaxChildAllow(new Integer(3));
              result.setMaxCollaboratorAllow(new Integer(1));
@@ -71,8 +70,7 @@ public class ParentService {
             result.setMaxChildAllow(parentResult.getMaxChildren());
             result.setMaxCollaboratorAllow(parentResult.getMaxParent());
 
-            SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss");
-            result.setExpiredDate(sdf.format(parentResult.getExpiredDate()));
+            result.setExpiredDate(Util.formatDateTime(parentResult.getExpiredDate()));
             if (parentResult.getIsFreeTrial().booleanValue()){
                 result.setAccountType("Free Trial");
             } else {

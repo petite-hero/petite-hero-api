@@ -9,6 +9,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
 import java.util.Base64;
 import java.util.Date;
 
@@ -70,5 +71,10 @@ public class Util {
 
     public static boolean validatePasswordForAllAccount(String password) {
         return password.matches("[a-zA-Z0-9]{6,8}");
+    }
+
+    public static String formatDateTime(Long timeStamp) {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+        return sdf.format(new Date(timeStamp));
     }
 }

@@ -9,7 +9,7 @@ import java.io.Serializable;
 
 @Setter
 @Getter
-public class QuestDetailResponseDTO extends QuestCreateResponseDTO implements Serializable {
+public class QuestDetailResponseDTO implements Serializable {
 
     private Long questId;
     private String name;

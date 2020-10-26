@@ -1,5 +1,6 @@
 package capstone.petitehero.controllers;
 
+import capstone.petitehero.config.common.Constants;
 import capstone.petitehero.dtos.ResponseObject;
 import capstone.petitehero.dtos.response.task.ListTaskResponseDTO;
 import capstone.petitehero.dtos.response.task.TaskDeleteResponseDTO;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -92,4 +94,18 @@ public class TaskController {
         return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    @RequestMapping(value = "/{taskId}/submit", method = RequestMethod.PUT)
+    @ResponseBody
+    public ResponseEntity<Object> submitTaskFromChild(@PathVariable("taskId") Long taskId,
+                                                      @RequestParam("proof") MultipartFile proofPhoto) {
+        ResponseObject responseObject;
+
+        if (proofPhoto != null) {
+            System.out.println("Size: " + proofPhoto.getSize());
+            System.out.println("SDADAs: " + proofPhoto.getContentType());
+        }
+
+        responseObject = new ResponseObject(Constants.CODE_500, "Server is cannot update task for child");
+        return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 }

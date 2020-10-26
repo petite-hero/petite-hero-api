@@ -91,4 +91,8 @@ public class Parent implements Serializable {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "phone_number")
     private Account account;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "subscription_id")
+    private Subscription subscription;
 }

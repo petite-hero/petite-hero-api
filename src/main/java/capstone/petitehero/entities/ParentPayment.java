@@ -34,6 +34,9 @@ public class ParentPayment implements Serializable {
     @Column(length = 200)
     private String paymentId;
 
+    @Column(length = 500)
+    private String link;
+
     @Column(length = 200)
     private String payerId;
 

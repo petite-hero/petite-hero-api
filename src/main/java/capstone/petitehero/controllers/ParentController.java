@@ -12,6 +12,7 @@ import capstone.petitehero.dtos.request.parent.payment.ParentPaymentCreateReques
 import capstone.petitehero.dtos.response.child.AddChildResponseDTO;
 import capstone.petitehero.dtos.response.parent.ParentProfileRegisterResponseDTO;
 import capstone.petitehero.dtos.response.parent.ParentUpdateProfileResponseDTO;
+import capstone.petitehero.dtos.response.parent.payment.ListPaymentTransactionResponseDTO;
 import capstone.petitehero.dtos.response.parent.payment.ParentPaymentCompledResponseDTO;
 import capstone.petitehero.entities.Child;
 import capstone.petitehero.entities.Parent;
@@ -47,9 +48,6 @@ public class ParentController {
 
     @Autowired
     private ParentChildService parentChildService;
-
-    @Autowired
-    private AccountService accountService;
 
     @Autowired
     private PaypalServices paypalServices;
@@ -481,5 +479,44 @@ public class ParentController {
             responseObject = new ResponseObject(Constants.CODE_500, "Cannot connect to paypal");
             return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @RequestMapping(value = "/{phone}/payment/list", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<Object> getListTransactionForParent(@PathVariable("phone") String phoneNumber,
+                                                              @RequestParam(required = false, value = "status") String status) {
+        ResponseObject responseObject;
+        List<ListPaymentTransactionResponseDTO> result;
+        if (status != null) {
+            if (!status.equalsIgnoreCase("pending") &&
+                    !status.equalsIgnoreCase("success") &&
+                    !status.equalsIgnoreCase("failed")) {
+                responseObject = new ResponseObject(Constants.CODE_400, "Status should be success or failed or pending");
+                return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+            }
+            result = parentPaymentService.getParentTransaction(phoneNumber, status);
+        } else {
+            result = parentPaymentService.getParentTransaction(phoneNumber, null);
+        }
+
+        if (result != null) {
+            if (result.isEmpty()) {
+                responseObject = new ResponseObject(Constants.CODE_200, "Didn't have any payment yet");
+            } else {
+                responseObject = new ResponseObject(Constants.CODE_200, "OK");
+            }
+            responseObject.setData(result);
+            return new ResponseEntity<>(responseObject, HttpStatus.OK);
+        }
+
+        responseObject = new ResponseObject(Constants.CODE_500, "Server is down cannot get list transation for parent");
+        return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @RequestMapping(value = "/{phone}", method = RequestMethod.DELETE)
+    @ResponseBody
+    public ResponseEntity<Object> disableParentAccount(@PathVariable("phone") String phoneNumber) {
+
+        return null;
     }
 }

@@ -8,6 +8,7 @@ import capstone.petitehero.dtos.response.quest.QuestDeleteResponseDTO;
 import capstone.petitehero.dtos.response.quest.QuestDetailResponseDTO;
 import capstone.petitehero.entities.Quest;
 import capstone.petitehero.repositories.QuestRepository;
+import capstone.petitehero.utilities.Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,8 +32,7 @@ public class QuestService {
             result.setName(questResult.getName());
             result.setDescription(questResult.getDescription());
 
-            SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss");
-            result.setCreatedDate(sdf.format(questResult.getCreatedDate()));
+            result.setCreatedDate(Util.formatDateTime(questResult.getCreatedDate()));
 
             result.setProgress(questResult.getProgress());
             result.setCriteria(questResult.getCriteria());
@@ -81,8 +81,7 @@ public class QuestService {
             result.setName(questResult.getName());
             result.setDescription(questResult.getDescription());
 
-            SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss");
-            result.setCreatedDate(sdf.format(questResult.getCreatedDate()));
+            result.setCreatedDate(Util.formatDateTime(questResult.getCreatedDate()));
 
             result.setProgress(questResult.getProgress());
             result.setCriteria(questResult.getCriteria());
