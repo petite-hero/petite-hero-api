@@ -148,6 +148,7 @@ public class TaskService {
             Long startDateTimeStamp = calendar.getTimeInMillis();
 
             // set hour, minutes, seconds, milliseconds at end date
+            calendar.set(Calendar.AM_PM, Calendar.PM);
             calendar.set(Calendar.HOUR, 11);
             calendar.set(Calendar.MINUTE, 59);
             calendar.set(Calendar.SECOND, 59);
