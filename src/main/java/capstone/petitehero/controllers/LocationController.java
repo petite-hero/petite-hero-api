@@ -4,6 +4,7 @@ import capstone.petitehero.dtos.ResponseObject;
 import capstone.petitehero.dtos.request.location.AddLocationRequestDTO;
 import capstone.petitehero.dtos.request.location.AddNewSafeZoneRequestDTO;
 import capstone.petitehero.dtos.request.location.GetListByTimeRequestDTO;
+import capstone.petitehero.dtos.request.location.UpdateSafeZoneRequestDTO;
 import capstone.petitehero.services.LocationService;
 import capstone.petitehero.services.SafeZoneService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,5 +70,11 @@ public class LocationController {
     @ResponseBody
     public ResponseObject deleteSafeZone(@PathVariable(value = "safezoneId") Long safezoneId) {
         return safeZoneService.deleteSafeZone(safezoneId);
+    }
+
+    @RequestMapping(value = "/safezone", method = RequestMethod.PUT)
+    @ResponseBody
+    public ResponseObject updateSafeZone(@RequestBody UpdateSafeZoneRequestDTO dto) {
+        return safeZoneService.updateSafeZone(dto);
     }
 }
