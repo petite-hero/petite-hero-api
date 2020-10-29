@@ -16,7 +16,7 @@ import java.util.Collection;
 public class Child implements Serializable {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long childId;
 
     @Column(length = 30)

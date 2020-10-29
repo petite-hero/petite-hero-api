@@ -3,6 +3,7 @@ package capstone.petitehero.services;
 import capstone.petitehero.config.common.Constants;
 import capstone.petitehero.dtos.ResponseObject;
 import capstone.petitehero.dtos.request.parent.UpdatePushTokenRequestDTO;
+import capstone.petitehero.dtos.response.parent.DisableParentResponseDTO;
 import capstone.petitehero.dtos.response.parent.ParentProfileRegisterResponseDTO;
 import capstone.petitehero.dtos.response.parent.ParentRegisterResponseDTO;
 import capstone.petitehero.dtos.response.parent.ParentUpdateProfileResponseDTO;
@@ -26,16 +27,11 @@ public class ParentService {
              ParentRegisterResponseDTO result = new ParentRegisterResponseDTO();
              result.setPhoneNumber(parentResult.getAccount().getUsername());
 
-             result.setExpiredDate(Util.formatDateTime(parentResult.getExpiredDate()));
+             result.setMaxChildAllow(parentResult.getSubscription().getSubscriptionType().getMaxChildren());
+             result.setMaxCollaboratorAllow(parentResult.getSubscription().getSubscriptionType().getMaxCollaborator());
+             result.setAccountType("Free Trial");
 
-             result.setMaxChildAllow(new Integer(3));
-             result.setMaxCollaboratorAllow(new Integer(1));
-             if (parentResult.getIsFreeTrial().booleanValue()) {
-                 result.setAccountType("Free Trial");
-             } else {
-                 result.setAccountType("Petite Hero Account");
-             }
-//             result.setOTP()
+             result.setExpiredDate(Util.formatDateTime(parentResult.getSubscription().getExpiredDate()));
             return result;
         }
         return null;
@@ -66,15 +62,6 @@ public class ParentService {
                 } else {
                     result.setGender("Female");
                 }
-            }
-            result.setMaxChildAllow(parentResult.getMaxChildren());
-            result.setMaxCollaboratorAllow(parentResult.getMaxParent());
-
-            result.setExpiredDate(Util.formatDateTime(parentResult.getExpiredDate()));
-            if (parentResult.getIsFreeTrial().booleanValue()){
-                result.setAccountType("Free Trial");
-            } else {
-                result.setAccountType("Petite Hero Account");
             }
 
             return result;
@@ -146,6 +133,24 @@ public class ParentService {
         Parent result = parentRepository.save(parent);
         if (result != null) {
             return "New password has updated";
+        }
+        return null;
+    }
+
+    public DisableParentResponseDTO disableParentAccount(String phoneNumber) {
+        Parent parent = parentRepository.findParentByAccount_Username(phoneNumber);
+
+
+        if (parent != null) {
+            parent.setIsDisabled(Boolean.TRUE);
+            Parent parentResult = parentRepository.save(parent);
+            if (parentResult != null) {
+                DisableParentResponseDTO result = new DisableParentResponseDTO();
+
+                result.setPhoneNumber(parentResult.getAccount().getUsername());
+                result.setStatus("DELETED");
+                return result;
+            }
         }
         return null;
     }

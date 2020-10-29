@@ -16,8 +16,6 @@ public class QuestDetailResponseDTO implements Serializable {
     private String description;
     private String status;
     private String createdDate;
-    private Integer progress;
-    private Integer criteria;
     private String rewardName;
     private String rewardPhoto;
     private String questBadge;

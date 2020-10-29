@@ -13,7 +13,9 @@ public interface QuestRepository extends JpaRepository<Quest, Long> {
 
     Quest findQuestByQuestIdAndAndIsDeleted(Long questId, Boolean idDeleted);
 
-    List<Quest> findQuestsByChildChildIdAndIsDeleted(Long childId, Boolean isDeleted);
+    List<Quest> findQuestsByChildChildIdAndIsDeletedOrderByCreatedDateDesc(Long childId, Boolean isDeleted);
 
-    List<Quest> findQuestsByChildChildIdAndAndIsDeletedAndStatus(Long childId, Boolean isDeleted, String status);
+    List<Quest> findQuestsByChildChildIdAndAndIsDeletedAndStatusOrderByCreatedDateDesc(Long childId, Boolean isDeleted, String status);
+
+    List<Quest> findQuestsByChildChildIdAndIsDeletedAndStatus(Long childId, Boolean isDeleted, String status);
 }

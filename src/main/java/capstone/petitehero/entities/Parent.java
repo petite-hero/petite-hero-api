@@ -16,7 +16,7 @@ import java.util.Collection;
 public class Parent implements Serializable {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(length = 30)
@@ -35,22 +35,10 @@ public class Parent implements Serializable {
     private Boolean gender;
 
     @Column
-    private Boolean isFreeTrial;
-
-    @Column
-    private Long expiredDate;
-
-    @Column
-    private Integer maxChildren;
-
-    @Column
-    private Integer maxParent;
-
-    @Column
     private Boolean isDisabled;
 
-    @Column
-    private String OTP;
+    @Column(length = 10)
+    private String otp;
 
     @Column(length = Integer.MAX_VALUE)
     private String pushToken;

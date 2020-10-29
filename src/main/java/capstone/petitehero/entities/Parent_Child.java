@@ -15,7 +15,7 @@ import java.io.Serializable;
 public class Parent_Child implements Serializable {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne

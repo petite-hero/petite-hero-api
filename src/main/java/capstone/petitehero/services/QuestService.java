@@ -2,19 +2,19 @@ package capstone.petitehero.services;
 
 import capstone.petitehero.dtos.common.Assignee;
 import capstone.petitehero.dtos.common.Assigner;
-import capstone.petitehero.dtos.response.quest.ListQuestResponseDTO;
-import capstone.petitehero.dtos.response.quest.QuestCreateResponseDTO;
-import capstone.petitehero.dtos.response.quest.QuestDeleteResponseDTO;
-import capstone.petitehero.dtos.response.quest.QuestDetailResponseDTO;
+import capstone.petitehero.dtos.response.quest.*;
+import capstone.petitehero.dtos.response.quest.badge.QuestBadgeResponseDTO;
 import capstone.petitehero.entities.Quest;
 import capstone.petitehero.repositories.QuestRepository;
 import capstone.petitehero.utilities.Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class QuestService {
@@ -22,10 +22,18 @@ public class QuestService {
     @Autowired
     private QuestRepository questRepository;
 
-    public QuestCreateResponseDTO addQuestByParentOrCollaborator(Quest quest) {
+    public QuestCreateResponseDTO addQuestByParentOrCollaborator(Quest quest, MultipartFile rewardPhoto) {
         Quest questResult = questRepository.save(quest);
 
         if (questResult != null) {
+            questResult.setRewardPhoto(Util.saveImageToSystem(
+                    questResult.getQuestId().toString(),
+                    "Reward_Image",
+                    rewardPhoto));
+
+            // save reward image to db
+            questRepository.save(questResult);
+
             QuestCreateResponseDTO result = new QuestCreateResponseDTO();
 
             result.setQuestId(questResult.getQuestId());
@@ -34,12 +42,7 @@ public class QuestService {
 
             result.setCreatedDate(Util.formatDateTime(questResult.getCreatedDate()));
 
-            result.setProgress(questResult.getProgress());
-            result.setCriteria(questResult.getCriteria());
-            result.setRewardName(questResult.getRewardName());
-            result.setRewardPhoto(questResult.getRewardPhoto());
-            result.setStatus("CREATED");
-            result.setQuestBadge(questResult.getQuestBadge());
+            result.setStatus("ASSIGNED");
 
             // information of assigner (colaborator or parent)
             Assigner assigner = new Assigner();
@@ -83,12 +86,10 @@ public class QuestService {
 
             result.setCreatedDate(Util.formatDateTime(questResult.getCreatedDate()));
 
-            result.setProgress(questResult.getProgress());
-            result.setCriteria(questResult.getCriteria());
-            result.setRewardName(questResult.getRewardName());
-            result.setRewardPhoto(questResult.getRewardPhoto());
+//            result.setRewardName(questResult.getRewardName());
+//            result.setRewardPhoto(questResult.getRewardPhoto());
             result.setStatus(questResult.getStatus());
-            result.setQuestBadge(questResult.getQuestBadge());
+            result.setQuestBadge(Util.fromBadgeImageFileToBase64String(questResult.getQuestBadge()));
 
             // information of assigner (colaborator or parent)
             Assigner assigner = new Assigner();
@@ -142,9 +143,9 @@ public class QuestService {
     public List<ListQuestResponseDTO> getChildListOfQuest(Long childId, String status) {
         List<Quest> listQuestResult;
         if (status != null) {
-            listQuestResult = questRepository.findQuestsByChildChildIdAndAndIsDeletedAndStatus(childId, Boolean.FALSE, status);
+            listQuestResult = questRepository.findQuestsByChildChildIdAndAndIsDeletedAndStatusOrderByCreatedDateDesc(childId, Boolean.FALSE, status);
         } else {
-            listQuestResult = questRepository.findQuestsByChildChildIdAndIsDeleted(childId, Boolean.FALSE);
+            listQuestResult = questRepository.findQuestsByChildChildIdAndIsDeletedOrderByCreatedDateDesc(childId, Boolean.FALSE);
         }
         if (listQuestResult != null) {
             List<ListQuestResponseDTO> result = new ArrayList<>();
@@ -152,16 +153,49 @@ public class QuestService {
                 ListQuestResponseDTO resultData = new ListQuestResponseDTO();
 
                 resultData.setQuestId(questResult.getQuestId());
-                resultData.setCriteria(questResult.getCriteria());
-                resultData.setProgress(questResult.getProgress());
                 resultData.setName(questResult.getName());
-                resultData.setQuestBadge(questResult.getQuestBadge());
+
+                if (questResult.getQuestBadge() != null) {
+                    resultData.setQuestBadge(Util.fromBadgeImageFileToBase64String(questResult.getQuestBadge()));
+                }
 
                 result.add(resultData);
             }
             return result;
         }
 
+        return null;
+    }
+
+
+    public List<QuestBadgeResponseDTO> getBadgeListChildArchived(Long childId) {
+        List<Quest> listQuestResult = questRepository.findQuestsByChildChildIdAndIsDeletedAndStatus(childId, Boolean.FALSE, "FINISHED");
+
+        if (listQuestResult != null) {
+            List<QuestBadgeResponseDTO> result = new ArrayList<>();
+
+            List<Quest> filterQuestBadgeList = listQuestResult.stream()
+                    .filter(Util.distinctByKey(Quest::getQuestBadge)).collect(Collectors.toList());
+
+            for (Quest questBadgeDistinct : filterQuestBadgeList) {
+                QuestBadgeResponseDTO dataResult = new QuestBadgeResponseDTO();
+                dataResult.setQuestBadgeImage(questBadgeDistinct.getQuestBadge());
+
+                result.add(dataResult);
+            }
+
+            for (QuestBadgeResponseDTO questBadgeDistinct : result) {
+                Long questCompleted = listQuestResult.stream()
+                        .filter(quest -> quest.getQuestBadge().equals(questBadgeDistinct.getQuestBadgeImage()))
+                        .count();
+                questBadgeDistinct.setQuestCompletedNumber(questCompleted.intValue());
+                questBadgeDistinct.setQuestBadgeImage(Util.fromBadgeImageFileToBase64String(questBadgeDistinct.getQuestBadgeImage()));
+            }
+
+            result.sort(Comparator.comparing(QuestBadgeResponseDTO::getQuestCompletedNumber).reversed());
+
+            return result;
+        }
         return null;
     }
 }

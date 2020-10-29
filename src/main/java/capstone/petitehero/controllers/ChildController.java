@@ -190,7 +190,7 @@ public class ChildController {
             task.setCreatedDate(new Date(taskCreateRequestDTO.getCreatedDate()).getTime());
             task.setIsDeleted(Boolean.FALSE);
             task.setChild(child);
-            task.setStatus("CREATED");
+            task.setStatus("ASSIGNED");
 
             Parent creatorInformation = parentService.findParentByPhoneNumber(taskCreateRequestDTO.getCreatorPhoneNumber());
 
@@ -214,7 +214,9 @@ public class ChildController {
 
     @RequestMapping(value = "/quest", method = RequestMethod.POST)
     @ResponseBody
-    public ResponseEntity<Object> assignQuestByParent(@RequestBody QuestCreateRequestDTO questCreateRequestDTO) {
+    public ResponseEntity<Object> assignQuestByParent(@ModelAttribute QuestCreateRequestDTO questCreateRequestDTO,
+                                                      @RequestParam("rewardPhoto") MultipartFile rewardPhoto,
+                                                      @RequestParam("questBadge") MultipartFile questBadge) {
         ResponseObject responseObject;
 
         // validate mandatory fields
@@ -227,26 +229,6 @@ public class ChildController {
             responseObject = new ResponseObject(Constants.CODE_400, "Quest's reward name cannot be missing or empty");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
-
-        if (questCreateRequestDTO.getCriteria() == null || questCreateRequestDTO.getCriteria().toString().isEmpty()) {
-            responseObject = new ResponseObject(Constants.CODE_400, "Quest's criteria cannot be missing or empty");
-            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
-        } else {
-            if (!questCreateRequestDTO.getCriteria().toString().matches("\\d+")) {
-                responseObject = new ResponseObject(Constants.CODE_400, "Quest's criteria must be a positive number");
-                return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
-            }
-        }
-
-        if (questCreateRequestDTO.getCreatedDate() == null || questCreateRequestDTO.getCreatedDate().toString().isEmpty()) {
-            responseObject = new ResponseObject(Constants.CODE_400, "Quest's created date cannot be missing or empty");
-            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
-        }
-
-        if (questCreateRequestDTO.getQuestBadge() == null || questCreateRequestDTO.getQuestBadge().isEmpty()) {
-            responseObject = new ResponseObject(Constants.CODE_400, "Quest's badge cannot be missing or empty");
-            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
-        }
         //end validate mandatory fields
         Child child = childService.findChildByChildId(questCreateRequestDTO.getChildId(), Boolean.FALSE);
 
@@ -255,14 +237,11 @@ public class ChildController {
 
             quest.setName(questCreateRequestDTO.getName());
             quest.setDescription(questCreateRequestDTO.getDescription());
-            quest.setQuestBadge(questCreateRequestDTO.getQuestBadge());
+            quest.setQuestBadge(questBadge.getOriginalFilename());
             quest.setRewardName(questCreateRequestDTO.getRewardName());
-            quest.setRewardPhoto(questCreateRequestDTO.getRewardPhoto());
-            quest.setCriteria(questCreateRequestDTO.getCriteria());
 
-            quest.setCreatedDate(new Date(questCreateRequestDTO.getCreatedDate()).getTime());
-            quest.setProgress(new Integer(0));
-            quest.setStatus("INPROGRESS");
+            quest.setCreatedDate(new Date().getTime());
+            quest.setStatus("ASSIGNED");
 
             quest.setChild(child);
             quest.setIsDeleted(Boolean.FALSE);
@@ -271,7 +250,7 @@ public class ChildController {
 
             quest.setParent(creatorInformation);
 
-            QuestCreateResponseDTO result = questService.addQuestByParentOrCollaborator(quest);
+            QuestCreateResponseDTO result = questService.addQuestByParentOrCollaborator(quest, rewardPhoto);
 
             if (result != null) {
                 responseObject = new ResponseObject(Constants.CODE_200, "OK");

@@ -16,7 +16,7 @@ import java.util.Date;
 public class Quest implements Serializable {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long questId;
 
     @Column(length = 30)
@@ -24,12 +24,6 @@ public class Quest implements Serializable {
 
     @Column(length = Integer.MAX_VALUE)
     private String description;
-
-    @Column
-    private Integer criteria;
-
-    @Column
-    private Integer progress;
 
     @Column(length = Integer.MAX_VALUE)
     private String rewardPhoto;

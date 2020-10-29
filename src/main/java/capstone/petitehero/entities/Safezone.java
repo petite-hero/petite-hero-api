@@ -18,7 +18,7 @@ import java.util.Date;
 public class Safezone implements Serializable {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long safezoneId;
 
     @Column(length = 20)

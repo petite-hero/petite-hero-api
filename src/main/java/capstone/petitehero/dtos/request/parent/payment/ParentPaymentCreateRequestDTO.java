@@ -9,6 +9,6 @@ import java.io.Serializable;
 @Getter
 public class ParentPaymentCreateRequestDTO implements Serializable {
 
-    private Double amount;
+    private Long subscriptionTypeId;
     private String description;
 }

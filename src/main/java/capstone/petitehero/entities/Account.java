@@ -20,4 +20,9 @@ public class Account implements Serializable {
 
     @Column(length = 20)
     private String role;
+
+    @OneToOne(fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL,
+            mappedBy = "account")
+    private Parent parent;
 }

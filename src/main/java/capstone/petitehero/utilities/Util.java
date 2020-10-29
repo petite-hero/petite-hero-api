@@ -12,6 +12,10 @@ import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Base64;
 import java.util.Date;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 public class Util {
 
@@ -42,7 +46,19 @@ public class Util {
 
             return Base64.getEncoder().encodeToString(bytesPhoto);
         } catch (Exception e) {
-            return "Cannot get photo of child";
+            return "Cannot get image";
+        }
+    }
+
+    public static String fromBadgeImageFileToBase64String(String questBadge) {
+        try {
+            File imageLocation = new File(Constants.BADGE_FOLDER + "/" + questBadge);
+
+            byte[] bytesPhoto = FileUtils.readFileToByteArray(imageLocation);
+
+            return Base64.getEncoder().encodeToString(bytesPhoto);
+        } catch (Exception e) {
+            return "Cannot get badge image";
         }
     }
 
@@ -76,5 +92,11 @@ public class Util {
     public static String formatDateTime(Long timeStamp) {
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
         return sdf.format(new Date(timeStamp));
+    }
+
+    // for filter list to distinct list
+    public static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
+        Set<Object> seen = ConcurrentHashMap.newKeySet();
+        return t -> seen.add(keyExtractor.apply(t));
     }
 }

@@ -16,7 +16,7 @@ import java.util.Date;
 public class LocationHistory implements Serializable {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long locationHistoryId;
 
     @Column

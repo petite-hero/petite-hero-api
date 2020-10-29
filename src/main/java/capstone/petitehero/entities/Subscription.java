@@ -1,12 +1,12 @@
 package capstone.petitehero.entities;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.io.Serializable;
 
 @Getter
@@ -15,20 +15,21 @@ import java.io.Serializable;
 public class Subscription implements Serializable {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long subscriptionId;
 
-    @Column(length = 200)
-    private String description;
-
     @Column
-    private Double price;
+    private Long expiredDate;
 
-    @Column
-    private Integer maxChild;
+    @OneToOne(fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL,
+            mappedBy = "subscription")
+    private Parent parent;
 
-    @Column
-    private Integer maxCollaborator;
-
-
+    @ManyToOne
+    @JoinColumn(name = "subscription_type_id")
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    @JsonManagedReference
+    private SubscriptionType subscriptionType;
 }

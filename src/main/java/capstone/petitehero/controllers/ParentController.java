@@ -10,13 +10,12 @@ import capstone.petitehero.dtos.request.parent.ParentUpdateProfileRequestDTO;
 import capstone.petitehero.dtos.request.parent.UpdatePushTokenRequestDTO;
 import capstone.petitehero.dtos.request.parent.payment.ParentPaymentCreateRequestDTO;
 import capstone.petitehero.dtos.response.child.AddChildResponseDTO;
+import capstone.petitehero.dtos.response.parent.DisableParentResponseDTO;
 import capstone.petitehero.dtos.response.parent.ParentProfileRegisterResponseDTO;
 import capstone.petitehero.dtos.response.parent.ParentUpdateProfileResponseDTO;
 import capstone.petitehero.dtos.response.parent.payment.ListPaymentTransactionResponseDTO;
 import capstone.petitehero.dtos.response.parent.payment.ParentPaymentCompledResponseDTO;
-import capstone.petitehero.entities.Child;
-import capstone.petitehero.entities.Parent;
-import capstone.petitehero.entities.ParentPayment;
+import capstone.petitehero.entities.*;
 import capstone.petitehero.services.*;
 import capstone.petitehero.utilities.PaypalUtil;
 import capstone.petitehero.utilities.Util;
@@ -24,14 +23,17 @@ import com.paypal.api.payments.Links;
 import com.paypal.api.payments.Payment;
 import com.paypal.base.rest.PayPalRESTException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.springframework.http.MediaType.*;
 
@@ -54,6 +56,12 @@ public class ParentController {
 
     @Autowired
     private ParentPaymentService parentPaymentService;
+
+    @Autowired
+    private SubscriptionService subscriptionService;
+
+    @Value("${paypal.currency}")
+    private String currency;
 
     @RequestMapping(value = "/register-profile", method = RequestMethod.POST, consumes = ALL_VALUE)
     @ResponseBody
@@ -240,6 +248,31 @@ public class ParentController {
 
         Parent parentAccount = parentService.findParentByPhoneNumber(parentPhoneNumber);
 
+        int countMaxChildParentAccount = 0;
+
+        // get data from table parent_child so the data about child of parent will be duplicated
+        // filter
+        List<Parent_Child> filterChildForParentAccount =
+                parentAccount.getParent_childCollection().stream()
+                        .filter(Util.distinctByKey(Parent_Child::getChild))
+                        .collect(Collectors.toList());
+
+        System.out.println(filterChildForParentAccount.size());
+
+        // only child not disable in the system is count
+        for (Parent_Child childOfParent : filterChildForParentAccount) {
+            System.out.println("Child ID: " + childOfParent.getChild().getChildId());
+            if (!childOfParent.getChild().getIsDisabled().booleanValue()) {
+                countMaxChildParentAccount++;
+            }
+        }
+
+        if (countMaxChildParentAccount >=
+                parentAccount.getSubscription().getSubscriptionType().getMaxChildren()) {
+            responseObject = new ResponseObject(Constants.CODE_400, "Your subscription only support max 2 child and you already full");
+            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+        }
+
         if (parentAccount != null) {
             Child child = new Child();
             child.setFirstName(addChildRequestDTO.getFirstName());
@@ -370,17 +403,39 @@ public class ParentController {
         return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @RequestMapping(value = "/{phone}/paypal/payment", method = RequestMethod.POST)
+    @RequestMapping(value = "/{phone}/payment", method = RequestMethod.POST)
     @ResponseBody
-    public ResponseEntity<Object> testPaypal(HttpServletRequest request,
+    public ResponseEntity<Object> createParentPayment(HttpServletRequest request,
                                              @PathVariable("phone") String phoneNumber,
                                              @RequestBody ParentPaymentCreateRequestDTO parentPaymentCreateRequestDTO) {
         ResponseObject responseObject;
         Long currentTimeStamp = new Date().getTime();
-        String cancelUrl = PaypalUtil.getBaseURL(request) + "/parent/" + phoneNumber + "/paypal/cancel?createdDate=" + currentTimeStamp;
-        String successUrl = PaypalUtil.getBaseURL(request) + "/parent/" + phoneNumber + "/paypal/success?createdDate=" + currentTimeStamp;
+        // url when parent cancel payment (paypal api redirect back)
+        String cancelUrl = PaypalUtil.getBaseURL(request)
+                + "/parent/" + phoneNumber
+                + "/payment/cancel?createdDate=" + currentTimeStamp;
+
+        // url when parent success payment (paypal api redirect back)
+        String successUrl = PaypalUtil.getBaseURL(request)
+                + "/parent/" + phoneNumber
+                + "/payment/success?createdDate=" + currentTimeStamp
+                + "&subscriptionTypeId=" + parentPaymentCreateRequestDTO.getSubscriptionTypeId();
+
         try {
-            Payment payment = paypalServices.createPayment(parentPaymentCreateRequestDTO.getAmount(),
+            SubscriptionType subscriptionType = subscriptionService.findSubscriptionTypeById(parentPaymentCreateRequestDTO.getSubscriptionTypeId());
+
+            if (subscriptionType == null) {
+                responseObject = new ResponseObject(Constants.CODE_404, "Cannot found that subscription type in the system");
+                return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
+            }
+
+            // price in database is VND but paypal api doesn't support for VND
+            // change VND to USD
+            // VND currency is in application.properties;
+            Double usdCurrency = subscriptionType.getPrice() / Double.parseDouble(currency);
+
+            // parse 2 digits after digital. Because paypal api only required number has 6 digit and 2 digit after decimal
+            Payment payment = paypalServices.createPayment(Double.parseDouble(String.format("%.2f", usdCurrency)),
                     "USD",
                     "paypal",
                     "sale",
@@ -388,14 +443,16 @@ public class ParentController {
                     cancelUrl,
                     successUrl);
             for(Links links : payment.getLinks()){
+                // paypal catch the approval of parent
                 if(links.getRel().equals("approval_url")){
                     ParentPayment parentPayment = new ParentPayment();
                     parentPayment.setContent(parentPaymentCreateRequestDTO.getDescription());
-                    parentPayment.setAmount(parentPaymentCreateRequestDTO.getAmount());
+                    parentPayment.setAmount(subscriptionType.getPrice());
                     parentPayment.setStatus("PENDING");
 
                     Parent parent = parentService.findParentByPhoneNumber(phoneNumber);
 
+                    parentPayment.setLink(links.getHref());
                     parentPayment.setParent(parent);
                     parentPayment.setDate(currentTimeStamp);
                     ParentPayment result = parentPaymentService.insertParentPaymentToSystem(parentPayment);
@@ -418,9 +475,9 @@ public class ParentController {
         }
     }
 
-    @RequestMapping(value = "/{phone}/paypal/cancel", method = RequestMethod.GET)
+    @RequestMapping(value = "/{phone}/payment/cancel", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<Object> cancelPay(@PathVariable("phone") String parentPhoneNumber,
+    public ResponseEntity<Object> cancelParentPayment(@PathVariable("phone") String parentPhoneNumber,
                             @RequestParam(value = "createdDate") Long createdDateTimeStamp){
         ResponseObject responseObject;
         ParentPayment recentParentPayment = parentPaymentService.findParentPaymentToCompletePayment(parentPhoneNumber, createdDateTimeStamp);
@@ -442,8 +499,9 @@ public class ParentController {
         return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
     }
 
-    @RequestMapping(value = "/{phone}/paypal/success", method = RequestMethod.GET)
-    public ResponseEntity<Object> successPay(@PathVariable("phone") String parentPhoneNumber,
+    @RequestMapping(value = "/{phone}/payment/success", method = RequestMethod.GET)
+    public ResponseEntity<Object> successParentPayment(@PathVariable("phone") String parentPhoneNumber,
+                             @RequestParam(value = "subscriptionTypeId") Long subscriptionTypeId,
                              @RequestParam(value = "createdDate") Long createdDateTimeStamp,
                              @RequestParam(value = "paymentId") String paymentId,
                              @RequestParam(value = "PayerID") String payerId){
@@ -451,6 +509,32 @@ public class ParentController {
         try {
             Payment payment = paypalServices.executePayment(paymentId, payerId);
             if(payment.getState().equals("approved")){
+                SubscriptionType subscriptionType = subscriptionService.findSubscriptionTypeById(subscriptionTypeId);
+
+                if (subscriptionType == null) {
+                    responseObject = new ResponseObject(Constants.CODE_404, "Cannot found that subscription type in the system");
+                    return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
+                }
+
+                Parent parent = parentService.findParentByPhoneNumber(parentPhoneNumber);
+
+                if (parent == null) {
+                    responseObject = new ResponseObject(Constants.CODE_404, "Cannot found your account in the system");
+                    return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
+                }
+                // refresh 30 day when parent buy a subscription
+                Calendar calendar = Calendar.getInstance();
+                calendar.set(Calendar.MONTH, 30);
+                parent.getSubscription().setExpiredDate(calendar.getTime().getTime());
+                // update subscription type
+                parent.getSubscription().setSubscriptionType(subscriptionType);
+
+                // update parent subscription in the system
+                if (parentService.saveParentInformationToSystem(parent) == null) {
+                    responseObject = new ResponseObject(Constants.CODE_500, "Cannot updated your account in the system. Please come back later");
+                    return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+                }
+
                 ParentPayment recentParentPayment = parentPaymentService.findParentPaymentToCompletePayment(parentPhoneNumber, createdDateTimeStamp);
 
                 if (recentParentPayment != null) {
@@ -516,7 +600,16 @@ public class ParentController {
     @RequestMapping(value = "/{phone}", method = RequestMethod.DELETE)
     @ResponseBody
     public ResponseEntity<Object> disableParentAccount(@PathVariable("phone") String phoneNumber) {
+        ResponseObject responseObject;
 
-        return null;
+        DisableParentResponseDTO result = parentService.disableParentAccount(phoneNumber);
+        if (result != null) {
+            responseObject = new ResponseObject(Constants.CODE_200, "OK");
+            responseObject.setData(result);
+            return new ResponseEntity<>(responseObject, HttpStatus.OK);
+        }
+
+        responseObject = new ResponseObject(Constants.CODE_500, "Cannot disable parent account");
+        return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

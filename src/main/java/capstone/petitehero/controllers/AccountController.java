@@ -9,9 +9,12 @@ import capstone.petitehero.dtos.response.account.AccountLoginResponseDTO;
 import capstone.petitehero.dtos.response.parent.ParentRegisterResponseDTO;
 import capstone.petitehero.entities.Account;
 import capstone.petitehero.entities.Parent;
+import capstone.petitehero.entities.Subscription;
+import capstone.petitehero.entities.SubscriptionType;
 import capstone.petitehero.exceptions.DuplicateKeyException;
 import capstone.petitehero.services.AccountService;
 import capstone.petitehero.services.ParentService;
+import capstone.petitehero.services.SubscriptionService;
 import capstone.petitehero.utilities.Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -29,6 +32,9 @@ public class AccountController {
 
     @Autowired
     private ParentService parentService;
+
+    @Autowired
+    private SubscriptionService subscriptionService;
 
     @RequestMapping(value = "/admin/register", method = RequestMethod.POST)
     @ResponseBody
@@ -94,13 +100,7 @@ public class AccountController {
         Parent parent = new Parent();
 
         // add license & policy for parent account
-        parent.setIsFreeTrial(Boolean.TRUE);
-        parent.setMaxChildren(1);
-        parent.setMaxParent(1);
         parent.setIsDisabled(Boolean.FALSE);
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.DATE, 30);
-        parent.setExpiredDate(calendar.getTime().getTime()); // trial 1 month
 
         // create account and save parent information to account
         Account account = new Account();
@@ -111,20 +111,43 @@ public class AccountController {
         try {
             Account accountResult = accountService.registerByParent(account);
             if (accountResult != null) {
-                parent.setAccount(accountResult);
-                ParentRegisterResponseDTO parentResult = parentService.registerByParent(parent);
-                if (parentResult != null) {
-                    responseObject = new ResponseObject(Constants.CODE_200, "OK");
-                    responseObject.setData(parentResult);
-                    return new ResponseEntity<>(responseObject, HttpStatus.OK);
+                // create new subscription type free trial for parent account
+                Subscription subscription = new Subscription();
+                SubscriptionType subscriptionType = subscriptionService.findSubscriptionTypeById(Constants.FREE_TRAIL_TYPE);
+                if (subscriptionType == null) {
+                    responseObject = new ResponseObject(Constants.CODE_404, "Cannot found that subscription type in the system");
+                    return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
                 }
+                subscription.setSubscriptionType(subscriptionType);
+
+                Calendar calendar = Calendar.getInstance();
+                calendar.set(Calendar.MONTH, 30);
+                subscription.setExpiredDate(calendar.getTime().getTime());
+
+                Subscription subscriptionResult = subscriptionService.createFreeTrialSubscriptionForParentAccount(subscription);
+
+                if (subscriptionResult != null) {
+                    parent.setSubscription(subscriptionResult);
+                    parent.setAccount(accountResult);
+
+                    ParentRegisterResponseDTO parentResult = parentService.registerByParent(parent);
+                    if (parentResult != null) {
+                        responseObject = new ResponseObject(Constants.CODE_200, "OK");
+                        responseObject.setData(parentResult);
+                        return new ResponseEntity<>(responseObject, HttpStatus.OK);
+                    }
+                    responseObject = new ResponseObject(Constants.CODE_500, "Server is down cannot save your account to the system");
+                    return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+                }
+                responseObject = new ResponseObject(Constants.CODE_500, "Server is down cannot save your account to the system");
+                return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
             }
-            responseObject = new ResponseObject(Constants.CODE_500, "Server is down cannot save your account to the system");
-            return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (DuplicateKeyException duplicateKeyException) {
             responseObject = new ResponseObject(Constants.CODE_400, duplicateKeyException.getMessage());
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
+        responseObject = new ResponseObject(Constants.CODE_500, "Server is down cannot save your account to the system");
+        return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @RequestMapping(value = "/login", method = RequestMethod.POST)

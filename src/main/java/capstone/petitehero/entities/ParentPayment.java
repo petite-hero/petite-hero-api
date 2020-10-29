@@ -16,7 +16,7 @@ import java.util.Date;
 public class ParentPayment implements Serializable {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long transactionId;
 
     @Column(length = Integer.MAX_VALUE)
