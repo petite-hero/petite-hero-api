@@ -77,4 +77,10 @@ public class LocationController {
     public ResponseObject updateSafeZone(@RequestBody UpdateSafeZoneRequestDTO dto) {
         return safeZoneService.updateSafeZone(dto);
     }
+
+    @RequestMapping(value = "/toggle/{child}/{status}", method = RequestMethod.PUT)
+    @ResponseBody
+    public ResponseObject changeSWStatus(@PathVariable(value = "child") Long child, @PathVariable(value = "status") Boolean status) {
+        return locationService.changeSWStatus(child, status);
+    }
 }

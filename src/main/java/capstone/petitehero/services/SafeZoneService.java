@@ -169,8 +169,7 @@ public class SafeZoneService {
                 safezone.setIsDisabled(Constants.IS_DISABLED);
                 Safezone updatedSafezone = safeZoneRepository.save(safezone);
                 if (updatedSafezone != null) {
-                    updatedSafezone.setChild(null);
-                    result.setData(updatedSafezone);
+                    result.setData(null);
                     result.setMsg(Constants.NO_ERROR);
                 }
             }

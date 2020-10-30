@@ -185,6 +185,37 @@ public class LocationService {
         return result;
     }
 
+    public ResponseObject changeSWStatus(Long childId, Boolean status) {
+        ResponseObject result = Util.createResponse();
+        try {
+            Child child = childRepository.getOne(childId);
+            if (child == null) {
+                result.setMsg("Bad Request - Child ID doesn't exist");
+                result.setCode(Constants.CODE_400);
+            } else {
+                PushSilentNotiSWDTO data = new PushSilentNotiSWDTO();
+                if (status) {
+                    data.setTitle(Constants.TRACKING_ACTIVE);
+                } else {
+                    data.setTitle(Constants.TRACKING_INACTIVE);
+                }
+                getLatestChildLocation(childId);
+                System.out.println("====> Child token: " + child.getPushToken());
+                Integer pushStatus = pushSilentNotificationSW(data, child.getPushToken());
+                if (pushStatus == Constants.CODE_200) {
+                    result.setMsg("Change status successfully!");
+                } else if (pushStatus == Constants.CODE_500) {
+                    result.setMsg("Error at pushSilentNotificationSW");
+                }
+            }
+        } catch (Exception e) {
+            result.setData(null);
+            result.setMsg(Constants.SERVER_ERROR + e.toString());
+            result.setCode(Constants.CODE_500);
+        }
+        return result;
+    }
+
     public Integer pushSilentNotificationMobile(Object data, ArrayList<String> pushTokens) {
         HttpClient httpClient = HttpClientBuilder.create().build();
         Integer result;
@@ -208,7 +239,6 @@ public class LocationService {
 
             // handle response here...
             result = response.getStatusLine().getStatusCode();
-            System.out.println(result);
 
         } catch (Exception ex) {
             result = Constants.CODE_500;
