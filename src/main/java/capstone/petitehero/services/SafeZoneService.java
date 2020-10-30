@@ -229,8 +229,7 @@ public class SafeZoneService {
                     } else {
                         result.setMsg("Updated safe zone but error occurred when notifying SW");
                     }
-                    updatedSafezone.setChild(null);
-                    result.setData(updatedSafezone);
+                    result.setData(null);
                 }
             }
 
