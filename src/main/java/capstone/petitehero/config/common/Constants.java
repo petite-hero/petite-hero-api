@@ -50,6 +50,8 @@ public class Constants {
 
     public static final String EMERGENCY = "emergency";
     public static final String STOP_EMERGENCY = "stop_emergency";
+    public static final String TRACKING_ACTIVE = "active";
+    public static final String TRACKING_INACTIVE = "inactive";
 
     public static final String SERVER_ERROR = "Server Error: ";
 
