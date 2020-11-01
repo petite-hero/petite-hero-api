@@ -49,6 +49,7 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
                 .antMatchers("/location/safezone/{safezoneId}").permitAll()
                 .antMatchers("/location/safezone").permitAll()
                 .antMatchers("/location/emergency/{child}/{emergency}").permitAll()
+                .antMatchers("/location/toggle/{child}/{status}").permitAll()
                 .antMatchers("/parent/token").permitAll()
                 .antMatchers("/child/task").permitAll()
                 .antMatchers("/child/quest").permitAll()
