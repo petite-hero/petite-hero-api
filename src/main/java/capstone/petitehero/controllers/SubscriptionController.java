@@ -7,11 +7,7 @@ import capstone.petitehero.dtos.response.subscription.type.CreateSubscriptionTyp
 import capstone.petitehero.dtos.response.subscription.type.ListSubscriptionTypeResponseDTO;
 import capstone.petitehero.dtos.response.subscription.type.ModifySubscriptionTypeResponseDTO;
 import capstone.petitehero.dtos.response.subscription.type.SubscriptionTypeDetailResponseDTO;
-import capstone.petitehero.entities.Parent;
-import capstone.petitehero.entities.Subscription;
 import capstone.petitehero.entities.SubscriptionType;
-import capstone.petitehero.repositories.ParentRepository;
-import capstone.petitehero.repositories.SubscriptionRepository;
 import capstone.petitehero.services.SubscriptionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -26,12 +22,6 @@ public class SubscriptionController {
 
     @Autowired
     private SubscriptionService subscriptionService;
-
-    @Autowired
-    private ParentRepository parentRepository;
-
-    @Autowired
-    private SubscriptionRepository subscriptionRepository;
 
     @RequestMapping(value = "/type", method = RequestMethod.POST)
     @ResponseBody
@@ -98,6 +88,11 @@ public class SubscriptionController {
                                                          @RequestBody CreateSubscriptionTypeRequestDTO modifySubscriptionTypeRequestDTO) {
         ResponseObject responseObject;
         SubscriptionType subscriptionType = subscriptionService.findSubscriptionTypeById(subscriptionTypeId);
+
+        if (subscriptionType != null) {
+            responseObject = new ResponseObject(Constants.CODE_404, "Cannot found that subscription type in the system");
+            return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
+        }
         if (modifySubscriptionTypeRequestDTO.getName() != null && !modifySubscriptionTypeRequestDTO.getName().isEmpty()) {
             subscriptionType.setName(modifySubscriptionTypeRequestDTO.getName());
         }

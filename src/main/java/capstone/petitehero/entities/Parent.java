@@ -37,9 +37,6 @@ public class Parent implements Serializable {
     @Column
     private Boolean isDisabled;
 
-    @Column(length = 10)
-    private String otp;
-
     @Column(length = Integer.MAX_VALUE)
     private String pushToken;
 

@@ -172,8 +172,16 @@ public class ChildController {
             responseObject = new ResponseObject(Constants.CODE_400, "Task's assigned date cannot be missing or empty");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
-        if (taskCreateRequestDTO.getDeadline() == null || taskCreateRequestDTO.getDeadline().toString().isEmpty()) {
-            responseObject = new ResponseObject(Constants.CODE_400, "Task's deadline cannot be missing or empty");
+        if (taskCreateRequestDTO.getFromTime() == null || taskCreateRequestDTO.getFromTime().toString().isEmpty()) {
+            responseObject = new ResponseObject(Constants.CODE_400, "Task's start deadline time cannot be missing or empty");
+            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+        }
+        if (taskCreateRequestDTO.getToTime() == null || taskCreateRequestDTO.getToTime().toString().isEmpty()) {
+            responseObject = new ResponseObject(Constants.CODE_400, "Task's end deadline time cannot be missing or empty");
+            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+        }
+        if (taskCreateRequestDTO.getType() == null || taskCreateRequestDTO.getType().isEmpty()) {
+            responseObject = new ResponseObject(Constants.CODE_400, "Task's type cannot be missing or empty");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
         // end validate mandatory fields
@@ -181,24 +189,39 @@ public class ChildController {
         Child child = childService.findChildByChildId(taskCreateRequestDTO.getChildId(), Boolean.FALSE);
 
         if (child != null) {
-
             Task task = new Task();
             task.setName(taskCreateRequestDTO.getName());
             task.setDescription(taskCreateRequestDTO.getDescription());
+
             task.setAssignDate(new Date(taskCreateRequestDTO.getAssignDate()).getTime());
-            task.setDeadLine(new Date(taskCreateRequestDTO.getDeadline()).getTime());
-            task.setCreatedDate(new Date(taskCreateRequestDTO.getCreatedDate()).getTime());
+            task.setFromTime(new Date(taskCreateRequestDTO.getFromTime()));
+            task.setToTime(new Date(taskCreateRequestDTO.getToTime()));
+            task.setCreatedDate(new Date().getTime());
+            task.setType(taskCreateRequestDTO.getType());
+
             task.setIsDeleted(Boolean.FALSE);
-            task.setChild(child);
             task.setStatus("ASSIGNED");
 
-            Parent creatorInformation = parentService.findParentByPhoneNumber(taskCreateRequestDTO.getCreatorPhoneNumber());
+            //
+            if (taskCreateRequestDTO.getRepeatOn() == null || taskCreateRequestDTO.getRepeatOn().isEmpty()) {
+                responseObject = new ResponseObject(Constants.CODE_400,"Repeat on of task cannot be empty or missing");
+                return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+            } else {
+                if (!taskCreateRequestDTO.getRepeatOn().matches("[1,0]{7}")) {
+                    responseObject = new ResponseObject(Constants.CODE_400,"Repeat on of task should only contains 7 digits (1 or 0)");
+                    return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+                }
+                task.setRepeatOn(taskCreateRequestDTO.getRepeatOn());
+            }
 
+            task.setChild(child);
+
+            Parent creatorInformation = parentService.findParentByPhoneNumber(taskCreateRequestDTO.getCreatorPhoneNumber());
             task.setParent(creatorInformation);
+
             TaskCreateResponseDTO result = taskService.addTaskByParent(task);
 
             if (result != null) {
-
                 responseObject = new ResponseObject(Constants.CODE_200, "OK");
                 responseObject.setData(result);
                 return new ResponseEntity<>(responseObject, HttpStatus.OK);

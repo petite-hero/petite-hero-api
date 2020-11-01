@@ -4,6 +4,7 @@ import capstone.petitehero.config.common.Constants;
 import capstone.petitehero.dtos.ResponseObject;
 import capstone.petitehero.dtos.common.ChildInformation;
 import capstone.petitehero.dtos.request.child.AddChildRequestDTO;
+import capstone.petitehero.dtos.request.collaborator.AddCollaboratorRequestDTO;
 import capstone.petitehero.dtos.request.parent.ParentChangePasswordRequestDTO;
 import capstone.petitehero.dtos.request.parent.ParentRegisterRequestDTO;
 import capstone.petitehero.dtos.request.parent.ParentUpdateProfileRequestDTO;
@@ -176,6 +177,10 @@ public class ParentController {
         ResponseObject responseObject;
 
         Parent parent = parentService.findParentByPhoneNumber(parentPhoneNumber);
+        if (parent != null) {
+            responseObject = new ResponseObject(Constants.CODE_404, "Cannot found that parent account in the system");
+            return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
+        }
 
         if (parentUpdateProfileRequestDTO.getFirstName() != null && !parentUpdateProfileRequestDTO.getFirstName().isEmpty()) {
             parent.setFirstName(parentUpdateProfileRequestDTO.getFirstName());
@@ -257,8 +262,6 @@ public class ParentController {
                         .filter(Util.distinctByKey(Parent_Child::getChild))
                         .collect(Collectors.toList());
 
-        System.out.println(filterChildForParentAccount.size());
-
         // only child not disable in the system is count
         for (Parent_Child childOfParent : filterChildForParentAccount) {
             System.out.println("Child ID: " + childOfParent.getChild().getChildId());
@@ -309,6 +312,32 @@ public class ParentController {
             responseObject = new ResponseObject(Constants.CODE_404, "Cannot find your account in system to add child");
             return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @RequestMapping(value = "/{parentPhoneNumber}/collaborator", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<Object> addNewCollaborator(@PathVariable("parentPhoneNumber") String parentPhoneNumber,
+                                                     @RequestBody AddCollaboratorRequestDTO addCollaboratorRequestDTO) {
+        ResponseObject responseObject;
+
+        Parent parentAccount = parentService.findParentByPhoneNumber(parentPhoneNumber);
+        if (parentAccount != null) {
+            Parent collaboratorAccount = parentService.findParentByPhoneNumber(addCollaboratorRequestDTO.getCollaboratorPhoneNumber());
+            if (collaboratorAccount != null) {
+                parentChildService.addNewCollaborator(addCollaboratorRequestDTO.getListChildId(), parentAccount, collaboratorAccount);
+
+
+            } else {
+                responseObject = new ResponseObject(Constants.CODE_404, "Cannot found that collaborator account in the system");
+                return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
+            }
+
+            responseObject = new ResponseObject(Constants.CODE_500, "Server is down cannot add collaborator to the system");
+            return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        responseObject = new ResponseObject(Constants.CODE_404, "Cannot find your account in the system");
+        return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
     }
 
     @RequestMapping(value = "/{childId}/regenerate-qrcode", method = RequestMethod.GET)
@@ -602,14 +631,20 @@ public class ParentController {
     public ResponseEntity<Object> disableParentAccount(@PathVariable("phone") String phoneNumber) {
         ResponseObject responseObject;
 
-        DisableParentResponseDTO result = parentService.disableParentAccount(phoneNumber);
+        Parent parent = parentService.findParentByPhoneNumber(phoneNumber);
+        if (parent == null) {
+            responseObject = new ResponseObject(Constants.CODE_404, "Cannot found that parent account in the system");
+            return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
+        }
+
+        DisableParentResponseDTO result = parentService.disableParentAccount(parent);
         if (result != null) {
             responseObject = new ResponseObject(Constants.CODE_200, "OK");
             responseObject.setData(result);
             return new ResponseEntity<>(responseObject, HttpStatus.OK);
         }
 
-        responseObject = new ResponseObject(Constants.CODE_500, "Cannot disable parent account");
+        responseObject = new ResponseObject(Constants.CODE_500, "Server cannot disable parent account");
         return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

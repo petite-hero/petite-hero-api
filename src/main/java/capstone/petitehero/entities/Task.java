@@ -41,10 +41,24 @@ public class Task implements Serializable {
     private Long submitDate;
 
     @Column
-    private Long deadLine;
+    @Temporal(value = TemporalType.TIME)
+    private Date fromTime;
+
+    @Column
+    @Temporal(value = TemporalType.TIME)
+    private Date toTime;
+
+    @Column(length = 8)
+    private String repeatOn;
+
+    @Column
+    private Long isDuplicateTask;
 
     @Column
     private Boolean isDeleted;
+
+    @Column(length = 30)
+    private String type;
 
     @ManyToOne
     @JoinColumn(name = "assignee_id")

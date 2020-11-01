@@ -4,7 +4,9 @@ import capstone.petitehero.dtos.common.ChildInformation;
 import capstone.petitehero.entities.Child;
 import capstone.petitehero.entities.Parent;
 import capstone.petitehero.entities.Parent_Child;
+import capstone.petitehero.repositories.ChildRepository;
 import capstone.petitehero.repositories.ParentChildRepository;
+import capstone.petitehero.repositories.ParentRepository;
 import capstone.petitehero.utilities.Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,12 @@ public class ParentChildService {
 
     @Autowired
     private ParentChildRepository parentChildRepository;
+
+    @Autowired
+    private ParentRepository parentRepository;
+
+    @Autowired
+    private ChildRepository childRepository;
 
     public List<ChildInformation> getListChildOfParent(String parentPhoneNumber) {
         List<Parent_Child> listResult = parentChildRepository.findParent_ChildrenByParent_Account_UsernameAndChild_IsDisabled(parentPhoneNumber, Boolean.FALSE);
@@ -62,4 +70,23 @@ public class ParentChildService {
         return parentChildRepository.findParent_ChildByChild_ChildIdAndChild_IsDisabled(childId, Boolean.FALSE);
     }
 
+    public Parent_Child addNewCollaborator(List<Long> listChildId, Parent parent, Parent collaboratorAccount) {
+        Parent_Child parent_child;
+        for (Long childId: listChildId) {
+            parent_child =
+                    parentChildRepository.findParent_ChildByChild_ChildIdAndParent_IdAndCollaboratorIsNull(childId, parent.getId());
+            if (parent_child != null) {
+                parent_child.setIsCollaboratorConfirm(Boolean.FALSE);
+                parent_child.setCollaborator(collaboratorAccount);
+            } else {
+                parent_child = new Parent_Child();
+
+                parent_child.setParent(parent);
+                parent_child.setIsCollaboratorConfirm(Boolean.FALSE);
+                parent_child.setCollaborator(collaboratorAccount);
+                parent_child.setChild(childRepository.findChildByChildIdEqualsAndIsDisabled(childId, Boolean.FALSE));
+            }
+        }
+        return null;
+    }
 }

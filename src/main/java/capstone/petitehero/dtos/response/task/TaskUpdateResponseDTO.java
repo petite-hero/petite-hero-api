@@ -7,11 +7,10 @@ import java.io.Serializable;
 
 @Setter
 @Getter
-public class ListTaskResponseDTO implements Serializable {
+public class TaskUpdateResponseDTO implements Serializable {
 
     private Long taskId;
     private String name;
+    private String assignDate;
     private String status;
-    private String fromTime;
-    private String toTime;
 }

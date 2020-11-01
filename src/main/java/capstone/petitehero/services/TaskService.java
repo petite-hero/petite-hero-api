@@ -2,21 +2,19 @@ package capstone.petitehero.services;
 
 import capstone.petitehero.dtos.common.Assignee;
 import capstone.petitehero.dtos.common.Assigner;
-import capstone.petitehero.dtos.response.task.ListTaskResponseDTO;
-import capstone.petitehero.dtos.response.task.TaskCreateResponseDTO;
-import capstone.petitehero.dtos.response.task.TaskDeleteResponseDTO;
-import capstone.petitehero.dtos.response.task.TaskDetailResponseDTO;
+import capstone.petitehero.dtos.response.task.*;
 import capstone.petitehero.entities.Task;
 import capstone.petitehero.repositories.TaskRepository;
 import capstone.petitehero.utilities.Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class TaskService {
@@ -31,11 +29,16 @@ public class TaskService {
             TaskCreateResponseDTO result = new TaskCreateResponseDTO();
             result.setTaskId(taskResult.getTaskId());
             result.setDescription(taskResult.getDescription());
-            result.setDeadline(Util.formatDateTime(taskResult.getDeadLine()));
-            result.setAssignDate(Util.formatDateTime(taskResult.getAssignDate()));
-            // Todo set created date based on format
-            result.setCreatedDate(Util.formatDateTime(taskResult.getCreatedDate()));
-            result.setStatus("CREATED");
+
+            result.setAssignDate(Util.formatTimestampToDateTime(taskResult.getAssignDate()));
+            result.setCreatedDate(Util.formatTimestampToDateTime(taskResult.getCreatedDate()));
+
+            result.setFromTime(Util.formatTimestampToTime(taskResult.getFromTime().getTime()));
+            result.setToTime(Util.formatTimestampToTime(taskResult.getToTime().getTime()));
+
+            result.setIsRepeatOn(Util.fromRepeatOnStringToDayInWeek(taskResult.getRepeatOn()));
+            result.setType(taskResult.getType());
+            result.setStatus("ASSIGNED");
 
             // information of assigner (colaborator or parent)
             Assigner assigner = new Assigner();
@@ -76,9 +79,19 @@ public class TaskService {
             result.setName(taskResult.getName());
             result.setDescription(taskResult.getDescription());
 
-            result.setDeadline(Util.formatDateTime(taskResult.getDeadLine()));
-            result.setAssignDate(Util.formatDateTime(taskResult.getAssignDate()));
-            result.setCreatedDate(Util.formatDateTime(taskResult.getCreatedDate()));
+            result.setAssignDate(Util.formatTimestampToDateTime(taskResult.getAssignDate()));
+            result.setCreatedDate(Util.formatTimestampToDateTime(taskResult.getCreatedDate()));
+
+            result.setFromTime(Util.formatTimestampToTime(taskResult.getFromTime().getTime()));
+            result.setToTime(Util.formatTimestampToTime(taskResult.getToTime().getTime()));
+            result.setType(taskResult.getType());
+
+            if (taskResult.getIsDuplicateTask() != null) {
+                Task tempTask = taskRepository.findTasksByTaskIdAndIsDeleted(taskResult.getIsDuplicateTask(), Boolean.FALSE);
+                result.setIsRepeatOn(Util.fromRepeatOnStringToDayInWeek(tempTask.getRepeatOn()));
+            } else {
+                result.setIsRepeatOn(Util.fromRepeatOnStringToDayInWeek(taskResult.getRepeatOn()));
+            }
 
             // information of assigner (colaborator or parent)
             Assigner assigner = new Assigner();
@@ -105,9 +118,12 @@ public class TaskService {
             }
             result.setAssignee(assignee);
 
-            // TODO
-            result.setSubmitDate("string");
-            result.setProofPhoto("string");
+            if (taskResult.getSubmitDate() != null && !taskResult.getSubmitDate().toString().isEmpty()) {
+                result.setSubmitDate(Util.formatTimestampToDateTime(taskResult.getSubmitDate()));
+            }
+            if (taskResult.getProofPhoto() != null && !taskResult.getProofPhoto().isEmpty()) {
+                result.setProofPhoto(Util.fromImageFileToBase64String(taskResult.getProofPhoto()));
+            }
 
             return result;
         }
@@ -115,11 +131,30 @@ public class TaskService {
         return null;
     }
 
-    public TaskDeleteResponseDTO deleteTask(Long taskId) {
-        Task task = taskRepository.findTaskByTaskId(taskId);
+    public TaskDeleteResponseDTO    deleteTask(Task task, Boolean isDuplicatedTask) {
+        if (isDuplicatedTask != null) {
+            if (isDuplicatedTask.booleanValue()) {
+                if (task != null) {
+                    task.setIsDeleted(Boolean.TRUE);
+                    Task taskDeleted = taskRepository.save(task);
 
-        task.setIsDeleted(Boolean.TRUE);
+                    if (taskDeleted != null) {
+                        TaskDeleteResponseDTO result = new TaskDeleteResponseDTO();
+                        result.setTaskId(taskDeleted.getTaskId());
+                        result.setStatus("DELETED");
+                        return result;
+                    }
+                }
+                return null;
+            }
+        }
         if (task != null) {
+            task.setIsDeleted(Boolean.TRUE);
+            List<Task> duplicatedTask = taskRepository.findTaskByIsDuplicateTaskAndIsDeleted(task.getTaskId(), Boolean.FALSE);
+            for (Task t : duplicatedTask) {
+                t.setIsDeleted(Boolean.TRUE);
+                taskRepository.save(t);
+            }
             Task taskDeleted = taskRepository.save(task);
 
             if (taskDeleted != null) {
@@ -132,28 +167,11 @@ public class TaskService {
         return null;
     }
     
-    public List<ListTaskResponseDTO> getChildListOfTask(Long childId, Date date) {
+    public List<Task> getChildOfTaskAtAssignedDate(Long childId, Long assignedDateTimeStamp) {
         List<Task> listTaskResult;
-        if (date != null) {
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(date);
-            calendar.set(Calendar.AM_PM, Calendar.AM);
-
-
-            // set hour, minutes, seconds, milliseconds at start date
-            calendar.set(Calendar.HOUR, 0);
-            calendar.set(Calendar.MINUTE, 0);
-            calendar.set(Calendar.SECOND, 0);
-            calendar.set(Calendar.MILLISECOND, 0);
-            Long startDateTimeStamp = calendar.getTimeInMillis();
-
-            // set hour, minutes, seconds, milliseconds at end date
-            calendar.set(Calendar.AM_PM, Calendar.PM);
-            calendar.set(Calendar.HOUR, 11);
-            calendar.set(Calendar.MINUTE, 59);
-            calendar.set(Calendar.SECOND, 59);
-            calendar.set(Calendar.MILLISECOND, 999);
-            Long endDateTimeStamp = calendar.getTimeInMillis();
+        if (assignedDateTimeStamp != null) {
+            Long startDateTimeStamp = Util.getStartDay(assignedDateTimeStamp);
+            Long endDateTimeStamp = Util.getEndDay(assignedDateTimeStamp);
 
             listTaskResult = taskRepository.findTasksByChildChildIdAndIsDeletedAndAssignDateIsBetween(childId, Boolean.FALSE, startDateTimeStamp, endDateTimeStamp);
         } else {
@@ -161,20 +179,203 @@ public class TaskService {
         }
 
         if (listTaskResult != null) {
-            List<ListTaskResponseDTO> result = new ArrayList<>();
-            for (Task taskResult: listTaskResult) {
+            return listTaskResult;
+        }
+
+        return null;
+    }
+
+    public List<Task> findAllChildTaskHasRepeatOn(Long childId, Long timeStampDateRepeat) {
+        List<Task> result = new ArrayList<>();
+        List<Task> allTaskHasRepeat = taskRepository.findTasksByChildChildIdAndIsDeletedAndRepeatOnIsNotNull(childId, Boolean.FALSE);
+
+        // filter task that's already duplicated
+        Long startDateTimeStamp = Util.getStartDay(timeStampDateRepeat);
+        Long endDateTimeStamp = Util.getEndDay(timeStampDateRepeat);
+        List<Task> taskHasBeenDuplicated = taskRepository.findTasksByChildChildIdAndAssignDateIsBetweenAndAndIsDuplicateTaskIsNotNull(
+            childId, startDateTimeStamp, endDateTimeStamp);
+
+        // find all the task that need duplicate
+        int indexOfDayRepeat = Util.fromTimeStampToDayInWeek(timeStampDateRepeat);
+        List<Task> taskNeedToRepeat = new ArrayList<>();
+        for (Task task : allTaskHasRepeat) {
+            // check the string repeat on of task at index of n is 1
+            // if is 1 that's the task need to duplicate in the system
+            if (String.format("%c", task.getRepeatOn().charAt(indexOfDayRepeat)).equals("1")
+                    && task.getCreatedDate() < Util.getStartDay(timeStampDateRepeat)
+                    && Util.getStartDay(task.getAssignDate()).longValue() != Util.getStartDay(timeStampDateRepeat)) {
+                taskNeedToRepeat.add(task);
+            }
+        }
+        // end find all the task that need duplicate
+
+        // filter all task that all ready duplicated
+        if (!taskHasBeenDuplicated.isEmpty()) {
+            for (Task task : taskHasBeenDuplicated) {
+                Task alreadyDuplicated = taskNeedToRepeat.stream()
+                        .filter(t -> t.getTaskId() == task.getIsDuplicateTask())
+                        .findAny().orElse(null);
+                if (alreadyDuplicated != null) {
+                    taskNeedToRepeat.remove(alreadyDuplicated);
+                }
+            }
+        }
+        // end filter all task that all ready duplicated
+
+        // duplicate task and save to the system
+        if (!taskNeedToRepeat.isEmpty()) {
+            for (Task taskNeedDuplicate : taskNeedToRepeat) {
+                Task taskDuplicate = new Task();
+
+                // basic information that's not change
+                taskDuplicate.setName(taskNeedDuplicate.getName());
+                taskDuplicate.setDescription(taskNeedDuplicate.getDescription());
+                taskDuplicate.setParent(taskNeedDuplicate.getParent());
+                taskDuplicate.setChild(taskNeedDuplicate.getChild());
+                taskDuplicate.setCreatedDate(taskNeedDuplicate.getCreatedDate());
+                taskDuplicate.setIsDeleted(Boolean.FALSE);
+                taskDuplicate.setType(taskNeedDuplicate.getType());
+
+                // information that's change
+                taskDuplicate.setAssignDate(timeStampDateRepeat);
+
+                // get from time of old task
+                Calendar calendarFromTimeOldTask = Calendar.getInstance();
+                calendarFromTimeOldTask.setTime(taskNeedDuplicate.getFromTime());
+
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTime(new Date(timeStampDateRepeat));
+                // change from time
+                calendar.set(Calendar.HOUR, calendarFromTimeOldTask.get(Calendar.HOUR));
+                calendar.set(Calendar.MINUTE, calendarFromTimeOldTask.get(Calendar.MINUTE));
+                calendar.set(Calendar.SECOND, calendarFromTimeOldTask.get(Calendar.SECOND));
+                calendar.set(Calendar.MILLISECOND, calendarFromTimeOldTask.get(Calendar.MILLISECOND));
+                taskDuplicate.setFromTime(calendar.getTime());
+
+                // change to time
+                Calendar calendarToTimeOldTask = Calendar.getInstance();
+                calendarToTimeOldTask.setTime(taskNeedDuplicate.getToTime());
+                // change from time
+                calendar.set(Calendar.HOUR, calendarToTimeOldTask.get(Calendar.HOUR));
+                calendar.set(Calendar.MINUTE, calendarToTimeOldTask.get(Calendar.MINUTE));
+                calendar.set(Calendar.SECOND, calendarToTimeOldTask.get(Calendar.SECOND));
+                calendar.set(Calendar.MILLISECOND, calendarToTimeOldTask.get(Calendar.MILLISECOND));
+                taskDuplicate.setToTime(calendar.getTime());
+
+
+                taskDuplicate.setStatus("ASSIGNED");
+
+                // information need to unique for not duplicate redundant
+                taskDuplicate.setRepeatOn(null);
+                taskDuplicate.setIsDuplicateTask(taskNeedDuplicate.getTaskId());
+
+                Task taskResultData = taskRepository.save(taskDuplicate);
+                if (taskResultData != null) {
+                    result.add(taskResultData);
+                }
+            }
+        }
+        return result;
+    }
+
+    public List<ListTaskResponseDTO> getChildListOfTask(List<Task> taskOfChild) {
+        List<ListTaskResponseDTO> result = new ArrayList<>();
+        if (taskOfChild != null) {
+            for (Task taskResult: taskOfChild) {
                 ListTaskResponseDTO resultData = new ListTaskResponseDTO();
 
                 resultData.setName(taskResult.getName());
                 resultData.setStatus(taskResult.getStatus());
                 resultData.setTaskId(taskResult.getTaskId());
-                resultData.setDeadline(Util.formatDateTime(taskResult.getDeadLine()));
+                resultData.setFromTime(Util.formatTimestampToTime(taskResult.getFromTime().getTime()));
+                resultData.setToTime(Util.formatTimestampToTime(taskResult.getToTime().getTime()));
 
                 result.add(resultData);
             }
+        }
+        return result;
+    }
+
+    public Task findTaskByTaskId(Long taskId) {
+        return taskRepository.findTasksByTaskIdAndIsDeleted(taskId, Boolean.FALSE);
+    }
+
+    public TaskUpdateResponseDTO submitTaskForChild(Task task, MultipartFile proofPhoto) {
+        task.setProofPhoto(Util.saveImageToSystem(
+                task.getTaskId().toString(), "Child_Submitted", proofPhoto));
+        task.setStatus("HANDED");
+
+        Task taskResult = taskRepository.save(task);
+        if (taskResult != null) {
+            TaskUpdateResponseDTO result = new TaskUpdateResponseDTO();
+
+            result.setTaskId(taskResult.getTaskId());
+
+            result.setAssignDate(Util.formatTimestampToDateTime(taskResult.getAssignDate()));
+            result.setName(taskResult.getName());
+
+            result.setStatus("HANDED");
             return result;
         }
-        
+
         return null;
-    } 
+    }
+
+    public TaskUpdateResponseDTO approveTaskFromChild(Task task, Boolean isSuccess) {
+        if (isSuccess.booleanValue()) {
+            task.setStatus("SUCCESS");
+        } else {
+            task.setStatus("FAILED");
+        }
+
+        Task taskResult = taskRepository.save(task);
+        if (taskResult != null) {
+            TaskUpdateResponseDTO result = new TaskUpdateResponseDTO();
+
+            result.setTaskId(taskResult.getTaskId());
+
+            result.setAssignDate(Util.formatTimestampToDateTime(taskResult.getAssignDate()));
+            result.setName(taskResult.getName());
+
+            if (isSuccess.booleanValue()) {
+                result.setStatus("SUCCESS");
+            } else {
+                result.setStatus("FAILED");
+            }
+            return result;
+        }
+
+        return null;
+    }
+
+    public List<ListTaskHandedResponseDTO> getTaskHandedByChildForParent(Long childId, Long dateTimeStamp) {
+        Long startDayOfMonth = Util.startDayInMonth(dateTimeStamp);
+        Long endDayOfMonth = Util.endDayInMonth(dateTimeStamp);
+        List<Task> listTaskResult =
+                taskRepository.findTasksByChildChildIdAndAssignDateIsBetweenAndStatusAndIsDeleted(
+                        childId, startDayOfMonth, endDayOfMonth, "HANDED", Boolean.FALSE);
+
+        if (listTaskResult != null) {
+            List<ListTaskHandedResponseDTO> result = new ArrayList<>();
+            if (!listTaskResult.isEmpty()) {
+                for (Task task : listTaskResult) {
+                    Long startDay = Util.getStartDay(task.getAssignDate());
+                    Long endDay = Util.getEndDay(task.getAssignDate());
+                    Long count = listTaskResult.stream()
+                            .filter(t -> t.getAssignDate() > startDay
+                                    && t.getAssignDate() < endDay)
+                            .count();
+                    ListTaskHandedResponseDTO dataResult = new ListTaskHandedResponseDTO();
+                    dataResult.setDate(startDay);
+                    dataResult.setCount(count.intValue());
+
+                    result.add(dataResult);
+                }
+
+                return result;
+            }
+            ListTaskHandedResponseDTO dataResult = new ListTaskHandedResponseDTO();
+        }
+        return null;
+    }
 }

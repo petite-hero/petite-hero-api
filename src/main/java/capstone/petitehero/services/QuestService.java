@@ -40,7 +40,7 @@ public class QuestService {
             result.setName(questResult.getName());
             result.setDescription(questResult.getDescription());
 
-            result.setCreatedDate(Util.formatDateTime(questResult.getCreatedDate()));
+            result.setCreatedDate(Util.formatTimestampToDateTime(questResult.getCreatedDate()));
 
             result.setStatus("ASSIGNED");
 
@@ -84,7 +84,7 @@ public class QuestService {
             result.setName(questResult.getName());
             result.setDescription(questResult.getDescription());
 
-            result.setCreatedDate(Util.formatDateTime(questResult.getCreatedDate()));
+            result.setCreatedDate(Util.formatTimestampToDateTime(questResult.getCreatedDate()));
 
 //            result.setRewardName(questResult.getRewardName());
 //            result.setRewardPhoto(questResult.getRewardPhoto());

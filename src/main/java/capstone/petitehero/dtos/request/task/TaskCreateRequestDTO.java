@@ -14,7 +14,9 @@ public class TaskCreateRequestDTO implements Serializable {
     private String creatorPhoneNumber;
     private String name;
     private String description;
-    private Long createdDate;
+    private Long fromTime;
+    private Long toTime;
     private Long assignDate;
-    private Long deadline;
+    private String type;
+    private String repeatOn;
 }

@@ -62,7 +62,7 @@ public class ParentPaymentService {
                 dataResult.setStatus(payment.getStatus());
                 dataResult.setAmount(payment.getAmount());
 
-                dataResult.setDate(Util.formatDateTime(payment.getDate()));
+                dataResult.setDate(Util.formatTimestampToDateTime(payment.getDate()));
 
                 result.add(dataResult);
             }
@@ -84,7 +84,7 @@ public class ParentPaymentService {
                 dataResult.setStatus(payment.getStatus());
                 dataResult.setAmount(payment.getAmount());
 
-                dataResult.setDate(Util.formatDateTime(payment.getDate()));
+                dataResult.setDate(Util.formatTimestampToDateTime(payment.getDate()));
 
                 result.add(dataResult);
             }
@@ -105,7 +105,7 @@ public class ParentPaymentService {
             result.setStatus(paymentResult.getStatus());
             result.setPaymentId(paymentResult.getPaymentId());
 
-            result.setDate(Util.formatDateTime(paymentResult.getDate()));
+            result.setDate(Util.formatTimestampToDateTime(paymentResult.getDate()));
 
             return result;
         }

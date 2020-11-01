@@ -109,7 +109,8 @@ public class ChildService {
         }
 
         // find parent information for adding to db
-        Parent parentResult = parentRepository.findParentByAccount_Username(parentPhoneNumber);
+//        Parent parentResult = parentRepository.findParentByAccount_Username(parentPhoneNumber);
+        Parent parentResult = parentRepository.findParentByAccount_UsernameAndIsDisabled(parentPhoneNumber, Boolean.FALSE);
         if (parentResult != null) {
             ParentInformation parentInformation = new ParentInformation();
 

@@ -13,8 +13,6 @@ import capstone.petitehero.utilities.Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.text.SimpleDateFormat;
-
 @Service
 public class ParentService {
 
@@ -31,7 +29,7 @@ public class ParentService {
              result.setMaxCollaboratorAllow(parentResult.getSubscription().getSubscriptionType().getMaxCollaborator());
              result.setAccountType("Free Trial");
 
-             result.setExpiredDate(Util.formatDateTime(parentResult.getSubscription().getExpiredDate()));
+             result.setExpiredDate(Util.formatTimestampToDateTime(parentResult.getSubscription().getExpiredDate()));
             return result;
         }
         return null;
@@ -70,7 +68,7 @@ public class ParentService {
     }
 
     public Parent findParentByPhoneNumber(String phoneNumber) {
-        return parentRepository.findParentByAccount_Username(phoneNumber);
+        return parentRepository.findParentByAccount_UsernameAndIsDisabled(phoneNumber, Boolean.FALSE);
     }
 
 
@@ -137,13 +135,11 @@ public class ParentService {
         return null;
     }
 
-    public DisableParentResponseDTO disableParentAccount(String phoneNumber) {
-        Parent parent = parentRepository.findParentByAccount_Username(phoneNumber);
+    public DisableParentResponseDTO disableParentAccount(Parent parentAccount) {
 
-
-        if (parent != null) {
-            parent.setIsDisabled(Boolean.TRUE);
-            Parent parentResult = parentRepository.save(parent);
+        if (parentAccount != null) {
+            parentAccount.setIsDisabled(Boolean.TRUE);
+            Parent parentResult = parentRepository.save(parentAccount);
             if (parentResult != null) {
                 DisableParentResponseDTO result = new DisableParentResponseDTO();
 

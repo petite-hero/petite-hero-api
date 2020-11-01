@@ -18,6 +18,9 @@ public class Parent_Child implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column
+    private Boolean isCollaboratorConfirm;
+
     @ManyToOne
     @JoinColumn(name = "parent_id")
     @EqualsAndHashCode.Exclude
