@@ -382,7 +382,7 @@ public class TaskService {
 
     public TaskUpdateResponseDTO approveTaskFromChild(Task task, Boolean isSuccess) {
         if (isSuccess.booleanValue()) {
-            task.setStatus("SUCCESS");
+            task.setStatus("DONE");
         } else {
             task.setStatus("FAILED");
         }
