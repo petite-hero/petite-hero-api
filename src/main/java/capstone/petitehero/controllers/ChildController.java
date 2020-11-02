@@ -304,4 +304,10 @@ public class ChildController {
         responseObject = new ResponseObject(Constants.CODE_404, "Cannot found that child in the system");
         return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
     }
+
+    @RequestMapping(value = "/tracking/{child}", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseObject getSWTrackingStatus(@PathVariable(value = "child") Long child) {
+        return childService.getSWTrackingStatus(child);
+    }
 }

@@ -1,11 +1,14 @@
 package capstone.petitehero.services;
 
+import capstone.petitehero.config.common.Constants;
+import capstone.petitehero.dtos.ResponseObject;
 import capstone.petitehero.dtos.common.ChildInformation;
 import capstone.petitehero.dtos.common.ParentInformation;
 import capstone.petitehero.dtos.response.child.*;
 import capstone.petitehero.entities.Child;
 import capstone.petitehero.entities.Parent;
 import capstone.petitehero.entities.Parent_Child;
+import capstone.petitehero.entities.Safezone;
 import capstone.petitehero.repositories.ChildRepository;
 import capstone.petitehero.repositories.ParentChildRepository;
 import capstone.petitehero.repositories.ParentRepository;
@@ -222,5 +225,25 @@ public class ChildService {
             return result;
         }
         return null;
+    }
+
+    public ResponseObject getSWTrackingStatus (Long childId) {
+        ResponseObject result = Util.createResponse();
+        try {
+            Child child = childRepository.getOne(childId);
+            if (child == null) {
+                result.setData(null);
+                result.setMsg("Bad request - Child doesn't exist");
+                result.setCode(Constants.CODE_400);
+            } else {
+                result.setData(child.getTrackingActive());
+                result.setMsg(Constants.NO_ERROR);
+            }
+        } catch (Exception e) {
+            result.setData(null);
+            result.setMsg(Constants.SERVER_ERROR + e.toString());
+            result.setCode(Constants.CODE_500);
+        }
+        return result;
     }
 }

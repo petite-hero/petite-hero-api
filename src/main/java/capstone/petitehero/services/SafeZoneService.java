@@ -81,6 +81,15 @@ public class SafeZoneService {
                 if (safezone != null) {
                     result.setData(sentSafeZone);
                     result.setMsg("Added successfully!");
+
+                    //  notify SW if current date' safe zones changed
+                    Integer pushStatus = notifySWSafeZoneChanges(safezone.getChild().getPushToken(), safezone.getRepeatOn());
+                    if (pushStatus == Constants.CODE_200) {
+                        result.setMsg(Constants.NO_ERROR);
+                    } else {
+                        result.setMsg("Added safe zone but error occurred when notifying SW");
+                    }
+
                 } else {
                     result.setData(null);
                     result.setMsg("Error occurred while adding safe zone");
@@ -168,9 +177,16 @@ public class SafeZoneService {
             } else {
                 safezone.setIsDisabled(Constants.IS_DISABLED);
                 Safezone updatedSafezone = safeZoneRepository.save(safezone);
+
                 if (updatedSafezone != null) {
+                    //  notify SW if current date' safe zones changed
+                    Integer pushStatus = notifySWSafeZoneChanges(safezone.getChild().getPushToken(), safezone.getRepeatOn());
+                    if (pushStatus == Constants.CODE_200) {
+                        result.setMsg(Constants.NO_ERROR);
+                    } else {
+                        result.setMsg("Deleted safe zone but error occurred when notifying SW");
+                    }
                     result.setData(null);
-                    result.setMsg(Constants.NO_ERROR);
                 }
             }
         } catch (Exception e) {
@@ -220,9 +236,8 @@ public class SafeZoneService {
 
                 Safezone updatedSafezone = safeZoneRepository.save(safezone);
                 if (updatedSafezone != null) {
-                    //  notify SW
-                    PushSilentNotiSWDTO data = new PushSilentNotiSWDTO("Updated Safe Zone", null, null);
-                    Integer pushStatus = locationService.pushSilentNotificationSW(data, safezone.getChild().getPushToken());
+                    //  notify SW if current date' safe zones changed
+                    Integer pushStatus = notifySWSafeZoneChanges(safezone.getChild().getPushToken(), safezone.getRepeatOn());
 
                     if (pushStatus == Constants.CODE_200) {
                         result.setMsg(Constants.NO_ERROR);
@@ -240,6 +255,22 @@ public class SafeZoneService {
             e.printStackTrace();
         }
         return result;
+    }
+
+    public Integer notifySWSafeZoneChanges(String pushToken, String repeatOn) {
+        Integer pushStatus = 100;
+        try {
+            if (Util.fromRepeatOnStringToDayInWeek(repeatOn).contains(Util.getCurrentWeekday())) {
+                PushSilentNotiSWDTO data = new PushSilentNotiSWDTO("Updated Safe Zone", null, null);
+                pushStatus = locationService.pushSilentNotificationSW(data, pushToken);
+            } else {
+                pushStatus = Constants.CODE_200;
+            }
+        } catch (Exception e) {
+            System.out.println("Error at notifySWSafeZoneChanges: " + e.toString());
+            e.printStackTrace();
+        }
+        return pushStatus;
     }
 
 //    public void pushSWNotification() {

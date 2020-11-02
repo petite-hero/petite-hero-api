@@ -166,28 +166,28 @@ public class Util {
             return daysInWeek;
         }
         if (String.format("%c", repeatOnString.charAt(0)).equals("1")) {
-            daysInWeek += "Monday, ";
+            daysInWeek += "mon,";
         }
         if (String.format("%c", repeatOnString.charAt(1)).equals("1")) {
-            daysInWeek += "Tuesday, ";
+            daysInWeek += "tue,";
         }
         if (String.format("%c", repeatOnString.charAt(2)).equals("1")) {
-            daysInWeek += "Wednesday, ";
+            daysInWeek += "wed,";
         }
         if (String.format("%c", repeatOnString.charAt(3)).equals("1")) {
-            daysInWeek += "Thursday, ";
+            daysInWeek += "thu,";
         }
         if (String.format("%c", repeatOnString.charAt(4)).equals("1")) {
-            daysInWeek += "Friday, ";
+            daysInWeek += "fri,";
         }
         if (String.format("%c", repeatOnString.charAt(5)).equals("1")) {
-            daysInWeek += "Saturday, ";
+            daysInWeek += "sat,";
         }
         if (String.format("%c", repeatOnString.charAt(6)).equals("1")) {
-            daysInWeek += "Sunday";
+            daysInWeek += "sun";
         }
-        if (String.format("%c", daysInWeek.trim().charAt(daysInWeek.length() - 2)).equals(",")) {
-            return daysInWeek.substring(0, daysInWeek.length() - 2);
+        if (String.format("%c", daysInWeek.trim().charAt(daysInWeek.length() - 1)).equals(",")) {
+            return daysInWeek.substring(0, daysInWeek.length() - 1);
         }
         return daysInWeek;
     }
@@ -236,5 +236,25 @@ public class Util {
             }
         }
         return Boolean.FALSE;
+    }
+
+    public static Long getCurrentDayTimestamp() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        calendar.set(Calendar.HOUR, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+
+        return calendar.getTimeInMillis();
+    }
+
+    public static String getCurrentWeekday() {
+        Calendar calendar = Calendar.getInstance();
+        int day = calendar.get(Calendar.DAY_OF_WEEK);
+        HashMap<Integer, String> map = new HashMap<>();
+        map.put(1, "sun"); map.put(2, "mon"); map.put(3, "tue"); map.put(4, "wed");
+        map.put(5, "thu"); map.put(6, "fri"); map.put(7, "sat");
+        return  map.get(day);
     }
 }
