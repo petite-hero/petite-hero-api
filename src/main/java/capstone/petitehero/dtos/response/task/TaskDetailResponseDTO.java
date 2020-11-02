@@ -12,5 +12,5 @@ import java.io.Serializable;
 public class TaskDetailResponseDTO extends TaskCreateResponseDTO implements Serializable{
 
     private String proofPhoto;
-    private String submitDate;
+    private Long submitDate;
 }

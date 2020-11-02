@@ -10,6 +10,6 @@ import java.io.Serializable;
 public class ChildInformation extends Assignee implements Serializable {
 
     private Integer age;
-    private String photo;
     private Boolean hasDevice;
+    private Boolean isTrackingActive;
 }

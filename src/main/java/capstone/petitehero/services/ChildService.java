@@ -97,10 +97,6 @@ public class ChildService {
                     childInformation.setGender("Female");
                 }
             }
-
-            if (child.getPhoto() != null && !child.getPhoto().isEmpty()) {
-                childInformation.setPhoto(Util.fromImageFileToBase64String(child.getPhoto()));
-            }
             if (child.getYob().toString() != null && !child.getYob().toString().isEmpty()) {
                 int year = Calendar.getInstance().get(Calendar.YEAR);
                 childInformation.setAge(year - child.getYob());
@@ -132,11 +128,6 @@ public class ChildService {
         }
 
         if (parentResult != null && child != null) {
-//            Parent_Child parent_child = new Parent_Child();
-//            parent_child.setChild(child);
-//            parent_child.setParent(parentResult);
-//
-//            parentChildRepository.save(parent_child);
             return result;
         }
         return null;

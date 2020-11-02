@@ -11,6 +11,7 @@ import capstone.petitehero.dtos.request.parent.ParentUpdateProfileRequestDTO;
 import capstone.petitehero.dtos.request.parent.UpdatePushTokenRequestDTO;
 import capstone.petitehero.dtos.request.parent.payment.ParentPaymentCreateRequestDTO;
 import capstone.petitehero.dtos.response.child.AddChildResponseDTO;
+import capstone.petitehero.dtos.response.collaborator.AddCollaboratorResponseDTO;
 import capstone.petitehero.dtos.response.parent.DisableParentResponseDTO;
 import capstone.petitehero.dtos.response.parent.ParentProfileRegisterResponseDTO;
 import capstone.petitehero.dtos.response.parent.ParentUpdateProfileResponseDTO;
@@ -252,31 +253,31 @@ public class ParentController {
         // end validate mandatory fields
 
         Parent parentAccount = parentService.findParentByPhoneNumber(parentPhoneNumber);
-
-        int countMaxChildParentAccount = 0;
-
-        // get data from table parent_child so the data about child of parent will be duplicated
-        // filter
-        List<Parent_Child> filterChildForParentAccount =
-                parentAccount.getParent_childCollection().stream()
-                        .filter(Util.distinctByKey(Parent_Child::getChild))
-                        .collect(Collectors.toList());
-
-        // only child not disable in the system is count
-        for (Parent_Child childOfParent : filterChildForParentAccount) {
-            System.out.println("Child ID: " + childOfParent.getChild().getChildId());
-            if (!childOfParent.getChild().getIsDisabled().booleanValue()) {
-                countMaxChildParentAccount++;
-            }
-        }
-
-        if (countMaxChildParentAccount >=
-                parentAccount.getSubscription().getSubscriptionType().getMaxChildren()) {
-            responseObject = new ResponseObject(Constants.CODE_400, "Your subscription only support max 2 child and you already full");
-            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
-        }
-
         if (parentAccount != null) {
+
+            int countMaxChildParentAccount = 0;
+
+            // get data from table parent_child so the data about child of parent will be duplicated
+            // filter
+            List<Parent_Child> filterChildForParentAccount =
+                    parentAccount.getParent_childCollection().stream()
+                            .filter(Util.distinctByKey(Parent_Child::getChild))
+                            .collect(Collectors.toList());
+
+            // only child not disable in the system is count
+            for (Parent_Child childOfParent : filterChildForParentAccount) {
+                if (!childOfParent.getChild().getIsDisabled().booleanValue()) {
+                    countMaxChildParentAccount++;
+                }
+            }
+
+            if (countMaxChildParentAccount >=
+                    parentAccount.getSubscription().getSubscriptionType().getMaxChildren()) {
+                responseObject = new ResponseObject(Constants.CODE_400, "Your subscription only support max " + countMaxChildParentAccount +
+                        " child and you already full");
+                return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+            }
+
             Child child = new Child();
             child.setFirstName(addChildRequestDTO.getFirstName());
             child.setLastName(addChildRequestDTO.getLastName());
@@ -298,6 +299,7 @@ public class ParentController {
             }
             child.setIsDisabled(Boolean.FALSE);
             child.setCreatedDate(new Date().getTime());
+            child.setTrackingActive(Boolean.FALSE);
 
 
             AddChildResponseDTO result = childService.addChildForParent(child, parentAccount, childPhoto);
@@ -319,25 +321,121 @@ public class ParentController {
     public ResponseEntity<Object> addNewCollaborator(@PathVariable("parentPhoneNumber") String parentPhoneNumber,
                                                      @RequestBody AddCollaboratorRequestDTO addCollaboratorRequestDTO) {
         ResponseObject responseObject;
+        if (addCollaboratorRequestDTO.getCollaboratorPhoneNumber() == null || addCollaboratorRequestDTO.getCollaboratorPhoneNumber().isEmpty()) {
+            responseObject = new ResponseObject(Constants.CODE_400, "Collaborator phone number cannot be missing or empty");
+            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+        }
+        if (addCollaboratorRequestDTO.getListChildId().isEmpty()) {
+            responseObject = new ResponseObject(Constants.CODE_400, "List children for collaborator take care is empty");
+            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+        }
 
         Parent parentAccount = parentService.findParentByPhoneNumber(parentPhoneNumber);
         if (parentAccount != null) {
+            int maxCollaborator = 0;
+            List<Parent_Child> filterCollaboratorForParent =
+                    parentAccount.getParent_collaboratorCollection().stream()
+                    .filter(Util.distinctByKey(Parent_Child::getCollaborator))
+                    .collect(Collectors.toList());
+
+            for (Parent_Child parent_child : filterCollaboratorForParent) {
+                if (!parent_child.getCollaborator().getIsDisabled().booleanValue()) {
+                    maxCollaborator++;
+                }
+            }
+
+            if (maxCollaborator ==
+                    parentAccount.getSubscription().getSubscriptionType().getMaxCollaborator().intValue()) {
+                responseObject = new ResponseObject(Constants.CODE_400, "Your subscription only support max " + maxCollaborator +
+                        " collaborator and you already full");
+                return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+            }
+
             Parent collaboratorAccount = parentService.findParentByPhoneNumber(addCollaboratorRequestDTO.getCollaboratorPhoneNumber());
             if (collaboratorAccount != null) {
-                parentChildService.addNewCollaborator(addCollaboratorRequestDTO.getListChildId(), parentAccount, collaboratorAccount);
+                AddCollaboratorResponseDTO result =
+                        parentChildService.addNewCollaborator(addCollaboratorRequestDTO.getListChildId(), parentAccount, collaboratorAccount);
 
+                if (!result.getListChildren().isEmpty()) {
+                    responseObject = new ResponseObject(Constants.CODE_200, "OK");
+                    responseObject.setData(result);
+                    return new ResponseEntity<>(responseObject, HttpStatus.OK);
+                }
 
+                responseObject = new ResponseObject(Constants.CODE_500, "Server is down cannot add collaborator to the system");
+                return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
             } else {
                 responseObject = new ResponseObject(Constants.CODE_404, "Cannot found that collaborator account in the system");
                 return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
             }
-
-            responseObject = new ResponseObject(Constants.CODE_500, "Server is down cannot add collaborator to the system");
-            return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
         responseObject = new ResponseObject(Constants.CODE_404, "Cannot find your account in the system");
         return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
+    }
+
+    @RequestMapping(value = "/collaborator/confirm", method = RequestMethod.PUT)
+    @ResponseBody
+    public ResponseEntity<Object> confirmByCollaborator(@RequestBody AddCollaboratorRequestDTO addCollaboratorRequestDTO) {
+        ResponseObject responseObject;
+
+        if (addCollaboratorRequestDTO.getCollaboratorPhoneNumber() == null || addCollaboratorRequestDTO.getCollaboratorPhoneNumber().isEmpty()) {
+            responseObject = new ResponseObject(Constants.CODE_400, "Collaborator phone number cannot be missing or empty");
+            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+        }
+        if (addCollaboratorRequestDTO.getListChildId().isEmpty()) {
+            responseObject = new ResponseObject(Constants.CODE_400, "List children of collaborator to confirm is empty");
+            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+        }
+
+        Parent collaboratorAccount = parentService.findParentByPhoneNumber(addCollaboratorRequestDTO.getCollaboratorPhoneNumber());
+        if (collaboratorAccount != null) {
+            AddCollaboratorResponseDTO result = parentChildService.confirmByCollaborator(
+                    collaboratorAccount, addCollaboratorRequestDTO.getListChildId());
+
+            if (!result.getListChildren().isEmpty()) {
+                responseObject = new ResponseObject(Constants.CODE_200, "OK");
+                responseObject.setData(result);
+                return new ResponseEntity<>(responseObject, HttpStatus.OK);
+            }
+            responseObject = new ResponseObject(Constants.CODE_500, "Cannot confirm collaborator's children");
+            return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+        } else {
+            responseObject = new ResponseObject(Constants.CODE_404, "Cannot found your account in the system");
+            return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @RequestMapping(value = "/{parentPhoneNumber}/collaborator", method = RequestMethod.DELETE)
+    @ResponseBody
+    public ResponseEntity<Object> deleteCollaboratorForParent(@PathVariable("parentPhoneNumber") String parentPhoneNumber,
+                                                              @RequestBody AddCollaboratorRequestDTO addCollaboratorRequestDTO) {
+        ResponseObject responseObject;
+        if (addCollaboratorRequestDTO.getCollaboratorPhoneNumber() == null || addCollaboratorRequestDTO.getCollaboratorPhoneNumber().isEmpty()) {
+            responseObject = new ResponseObject(Constants.CODE_400, "Collaborator phone number cannot be missing or empty");
+            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+        }
+        if (addCollaboratorRequestDTO.getListChildId().isEmpty()) {
+            responseObject = new ResponseObject(Constants.CODE_400, "List children for collaborator take care is empty");
+            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+        }
+
+        Parent parentAccount = parentService.findParentByPhoneNumber(parentPhoneNumber);
+        if (parentAccount != null) {
+            AddCollaboratorResponseDTO result = parentChildService.deleteCollaboratorByParent(
+                    addCollaboratorRequestDTO.getListChildId(), parentAccount, addCollaboratorRequestDTO.getCollaboratorPhoneNumber());
+
+            if (!result.getListChildren().isEmpty()) {
+                responseObject = new ResponseObject(Constants.CODE_200, "OK");
+                responseObject.setData(result);
+                return new ResponseEntity<>(responseObject, HttpStatus.OK);
+            }
+            responseObject = new ResponseObject(Constants.CODE_500, "Cannot delete collaborator");
+            return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+        } else {
+            responseObject = new ResponseObject(Constants.CODE_404, "Cannot found your account in the system");
+            return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
+        }
     }
 
     @RequestMapping(value = "/{childId}/regenerate-qrcode", method = RequestMethod.GET)

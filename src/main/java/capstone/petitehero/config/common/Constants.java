@@ -11,6 +11,8 @@ public class Constants {
     public static final boolean IS_DISABLED = true;
     public static final boolean IS_NOT_READ = false;
     public static final boolean IS_READ = true;
+    public static final String CRON_SCHEDULED = "30 0 0 * * ?";
+    public static final String TIME_ZONE = "Asia/Bangkok";
     public static final boolean TRACKING_ACTIVE_BOOLEAN = true;
     public static final boolean TRACKING_INACTIVE_BOOLEAN = false;
 

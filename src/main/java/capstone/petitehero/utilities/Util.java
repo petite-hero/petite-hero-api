@@ -2,6 +2,7 @@ package capstone.petitehero.utilities;
 
 import capstone.petitehero.config.common.Constants;
 import capstone.petitehero.dtos.ResponseObject;
+import capstone.petitehero.entities.IsExceptionDate;
 import org.apache.commons.io.FileUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -225,6 +226,16 @@ public class Util {
         calendar.set(Calendar.MILLISECOND, 999);
 
         return calendar.getTimeInMillis();
+    }
+
+    public static Boolean isExceptionDate(List<IsExceptionDate> listExceptionDate, Long timeStampDate) {
+        for (IsExceptionDate isExceptionDate : listExceptionDate) {
+            if (Util.getStartDay(isExceptionDate.getExceptionDate()).longValue()
+                    == Util.getStartDay(timeStampDate).longValue()) {
+                return Boolean.TRUE;
+            }
+        }
+        return Boolean.FALSE;
     }
 
     public static Long getCurrentDayTimestamp() {

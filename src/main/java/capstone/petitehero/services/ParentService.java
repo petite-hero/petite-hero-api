@@ -117,9 +117,6 @@ public class ParentService {
                     result.setLanguage("English");
                 }
             }
-            if (parentResult.getPhoto() != null && !parentResult.getPhoto().isEmpty()) {
-                result.setPhoto(Util.fromImageFileToBase64String(parentResult.getPhoto()));
-            }
             result.setStatus("Updated");
 
             return result;
