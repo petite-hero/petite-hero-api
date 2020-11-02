@@ -49,6 +49,9 @@ public class Child implements Serializable {
     @Column(length = Integer.MAX_VALUE)
     private String pushToken;
 
+    @Column
+    private Boolean trackingActive;
+
     @OneToMany(mappedBy = "child", cascade = CascadeType.ALL)
     @EqualsAndHashCode.Exclude // không sử dụng trường này trong equals và hashcode
     @ToString.Exclude // không sử dụng trong toString()

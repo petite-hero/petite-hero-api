@@ -200,13 +200,15 @@ public class LocationService {
                 result.setMsg("Bad Request - Child ID doesn't exist");
                 result.setCode(Constants.CODE_400);
             } else {
+                child.setTrackingActive(status);
+                childRepository.save(child);
+
                 PushSilentNotiSWDTO data = new PushSilentNotiSWDTO();
                 if (status) {
                     data.setTitle(Constants.TRACKING_ACTIVE);
                 } else {
                     data.setTitle(Constants.TRACKING_INACTIVE);
                 }
-                getLatestChildLocation(childId);
                 System.out.println("====> Child token: " + child.getPushToken());
                 Integer pushStatus = pushSilentNotificationSW(data, child.getPushToken());
                 if (pushStatus == Constants.CODE_200) {

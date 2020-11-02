@@ -11,6 +11,8 @@ public class Constants {
     public static final boolean IS_DISABLED = true;
     public static final boolean IS_NOT_READ = false;
     public static final boolean IS_READ = true;
+    public static final boolean TRACKING_ACTIVE_BOOLEAN = true;
+    public static final boolean TRACKING_INACTIVE_BOOLEAN = false;
 
     // role values
     public static final String PARENT = "parent";
@@ -20,15 +22,6 @@ public class Constants {
     // status values
     public static final boolean SAFE = true;
     public static final boolean NOT_SAFE = false;
-    public static final String WAITING_FOR_ACCEPT = "0";
-    public static final String ACCEPTED = "1";
-    public static final String DECLINED = "2";
-    public static final String NOT_STARTED_YET = "3";
-    public static final String ON_GOING = "4";
-    public static final String OVERDUE = "5";
-    public static final String COMMITED = "6";
-    public static final String FINISHED_CONFIRMED = "7";
-    public static final String CANNOT_FINISH_CONFIRMED = "8";
     public static final String UPLOAD_FOLDER = "images/";
     public static final String BADGE_FOLDER = "images/badges/";
     public static final Long FREE_TRAIL_TYPE = 1L;
@@ -65,7 +58,7 @@ public class Constants {
     public static final String CHILD_NOT_SAFE = "Child is currently not safe";
     public static final String DONE_SETTING_UP_DEVICE = "Done setting up child's device";
 
-    public static final Long ONE_HOUR_IN_MILLISECOND = Long.parseLong("3600000");
+    public static final Long ONE_HOUR_IN_MILLISECOND = 3600000L;
 
 //    // push notification message
 //    public static final int CHILD_STATUS_CHANGED = 1;
