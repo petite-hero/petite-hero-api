@@ -242,8 +242,9 @@ public class Util {
         Calendar calendar = Calendar.getInstance();
         int day = calendar.get(Calendar.DAY_OF_WEEK);
         HashMap<Integer, String> map = new HashMap<>();
-        map.put(1, "sun"); map.put(2, "mon"); map.put(3, "tue"); map.put(4, "wed");
-        map.put(5, "thu"); map.put(6, "fri"); map.put(7, "sat");
+        map.put(Calendar.SUNDAY, "sun"); map.put(Calendar.MONDAY, "mon");
+        map.put(Calendar.TUESDAY, "tue"); map.put(Calendar.WEDNESDAY, "wed");
+        map.put(Calendar.THURSDAY, "thu"); map.put(Calendar.FRIDAY, "fri"); map.put(Calendar.SATURDAY, "sat");
         return  map.get(day);
     }
 }
