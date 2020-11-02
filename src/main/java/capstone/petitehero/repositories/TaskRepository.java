@@ -23,4 +23,6 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     List<Task> findTaskByIsDuplicateTaskAndIsDeleted(Long duplicatedTaskId, Boolean isDeleted);
 
     List<Task> findTasksByChildChildIdAndAssignDateIsBetweenAndStatusAndIsDeleted(Long childId, Long startDayOfMonth, Long endDayOfMonth, String status, Boolean isDeleted);
+
+    List<Task> findTasksByIsDeletedAndRepeatOnIsNotNull(Boolean isDeleted);
 }

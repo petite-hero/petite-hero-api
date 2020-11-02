@@ -1,5 +1,6 @@
 package capstone.petitehero.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -8,6 +9,7 @@ import lombok.ToString;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.Date;
 
 @Entity
@@ -59,6 +61,12 @@ public class Task implements Serializable {
 
     @Column(length = 30)
     private String type;
+
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Exclude // không sử dụng trường này trong equals và hashcode
+    @ToString.Exclude // Không sử dụng trong toString()
+    @JsonBackReference
+    private Collection<IsExceptionDate> task_ExceptionDateCollection;
 
     @ManyToOne
     @JoinColumn(name = "assignee_id")

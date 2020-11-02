@@ -11,6 +11,8 @@ public class Constants {
     public static final boolean IS_DISABLED = true;
     public static final boolean IS_NOT_READ = false;
     public static final boolean IS_READ = true;
+    public static final String CRON_SCHEDULED = "30 0 0 * * ?";
+    public static final String TIME_ZONE = "Asia/Bangkok";
 
     // role values
     public static final String PARENT = "parent";

@@ -3,6 +3,7 @@ package capstone.petitehero.services;
 import capstone.petitehero.dtos.common.Assignee;
 import capstone.petitehero.dtos.common.Assigner;
 import capstone.petitehero.dtos.response.task.*;
+import capstone.petitehero.entities.Child;
 import capstone.petitehero.entities.Task;
 import capstone.petitehero.repositories.TaskRepository;
 import capstone.petitehero.utilities.Util;
@@ -30,8 +31,8 @@ public class TaskService {
             result.setTaskId(taskResult.getTaskId());
             result.setDescription(taskResult.getDescription());
 
-            result.setAssignDate(Util.formatTimestampToDateTime(taskResult.getAssignDate()));
-            result.setCreatedDate(Util.formatTimestampToDateTime(taskResult.getCreatedDate()));
+            result.setAssignDate(taskResult.getAssignDate());
+            result.setCreatedDate(taskResult.getCreatedDate());
 
             result.setFromTime(Util.formatTimestampToTime(taskResult.getFromTime().getTime()));
             result.setToTime(Util.formatTimestampToTime(taskResult.getToTime().getTime()));
@@ -79,15 +80,17 @@ public class TaskService {
             result.setName(taskResult.getName());
             result.setDescription(taskResult.getDescription());
 
-            result.setAssignDate(Util.formatTimestampToDateTime(taskResult.getAssignDate()));
-            result.setCreatedDate(Util.formatTimestampToDateTime(taskResult.getCreatedDate()));
+            result.setAssignDate(taskResult.getAssignDate());
+            result.setCreatedDate(taskResult.getCreatedDate());
 
             result.setFromTime(Util.formatTimestampToTime(taskResult.getFromTime().getTime()));
             result.setToTime(Util.formatTimestampToTime(taskResult.getToTime().getTime()));
             result.setType(taskResult.getType());
+            result.setStatus(taskResult.getStatus());
 
             if (taskResult.getIsDuplicateTask() != null) {
-                Task tempTask = taskRepository.findTasksByTaskIdAndIsDeleted(taskResult.getIsDuplicateTask(), Boolean.FALSE);
+                Task tempTask = taskRepository.findTasksByTaskIdAndIsDeleted(
+                        taskResult.getIsDuplicateTask(), Boolean.FALSE);
                 result.setIsRepeatOn(Util.fromRepeatOnStringToDayInWeek(tempTask.getRepeatOn()));
             } else {
                 result.setIsRepeatOn(Util.fromRepeatOnStringToDayInWeek(taskResult.getRepeatOn()));
@@ -119,7 +122,7 @@ public class TaskService {
             result.setAssignee(assignee);
 
             if (taskResult.getSubmitDate() != null && !taskResult.getSubmitDate().toString().isEmpty()) {
-                result.setSubmitDate(Util.formatTimestampToDateTime(taskResult.getSubmitDate()));
+                result.setSubmitDate(taskResult.getSubmitDate());
             }
             if (taskResult.getProofPhoto() != null && !taskResult.getProofPhoto().isEmpty()) {
                 result.setProofPhoto(Util.fromImageFileToBase64String(taskResult.getProofPhoto()));
@@ -131,7 +134,7 @@ public class TaskService {
         return null;
     }
 
-    public TaskDeleteResponseDTO    deleteTask(Task task, Boolean isDuplicatedTask) {
+    public TaskDeleteResponseDTO deleteTask(Task task, Boolean isDuplicatedTask) {
         if (isDuplicatedTask != null) {
             if (isDuplicatedTask.booleanValue()) {
                 if (task != null) {
@@ -149,12 +152,7 @@ public class TaskService {
             }
         }
         if (task != null) {
-            task.setIsDeleted(Boolean.TRUE);
-            List<Task> duplicatedTask = taskRepository.findTaskByIsDuplicateTaskAndIsDeleted(task.getTaskId(), Boolean.FALSE);
-            for (Task t : duplicatedTask) {
-                t.setIsDeleted(Boolean.TRUE);
-                taskRepository.save(t);
-            }
+            task.setRepeatOn("0000000");
             Task taskDeleted = taskRepository.save(task);
 
             if (taskDeleted != null) {
@@ -262,7 +260,6 @@ public class TaskService {
                 calendar.set(Calendar.MILLISECOND, calendarToTimeOldTask.get(Calendar.MILLISECOND));
                 taskDuplicate.setToTime(calendar.getTime());
 
-
                 taskDuplicate.setStatus("ASSIGNED");
 
                 // information need to unique for not duplicate redundant
@@ -273,6 +270,67 @@ public class TaskService {
                 if (taskResultData != null) {
                     result.add(taskResultData);
                 }
+            }
+        }
+        return result;
+    }
+
+    public List<Task> getTaskDuplicateOnThatDate(Long childId, Long timeStampDateRepeat) {
+        List<Task> result = new ArrayList<>();
+        List<Task> allTaskHasRepeat = taskRepository.findTasksByChildChildIdAndIsDeletedAndRepeatOnIsNotNull(childId, Boolean.FALSE);
+
+        // find all the task that need duplicate
+        int indexOfDayRepeat = Util.fromTimeStampToDayInWeek(timeStampDateRepeat);
+        List<Task> taskNeedToRepeat = new ArrayList<>();
+        for (Task task : allTaskHasRepeat) {
+            // check the string repeat on of task at index of n is 1
+            // if is 1 that's the task need to duplicate in the system
+            if (String.format("%c", task.getRepeatOn().charAt(indexOfDayRepeat)).equals("1")
+                    && task.getCreatedDate() < Util.getStartDay(timeStampDateRepeat)
+                    && !Util.isExceptionDate(new ArrayList<>(task.getTask_ExceptionDateCollection()), timeStampDateRepeat)
+                    && Util.getStartDay(task.getAssignDate()).longValue() != Util.getStartDay(timeStampDateRepeat)) {
+                taskNeedToRepeat.add(task);
+            }
+        }
+        // end find all the task that need duplicate
+
+        // duplicate task and save to the system
+        if (!taskNeedToRepeat.isEmpty()) {
+            for (Task taskNeedDuplicate : taskNeedToRepeat) {
+                Task taskDuplicate = new Task();
+
+                // basic information that's not change
+                taskDuplicate.setTaskId(taskNeedDuplicate.getTaskId());
+                taskDuplicate.setName(taskNeedDuplicate.getName());
+                taskDuplicate.setIsDeleted(taskNeedDuplicate.getIsDeleted());
+                taskDuplicate.setType(taskNeedDuplicate.getType());
+
+                // get from time of old task
+                Calendar calendarFromTimeOldTask = Calendar.getInstance();
+                calendarFromTimeOldTask.setTime(taskNeedDuplicate.getFromTime());
+
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTime(new Date(timeStampDateRepeat));
+                // change from time
+                calendar.set(Calendar.HOUR, calendarFromTimeOldTask.get(Calendar.HOUR));
+                calendar.set(Calendar.MINUTE, calendarFromTimeOldTask.get(Calendar.MINUTE));
+                calendar.set(Calendar.SECOND, calendarFromTimeOldTask.get(Calendar.SECOND));
+                calendar.set(Calendar.MILLISECOND, calendarFromTimeOldTask.get(Calendar.MILLISECOND));
+                taskDuplicate.setFromTime(calendar.getTime());
+
+                // change to time
+                Calendar calendarToTimeOldTask = Calendar.getInstance();
+                calendarToTimeOldTask.setTime(taskNeedDuplicate.getToTime());
+                // change from time
+                calendar.set(Calendar.HOUR, calendarToTimeOldTask.get(Calendar.HOUR));
+                calendar.set(Calendar.MINUTE, calendarToTimeOldTask.get(Calendar.MINUTE));
+                calendar.set(Calendar.SECOND, calendarToTimeOldTask.get(Calendar.SECOND));
+                calendar.set(Calendar.MILLISECOND, calendarToTimeOldTask.get(Calendar.MILLISECOND));
+                taskDuplicate.setToTime(calendar.getTime());
+
+                taskDuplicate.setStatus("ASSIGNED");
+
+                result.add(taskDuplicate);
             }
         }
         return result;
@@ -371,10 +429,10 @@ public class TaskService {
 
                     result.add(dataResult);
                 }
-
-                return result;
             }
-            ListTaskHandedResponseDTO dataResult = new ListTaskHandedResponseDTO();
+            return result.stream()
+                    .filter(Util.distinctByKey(ListTaskHandedResponseDTO::getDate))
+                    .collect(Collectors.toList());
         }
         return null;
     }
