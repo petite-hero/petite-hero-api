@@ -347,6 +347,7 @@ public class TaskService {
                 resultData.setTaskId(taskResult.getTaskId());
                 resultData.setFromTime(Util.formatTimestampToTime(taskResult.getFromTime().getTime()));
                 resultData.setToTime(Util.formatTimestampToTime(taskResult.getToTime().getTime()));
+                resultData.setType(taskResult.getType());
 
                 result.add(resultData);
             }
