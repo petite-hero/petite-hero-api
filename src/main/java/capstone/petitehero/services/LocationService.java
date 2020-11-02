@@ -53,6 +53,7 @@ public class LocationService {
             } else {
                 LocationHistory latestLocation = locationRepository.findLatestLocation(child.getChildId());
                 if (latestLocation == null) { // in case child doesn't have any location history yet
+                    latestLocation = new LocationHistory();
                     latestLocation.setStatus(Constants.NOT_SAFE);
                 }
                 LocationHistory addedLocation = new LocationHistory();
@@ -69,7 +70,14 @@ public class LocationService {
                     result.setMsg("Bad request - No data provided");
                     result.setCode(Constants.CODE_400);
                 } else {
+                    result.setMsg(Constants.NO_ERROR);
+
                     ArrayList<String> tokens = locationRepository.getParentPushToken(sentLocation.getChild());
+                    if (tokens == null || tokens.size() == 0) {
+                        tokens = new ArrayList<>();
+                        tokens.add(Constants.FAKE_EXPO_TOKEN);
+                        result.setMsg("Parent token is currently null");
+                    }
                     Integer pushStatus = 100;
                     if (emergency) { // in case mobile device demands emergency mode
                         pushStatus = pushSilentNotificationMobile(sentLocation, tokens);
@@ -80,9 +88,7 @@ public class LocationService {
                         }
                     }
 
-                    if (pushStatus == Constants.CODE_200) {
-                        result.setMsg(Constants.NO_ERROR);
-                    } else if (pushStatus == Constants.CODE_500) {
+                    if (pushStatus == Constants.CODE_500) {
                         result.setMsg("Error at recordLocationFromSW - pushNotification");
                     }
                     result.setData(sentLocation);
@@ -92,6 +98,7 @@ public class LocationService {
             result.setData(null);
             result.setMsg(Constants.SERVER_ERROR + e.toString());
             result.setCode(Constants.CODE_500);
+            e.printStackTrace();
         }
         return result;
     }

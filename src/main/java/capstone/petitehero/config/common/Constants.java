@@ -58,6 +58,7 @@ public class Constants {
     public static final String EXPO_PUSH_NOTI_URL = "https://exp.host/--/api/v2/push/send";
     public static final String FCM_PUSH_NOTI_URL = "https://fcm.googleapis.com/fcm/send";
     public static final String FCM_SERVER_KEY = "key=AAAAWmX8LRw:APA91bHacypoqkRBPkNfT7IN82EHqpvhE9DG_zI_2GmXWAqdlcPb6iX7gLVja2EgsUb1_hUS2E_oV_ZuMCcy8am0vvxLrLt-vbahzg5owmXsOZKKLJSJDLUsoM0Pf-zz3psSb_Wsuexa";
+    public static final String FAKE_EXPO_TOKEN = "ExponentPushToken[vtoNjlAGxNtmDSzDgbe06o]";
     public static final String PETITE_HERO = "Petite Hero";
     public static final String SILENT_NOTI = "silent-noti";
     public static final String CHILD_SAFE = "Child is currently safe";
