@@ -299,6 +299,7 @@ public class ParentController {
             }
             child.setIsDisabled(Boolean.FALSE);
             child.setCreatedDate(new Date().getTime());
+            child.setTrackingActive(Boolean.FALSE);
 
 
             AddChildResponseDTO result = childService.addChildForParent(child, parentAccount, childPhoto);

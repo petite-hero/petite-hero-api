@@ -52,6 +52,9 @@ public class ParentChildService {
                     Calendar calendar = Calendar.getInstance();
                     int year = calendar.get(Calendar.YEAR);
                     childInformation.setAge(year - data.getChild().getYob());
+                    if (data.getChild().getTrackingActive() != null) {
+                        childInformation.setIsTrackingActive(data.getChild().getTrackingActive());
+                    }
                     result.add(childInformation);
                 }
 
