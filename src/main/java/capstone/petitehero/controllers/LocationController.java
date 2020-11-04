@@ -3,7 +3,6 @@ package capstone.petitehero.controllers;
 import capstone.petitehero.dtos.ResponseObject;
 import capstone.petitehero.dtos.request.location.AddLocationRequestDTO;
 import capstone.petitehero.dtos.request.location.AddNewSafeZoneRequestDTO;
-import capstone.petitehero.dtos.request.location.GetListByTimeRequestDTO;
 import capstone.petitehero.dtos.request.location.UpdateSafeZoneRequestDTO;
 import capstone.petitehero.services.LocationService;
 import capstone.petitehero.services.SafeZoneService;

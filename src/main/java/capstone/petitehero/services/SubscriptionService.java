@@ -1,5 +1,6 @@
 package capstone.petitehero.services;
 
+import capstone.petitehero.config.common.Constants;
 import capstone.petitehero.dtos.response.subscription.type.CreateSubscriptionTypeResponseDTO;
 import capstone.petitehero.dtos.response.subscription.type.ListSubscriptionTypeResponseDTO;
 import capstone.petitehero.dtos.response.subscription.type.ModifySubscriptionTypeResponseDTO;
@@ -31,7 +32,7 @@ public class SubscriptionService {
         if (subscriptionTypeResult != null) {
             CreateSubscriptionTypeResponseDTO result = new CreateSubscriptionTypeResponseDTO();
             result.setNewSubscriptionTypeId(subscriptionTypeResult.getSubscriptionTypeId());
-            result.setStatus("CREATED");
+            result.setStatus(Constants.status.CREATED.toString());
             return result;
         }
 
@@ -92,7 +93,7 @@ public class SubscriptionService {
             result.setMaxChildren(subscriptionTypeResult.getMaxChildren());
             result.setMaxCollaborator(subscriptionTypeResult.getMaxCollaborator());
             result.setPrice(subscriptionTypeResult.getPrice());
-            result.setStatus("UPDATED");
+            result.setStatus(Constants.status.UPDATED.toString());
 
             return result;
         }

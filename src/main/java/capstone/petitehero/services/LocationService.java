@@ -1,7 +1,6 @@
 package capstone.petitehero.services;
 
 import capstone.petitehero.config.common.Constants;
-import capstone.petitehero.dtos.ParentChildPushTokenDTO;
 import capstone.petitehero.dtos.ResponseObject;
 import capstone.petitehero.dtos.request.location.AddLocationRequestDTO;
 import capstone.petitehero.dtos.request.location.PushSilentNotiSWDTO;
@@ -13,7 +12,6 @@ import capstone.petitehero.repositories.ChildRepository;
 import capstone.petitehero.repositories.LocationRepository;
 import capstone.petitehero.utilities.Util;
 import com.google.gson.Gson;
-import io.swagger.models.auth.In;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -21,12 +19,8 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
-import sun.net.www.protocol.http.HttpURLConnection;
 
-import java.io.*;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

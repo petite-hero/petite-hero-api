@@ -5,7 +5,14 @@ import capstone.petitehero.dtos.ResponseObject;
 import capstone.petitehero.entities.IsExceptionDate;
 import capstone.petitehero.entities.Parent;
 import capstone.petitehero.entities.Parent_Child;
+import com.google.gson.Gson;
 import org.apache.commons.io.FileUtils;
+import org.apache.http.HttpHeaders;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -318,5 +325,76 @@ public class Util {
         calendar.set(Calendar.MILLISECOND, timeCalendar.get(Calendar.MILLISECOND));
 
         return calendar.getTime().getTime();
+    }
+
+    public static Integer pushNotificationMobile(String msg, Object data, ArrayList<String> pushTokens) {
+        HttpClient httpClient = HttpClientBuilder.create().build();
+        Integer result;
+        try {
+            HttpPost request = new HttpPost(Constants.EXPO_PUSH_NOTI_URL);
+            HashMap<String, Object> body = new HashMap<>();
+            if (msg == null) { // use for silent noty
+                body.put("title", Constants.SILENT_NOTI);
+                body.put("data", new Gson().toJson(data));
+                body.put("to", pushTokens);
+            } else {
+                body.put("title", Constants.PETITE_HERO);
+                body.put("body", msg);
+                body.put("data", new Gson().toJson(data));
+                body.put("to", pushTokens);
+            }
+            StringEntity bodyJson = new StringEntity(new Gson().toJson(body));
+
+            // headers specified by Expo to request push notifications
+            request.setHeader(HttpHeaders.HOST, "exp.host");
+            request.setHeader(HttpHeaders.ACCEPT, "application/json");
+            request.setHeader(HttpHeaders.ACCEPT_ENCODING, "gzip, deflate");
+            request.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
+            request.setEntity(bodyJson);
+
+            // get response
+            HttpResponse response = httpClient.execute(request);
+
+            // handle response here...
+            result = response.getStatusLine().getStatusCode();
+            System.out.println(result);
+
+        } catch (Exception ex) {
+            result = Constants.CODE_500;
+            System.out.println(Constants.SERVER_ERROR + ex.toString());
+            ex.printStackTrace();
+        }
+        return result;
+    }
+
+    public static Integer pushSilentNotificationSW(Object data, String pushToken) {
+        HttpClient httpClient = HttpClientBuilder.create().build();
+        Integer result;
+        try {
+            HttpPost request = new HttpPost(Constants.FCM_PUSH_NOTI_URL);
+            HashMap<String, Object> body = new HashMap<String, Object>();
+            body.put("data", data);
+            body.put("to", pushToken);
+            StringEntity bodyJson = new StringEntity(new Gson().toJson(body));
+
+            System.out.println("===> Body sent: " + new Gson().toJson(body));
+
+            // headers specified by FCM to request push notifications
+            request.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
+            request.setHeader(HttpHeaders.AUTHORIZATION, Constants.FCM_SERVER_KEY);
+            request.setEntity(bodyJson);
+
+            // get response
+            HttpResponse response = httpClient.execute(request);
+
+            // handle response here...
+            result = response.getStatusLine().getStatusCode();
+            System.out.println(result);
+        } catch (Exception ex) {
+            result = Constants.CODE_500;
+            System.out.println(Constants.SERVER_ERROR + ex.toString());
+            ex.printStackTrace();
+        }
+        return result;
     }
 }

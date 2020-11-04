@@ -29,7 +29,10 @@ public class Constants {
     public static final String BADGE_FOLDER = "images/badges/";
     public static final Long FREE_TRAIL_TYPE = 1L;
     public enum status {
-        DONE, FAILED, HANDED, ASSIGNED, DELETED, CREATED, UPDATED, ADDED, CONFIRMED
+        DONE, FAILED, HANDED,
+        ASSIGNED, DELETED, CREATED,
+        UPDATED, ADDED, CONFIRMED,
+        SUCCESS, CANCELLED
     }
 
     // error messages

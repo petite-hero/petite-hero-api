@@ -3,6 +3,8 @@ package capstone.petitehero.services;
 import capstone.petitehero.config.common.Constants;
 import capstone.petitehero.dtos.common.Assignee;
 import capstone.petitehero.dtos.common.Assigner;
+import capstone.petitehero.dtos.common.ChildInformation;
+import capstone.petitehero.dtos.common.NotificationDTO;
 import capstone.petitehero.dtos.response.task.*;
 import capstone.petitehero.entities.Child;
 import capstone.petitehero.entities.Task;
@@ -70,6 +72,18 @@ public class TaskService {
                     assignee.setGender("Female");
                 }
                 resultData.setAssignee(assignee);
+
+                if (Util.getStartDay(task.getAssignDate()).longValue()
+                        == Util.getStartDay(new Date().getTime()).longValue()) {
+                    NotificationDTO notificationDTO = new NotificationDTO();
+                    notificationDTO.setAssigner(assigner);
+                    notificationDTO.setAssignee(assignee);
+                    ArrayList<String> pushTokenList = new ArrayList<>();
+                    pushTokenList.add(taskResult.getParent().getPushToken());
+                    Util.pushNotificationMobile(
+                            assigner.getFirstName() + assigner.getLastName() + " assigned new task for you" + assignee.getFirstName() + assignee.getLastName()
+                            , notificationDTO, pushTokenList);
+                }
 
                 result.add(resultData);
             }
@@ -266,7 +280,7 @@ public class TaskService {
                 calendar.set(Calendar.MILLISECOND, calendarToTimeOldTask.get(Calendar.MILLISECOND));
                 taskDuplicate.setToTime(calendar.getTime());
 
-                taskDuplicate.setStatus("ASSIGNED");
+                taskDuplicate.setStatus(Constants.status.ASSIGNED.toString());
 
                 // information need to unique for not duplicate redundant
                 taskDuplicate.setRepeatOn(null);
@@ -334,7 +348,7 @@ public class TaskService {
                 calendar.set(Calendar.MILLISECOND, calendarToTimeOldTask.get(Calendar.MILLISECOND));
                 taskDuplicate.setToTime(calendar.getTime());
 
-                taskDuplicate.setStatus("ASSIGNED");
+                taskDuplicate.setStatus(Constants.status.ASSIGNED.toString());
 
                 result.add(taskDuplicate);
             }
@@ -403,9 +417,9 @@ public class TaskService {
             result.setName(taskResult.getName());
 
             if (isSuccess.booleanValue()) {
-                result.setStatus("SUCCESS");
+                result.setStatus(Constants.status.SUCCESS.toString());
             } else {
-                result.setStatus("FAILED");
+                result.setStatus(Constants.status.FAILED.toString());
             }
             return result;
         }

@@ -8,7 +8,6 @@ import capstone.petitehero.dtos.response.child.*;
 import capstone.petitehero.entities.Child;
 import capstone.petitehero.entities.Parent;
 import capstone.petitehero.entities.Parent_Child;
-import capstone.petitehero.entities.Safezone;
 import capstone.petitehero.repositories.ChildRepository;
 import capstone.petitehero.repositories.ParentChildRepository;
 import capstone.petitehero.repositories.ParentRepository;
@@ -152,7 +151,7 @@ public class ChildService {
             Child childResult = childRepository.save(child);
             if (childResult != null) {
                 DeleteChildResponseDTO result = new DeleteChildResponseDTO();
-                result.setStatus("DELETED");
+                result.setStatus(Constants.status.DELETED.toString());
                 return result;
             }
         }
@@ -181,7 +180,7 @@ public class ChildService {
             if (child.getPhoto() != null && !child.getPhoto().isEmpty()) {
                 result.setPhoto(Util.fromImageFileToBase64String(child.getPhoto()));
             }
-            result.setStatus("Updated");
+            result.setStatus(Constants.status.UPDATED.toString());
 
             return result;
         }

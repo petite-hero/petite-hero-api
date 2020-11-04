@@ -214,7 +214,7 @@ public class ChildController {
                 task.setCreatedDate(new Date().getTime());
                 task.setType(taskCreateRequestDTO.getType());
                 task.setIsDeleted(Boolean.FALSE);
-                task.setStatus("ASSIGNED");
+                task.setStatus(Constants.status.ASSIGNED.toString());
 
                 task.setChild(child);
                 task.setParent(creatorInformation);
@@ -272,7 +272,7 @@ public class ChildController {
             quest.setRewardName(questCreateRequestDTO.getRewardName());
             quest.setIsDeleted(Boolean.FALSE);
             quest.setCreatedDate(new Date().getTime());
-            quest.setStatus("ASSIGNED");
+            quest.setStatus(Constants.status.ASSIGNED.toString());
 
             quest.setChild(child);
             quest.setParent(creatorInformation);

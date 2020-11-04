@@ -1,7 +1,6 @@
 package capstone.petitehero.services;
 
 import capstone.petitehero.config.common.Constants;
-import capstone.petitehero.dtos.ResponseObject;
 import capstone.petitehero.dtos.common.ChildInformation;
 import capstone.petitehero.dtos.response.collaborator.AddCollaboratorResponseDTO;
 import capstone.petitehero.dtos.response.collaborator.ListCollaboratorResponseDTO;
@@ -9,7 +8,6 @@ import capstone.petitehero.entities.Parent;
 import capstone.petitehero.entities.Parent_Child;
 import capstone.petitehero.repositories.ChildRepository;
 import capstone.petitehero.repositories.ParentChildRepository;
-import capstone.petitehero.repositories.ParentRepository;
 import capstone.petitehero.utilities.Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,12 +27,20 @@ public class ParentChildService {
     private ChildRepository childRepository;
 
     public List<ChildInformation> getListChildOfParent(String parentPhoneNumber) {
-        List<Parent_Child> listResult = parentChildRepository.findParent_ChildrenByParent_Account_UsernameAndChild_IsDisabled(parentPhoneNumber, Boolean.FALSE);
+        // get parent children
+        List<Parent_Child> listParentChildrenResult =
+                parentChildRepository.findParent_ChildrenByParent_Account_UsernameAndChild_IsDisabled(parentPhoneNumber, Boolean.FALSE)
+                .stream()
+                .filter(Util.distinctByKey(Parent_Child::getChild))
+                .collect(Collectors.toList());
 
-        if (listResult != null) {
-            List<ChildInformation> result = new ArrayList<>();
-            if (!listResult.isEmpty()) {
-                for (Parent_Child data : listResult) {
+        // get collaborator children
+        List<Parent_Child> listCollaboratorChildrenResult =
+                parentChildRepository.findParent_ChildrenByCollaborator_Account_UsernameAndChild_IsDisabled(parentPhoneNumber, Boolean.FALSE);
+        List<ChildInformation> result = new ArrayList<>();
+        if (listParentChildrenResult != null) {
+            if (!listParentChildrenResult.isEmpty()) {
+                for (Parent_Child data : listParentChildrenResult) {
                     ChildInformation childInformation = new ChildInformation();
 
                     childInformation.setChildId(data.getChild().getChildId());
@@ -57,16 +63,42 @@ public class ParentChildService {
                     if (data.getChild().getTrackingActive() != null) {
                         childInformation.setIsTrackingActive(data.getChild().getTrackingActive());
                     }
+                    childInformation.setIsCollaboratorChild(Boolean.FALSE);
                     result.add(childInformation);
                 }
-
-                return result;
             }
         }
-        if (listResult.isEmpty()) {
-            return new ArrayList<>();
+        if (listCollaboratorChildrenResult != null) {
+            if (!listCollaboratorChildrenResult.isEmpty()) {
+                for (Parent_Child data : listCollaboratorChildrenResult) {
+                    ChildInformation childInformation = new ChildInformation();
+
+                    childInformation.setChildId(data.getChild().getChildId());
+                    childInformation.setFirstName(data.getChild().getFirstName());
+                    childInformation.setLastName(data.getChild().getLastName());
+                    childInformation.setNickName(data.getChild().getNickName());
+                    if (data.getChild().getGender().booleanValue()) {
+                        childInformation.setGender("Male");
+                    } else {
+                        childInformation.setGender("Female");
+                    }
+                    if (data.getChild().getPushToken() == null || data.getChild().getPushToken().isEmpty()) {
+                        childInformation.setHasDevice(Boolean.FALSE);
+                    } else {
+                        childInformation.setHasDevice(Boolean.TRUE);
+                    }
+                    Calendar calendar = Calendar.getInstance();
+                    int year = calendar.get(Calendar.YEAR);
+                    childInformation.setAge(year - data.getChild().getYob());
+                    if (data.getChild().getTrackingActive() != null) {
+                        childInformation.setIsTrackingActive(data.getChild().getTrackingActive());
+                    }
+                    childInformation.setIsCollaboratorChild(Boolean.TRUE);
+                    result.add(childInformation);
+                }
+            }
         }
-        return null;
+        return result;
     }
 
     public Parent_Child findChildParentByChildId(Long childId) {
@@ -191,7 +223,10 @@ public class ParentChildService {
 
     public List<ListCollaboratorResponseDTO> getParentCollaborator(String phoneNumber) {
         List<Parent_Child> parentChildListResult =
-                parentChildRepository.findDistinctByParent_Account_UsernameAndCollaboratorNotNull(phoneNumber);
+                parentChildRepository.findParent_ChildrenByParent_Account_UsernameAndCollaboratorNotNull(phoneNumber)
+                        .stream()
+                        .filter(Util.distinctByKey(Parent_Child::getCollaborator))
+                        .collect(Collectors.toList());
 
         List<ListCollaboratorResponseDTO> result = new ArrayList<>();
         if (parentChildListResult != null) {
@@ -207,7 +242,6 @@ public class ParentChildService {
                     } else {
                         collaboratorData.setGender("Female");
                     }
-                    collaboratorData.setIsConfirm(collaborator.getIsCollaboratorConfirm());
 
                     result.add(collaboratorData);
                 }

@@ -2,38 +2,22 @@ package capstone.petitehero.services;
 
 import capstone.petitehero.config.common.Constants;
 import capstone.petitehero.dtos.ResponseObject;
-import capstone.petitehero.dtos.request.location.AddLocationRequestDTO;
 import capstone.petitehero.dtos.request.location.AddNewSafeZoneRequestDTO;
 import capstone.petitehero.dtos.request.location.PushSilentNotiSWDTO;
 import capstone.petitehero.dtos.request.location.UpdateSafeZoneRequestDTO;
-import capstone.petitehero.dtos.response.location.GetLastestLocationResponseDTO;
 import capstone.petitehero.dtos.response.location.GetListByDateResponseDTO;
-import capstone.petitehero.dtos.response.location.GetListByTimeResponseDTO;
 import capstone.petitehero.dtos.response.location.GetSafeZoneDetailResponseDTO;
 import capstone.petitehero.entities.Child;
-import capstone.petitehero.entities.LocationHistory;
 import capstone.petitehero.entities.Parent;
 import capstone.petitehero.entities.Safezone;
 import capstone.petitehero.repositories.ChildRepository;
-import capstone.petitehero.repositories.LocationRepository;
 import capstone.petitehero.repositories.ParentRepository;
 import capstone.petitehero.repositories.SafeZoneRepository;
 import capstone.petitehero.utilities.Util;
-import com.google.gson.Gson;
-import org.apache.http.HttpHeaders;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.HttpClientBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import java.io.FileInputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 @Service

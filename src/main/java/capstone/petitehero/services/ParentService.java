@@ -117,7 +117,7 @@ public class ParentService {
                     result.setLanguage("English");
                 }
             }
-            result.setStatus("Updated");
+            result.setStatus(Constants.status.UPDATED.toString());
 
             return result;
         }
@@ -141,7 +141,7 @@ public class ParentService {
                 DisableParentResponseDTO result = new DisableParentResponseDTO();
 
                 result.setPhoneNumber(parentResult.getAccount().getUsername());
-                result.setStatus("DELETED");
+                result.setStatus(Constants.status.DELETED.toString());
                 return result;
             }
         }

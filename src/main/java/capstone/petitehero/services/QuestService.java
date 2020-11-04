@@ -3,6 +3,7 @@ package capstone.petitehero.services;
 import capstone.petitehero.config.common.Constants;
 import capstone.petitehero.dtos.common.Assignee;
 import capstone.petitehero.dtos.common.Assigner;
+import capstone.petitehero.dtos.common.NotificationDTO;
 import capstone.petitehero.dtos.response.quest.*;
 import capstone.petitehero.dtos.response.quest.badge.QuestBadgeResponseDTO;
 import capstone.petitehero.entities.Quest;
@@ -14,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -70,6 +72,15 @@ public class QuestService {
                 assignee.setGender("Female");
             }
             result.setAssignee(assignee);
+
+            NotificationDTO notificationDTO = new NotificationDTO();
+            notificationDTO.setAssigner(assigner);
+            notificationDTO.setAssignee(assignee);
+            ArrayList<String> pushTokenList = new ArrayList<>();
+            pushTokenList.add(questResult.getParent().getPushToken());
+            Util.pushNotificationMobile(
+                    assigner.getFirstName() + assigner.getLastName() + " assigned new quest to " + assignee.getFirstName() + assignee.getLastName()
+                    , notificationDTO, pushTokenList);
 
             return result;
         }
@@ -149,7 +160,7 @@ public class QuestService {
         }
         if (listQuestResult != null) {
             List<ListQuestResponseDTO> result = new ArrayList<>();
-            for (Quest questResult: listQuestResult) {
+            for (Quest questResult : listQuestResult) {
                 ListQuestResponseDTO resultData = new ListQuestResponseDTO();
 
                 resultData.setQuestId(questResult.getQuestId());
