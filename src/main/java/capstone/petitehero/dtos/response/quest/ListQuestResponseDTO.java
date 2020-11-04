@@ -13,5 +13,6 @@ public class ListQuestResponseDTO implements Serializable {
 
     private Long questId;
     private String name;
-    private String questBadge;
+    private String status;
+    private Integer questBadgeId;
 }

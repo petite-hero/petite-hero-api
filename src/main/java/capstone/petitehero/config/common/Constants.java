@@ -17,8 +17,9 @@ public class Constants {
     public static final boolean TRACKING_INACTIVE_BOOLEAN = false;
 
     // role values
-    public static final String PARENT = "parent";
-    public static final String ADMIN = "admin";
+    public static final String PARENT = "Parent";
+    public static final String ADMIN = "Admin";
+    public static final String CHILD = "Child";
 
 
     // status values
@@ -27,6 +28,9 @@ public class Constants {
     public static final String UPLOAD_FOLDER = "images/";
     public static final String BADGE_FOLDER = "images/badges/";
     public static final Long FREE_TRAIL_TYPE = 1L;
+    public enum status {
+        DONE, FAILED, HANDED, ASSIGNED, DELETED, CREATED, UPDATED, ADDED, CONFIRMED
+    }
 
     // error messages
     public static final String NO_VALUE_PRESENT = "No value present";

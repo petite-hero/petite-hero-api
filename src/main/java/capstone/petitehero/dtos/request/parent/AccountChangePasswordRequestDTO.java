@@ -7,7 +7,7 @@ import java.io.Serializable;
 
 @Setter
 @Getter
-public class ParentChangePasswordRequestDTO implements Serializable {
+public class AccountChangePasswordRequestDTO implements Serializable {
 
     private String password;
     private String confirmPassword;

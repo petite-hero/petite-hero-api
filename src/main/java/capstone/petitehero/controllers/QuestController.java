@@ -3,9 +3,10 @@ package capstone.petitehero.controllers;
 import capstone.petitehero.config.common.Constants;
 import capstone.petitehero.dtos.ResponseObject;
 import capstone.petitehero.dtos.response.quest.ListQuestResponseDTO;
-import capstone.petitehero.dtos.response.quest.QuestDeleteResponseDTO;
+import capstone.petitehero.dtos.response.quest.QuestStatusResponseDTO;
 import capstone.petitehero.dtos.response.quest.QuestDetailResponseDTO;
 import capstone.petitehero.dtos.response.quest.badge.QuestBadgeResponseDTO;
+import capstone.petitehero.entities.Quest;
 import capstone.petitehero.services.QuestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,18 +24,19 @@ public class QuestController {
 
     @RequestMapping(value = "/{questId}", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<Object> getDetailOfQuestById(@PathVariable("questId") Long questId) {
+    public ResponseEntity<Object> getDetailOfQuestById(@PathVariable("questId") Long questId,
+                                                       @RequestParam(value = "role", required = false, defaultValue = Constants.PARENT) String role) {
         ResponseObject responseObject;
 
-        QuestDetailResponseDTO result = questService.getDetailOfQuest(questId);
+        QuestDetailResponseDTO result = questService.getDetailOfQuest(questId, role);
 
         if (result != null) {
-            responseObject = new ResponseObject(200, "OK");
+            responseObject = new ResponseObject(Constants.CODE_200, "OK");
             responseObject.setData(result);
             return new ResponseEntity<>(responseObject, HttpStatus.OK);
         }
 
-        responseObject = new ResponseObject(404, "Cannot find that quest by that id");
+        responseObject = new ResponseObject(Constants.CODE_404, "Cannot find that quest by that id");
         return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
@@ -42,16 +44,22 @@ public class QuestController {
     @ResponseBody
     public ResponseEntity<Object> deleteQuestByQuestId(@PathVariable("questId") Long questId) {
         ResponseObject responseObject;
+        
+        Quest quest = questService.findQuestById(questId);
+        if (quest == null) {
+            responseObject = new ResponseObject(Constants.CODE_404, "Cannot find that quest by that id");
+            return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
+        }
 
-        QuestDeleteResponseDTO result = questService.deleteQuest(questId);
+        QuestStatusResponseDTO result = questService.deleteQuest(quest);
 
         if (result != null) {
-            responseObject = new ResponseObject(200, "OK");
+            responseObject = new ResponseObject(Constants.CODE_200, "OK");
             responseObject.setData(result);
             return new ResponseEntity<>(responseObject, HttpStatus.OK);
         }
 
-        responseObject = new ResponseObject(404, "Cannot find that quest by that id");
+        responseObject = new ResponseObject(Constants.CODE_500, "Cannot delete quest in the system");
         return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
@@ -78,7 +86,7 @@ public class QuestController {
             responseObject.setData(result);
             return new ResponseEntity<>(responseObject, HttpStatus.OK);
         }
-        responseObject = new ResponseObject(500, "Server is down pls come back again");
+        responseObject = new ResponseObject(Constants.CODE_500, "Server is down pls come back again");
         return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
@@ -95,7 +103,37 @@ public class QuestController {
             return new ResponseEntity<>(responseObject, HttpStatus.OK);
         }
 
-        responseObject = new ResponseObject(500, "Server is down pls come back again");
+        responseObject = new ResponseObject(Constants.CODE_500, "Server is down pls come back again");
+        return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @RequestMapping(value = "/{questId}", method = RequestMethod.PUT)
+    @ResponseBody
+    public ResponseEntity<Object> updateStatusOfQuestByParent(@PathVariable("questId") Long questId,
+                                                              @RequestParam("status") String status) {
+        ResponseObject responseObject;
+
+        if (status == null
+                && !status.equalsIgnoreCase(Constants.status.DONE.toString())
+                && !status.equalsIgnoreCase(Constants.status.FAILED.toString())) {
+            responseObject = new ResponseObject(Constants.CODE_400, "Quest's status update should be DONE or FAILED");
+            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+        }
+
+        Quest quest = questService.findQuestById(questId);
+        if (quest == null) {
+            responseObject = new ResponseObject(Constants.CODE_404, "Cannot find that quest by that id");
+            return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
+        }
+
+        QuestStatusResponseDTO result = questService.updateStatusOfQuest(quest, status);
+        if (result != null) {
+            responseObject = new ResponseObject(Constants.CODE_200, "OK");
+            responseObject.setData(result);
+            return new ResponseEntity<>(responseObject, HttpStatus.OK);
+        }
+
+        responseObject = new ResponseObject(Constants.CODE_500, "Cannot update status of quest");
         return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

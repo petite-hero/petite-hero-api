@@ -1,5 +1,6 @@
 package capstone.petitehero.services;
 
+import capstone.petitehero.config.common.Constants;
 import capstone.petitehero.dtos.common.Assignee;
 import capstone.petitehero.dtos.common.Assigner;
 import capstone.petitehero.dtos.response.task.*;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -23,52 +25,56 @@ public class TaskService {
     @Autowired
     private TaskRepository taskRepository;
 
-    public TaskCreateResponseDTO addTaskByParent(Task task) {
-        Task taskResult = taskRepository.save(task);
-        if (taskResult != null) {
-            // add information of task
-            TaskCreateResponseDTO result = new TaskCreateResponseDTO();
-            result.setTaskId(taskResult.getTaskId());
-            result.setDescription(taskResult.getDescription());
+    @Transactional
+    public List<TaskCreateResponseDTO> addTaskByParent(List<Task> listTask) {
+        List<TaskCreateResponseDTO> result = new ArrayList<>();
+        for (Task task : listTask) {
+            Task taskResult = taskRepository.save(task);
+            if (taskResult != null) {
+                // add information of task
+                TaskCreateResponseDTO resultData = new TaskCreateResponseDTO();
+                resultData.setTaskId(taskResult.getTaskId());
+                resultData.setDescription(taskResult.getDescription());
 
-            result.setAssignDate(taskResult.getAssignDate());
-            result.setCreatedDate(taskResult.getCreatedDate());
+                resultData.setAssignDate(taskResult.getAssignDate());
+                resultData.setCreatedDate(taskResult.getCreatedDate());
 
-            result.setFromTime(Util.formatTimestampToTime(taskResult.getFromTime().getTime()));
-            result.setToTime(Util.formatTimestampToTime(taskResult.getToTime().getTime()));
+                resultData.setFromTime(Util.formatTimestampToTime(taskResult.getFromTime().getTime()));
+                resultData.setToTime(Util.formatTimestampToTime(taskResult.getToTime().getTime()));
 
-            result.setIsRepeatOn(Util.fromRepeatOnStringToDayInWeek(taskResult.getRepeatOn()));
-            result.setType(taskResult.getType());
-            result.setStatus("ASSIGNED");
+//                resultData.setIsRepeatOn(Util.fromRepeatOnStringToDayInWeek(taskResult.getRepeatOn()));
+                resultData.setType(taskResult.getType());
+                resultData.setStatus(Constants.status.ASSIGNED.toString());
 
-            // information of assigner (colaborator or parent)
-            Assigner assigner = new Assigner();
-            assigner.setPhoneNumber(taskResult.getParent().getAccount().getUsername());
-            assigner.setFirstName(taskResult.getParent().getFirstName());
-            assigner.setLastName(taskResult.getParent().getLastName());
-            if (taskResult.getParent().getGender().booleanValue()) {
-                assigner.setGender("Male");
-            } else {
-                assigner.setGender("Female");
+                // information of assigner (colaborator or parent)
+                Assigner assigner = new Assigner();
+                assigner.setPhoneNumber(taskResult.getParent().getAccount().getUsername());
+                assigner.setFirstName(taskResult.getParent().getFirstName());
+                assigner.setLastName(taskResult.getParent().getLastName());
+                if (taskResult.getParent().getGender().booleanValue()) {
+                    assigner.setGender("Male");
+                } else {
+                    assigner.setGender("Female");
+                }
+                resultData.setAssigner(assigner);
+
+                // information of assignee (child)
+                Assignee assignee = new Assignee();
+                assignee.setChildId(taskResult.getChild().getChildId());
+                assignee.setLastName(taskResult.getChild().getLastName());
+                assignee.setFirstName(taskResult.getChild().getFirstName());
+                assignee.setNickName(taskResult.getChild().getNickName());
+                if (taskResult.getChild().getGender().booleanValue()) {
+                    assignee.setGender("Male");
+                } else {
+                    assignee.setGender("Female");
+                }
+                resultData.setAssignee(assignee);
+
+                result.add(resultData);
             }
-            result.setAssigner(assigner);
-
-            // information of assignee (child)
-            Assignee assignee = new Assignee();
-            assignee.setChildId(taskResult.getChild().getChildId());
-            assignee.setLastName(taskResult.getChild().getLastName());
-            assignee.setFirstName(taskResult.getChild().getFirstName());
-            assignee.setNickName(taskResult.getChild().getNickName());
-            if (taskResult.getChild().getGender().booleanValue()) {
-                assignee.setGender("Male");
-            } else {
-                assignee.setGender("Female");
-            }
-            result.setAssignee(assignee);
-
-            return result;
         }
-        return null;
+        return result;
     }
 
     public TaskDetailResponseDTO getDetailOfTask(Long taskId) {
@@ -88,13 +94,13 @@ public class TaskService {
             result.setType(taskResult.getType());
             result.setStatus(taskResult.getStatus());
 
-            if (taskResult.getIsDuplicateTask() != null) {
-                Task tempTask = taskRepository.findTasksByTaskIdAndIsDeleted(
-                        taskResult.getIsDuplicateTask(), Boolean.FALSE);
-                result.setIsRepeatOn(Util.fromRepeatOnStringToDayInWeek(tempTask.getRepeatOn()));
-            } else {
-                result.setIsRepeatOn(Util.fromRepeatOnStringToDayInWeek(taskResult.getRepeatOn()));
-            }
+//            if (taskResult.getIsDuplicateTask() != null) {
+//                Task tempTask = taskRepository.findTasksByTaskIdAndIsDeleted(
+//                        taskResult.getIsDuplicateTask(), Boolean.FALSE);
+//                result.setIsRepeatOn(Util.fromRepeatOnStringToDayInWeek(tempTask.getRepeatOn()));
+//            } else {
+//                result.setIsRepeatOn(Util.fromRepeatOnStringToDayInWeek(taskResult.getRepeatOn()));
+//            }
 
             // information of assigner (colaborator or parent)
             Assigner assigner = new Assigner();
@@ -135,30 +141,30 @@ public class TaskService {
     }
 
     public TaskDeleteResponseDTO deleteTask(Task task, Boolean isDuplicatedTask) {
-        if (isDuplicatedTask != null) {
-            if (isDuplicatedTask.booleanValue()) {
-                if (task != null) {
-                    task.setIsDeleted(Boolean.TRUE);
-                    Task taskDeleted = taskRepository.save(task);
-
-                    if (taskDeleted != null) {
-                        TaskDeleteResponseDTO result = new TaskDeleteResponseDTO();
-                        result.setTaskId(taskDeleted.getTaskId());
-                        result.setStatus("DELETED");
-                        return result;
-                    }
-                }
-                return null;
-            }
-        }
+//        if (isDuplicatedTask != null) {
+//            if (isDuplicatedTask.booleanValue()) {
+//                if (task != null) {
+//                    task.setIsDeleted(Boolean.TRUE);
+//                    Task taskDeleted = taskRepository.save(task);
+//
+//                    if (taskDeleted != null) {
+//                        TaskDeleteResponseDTO result = new TaskDeleteResponseDTO();
+//                        result.setTaskId(taskDeleted.getTaskId());
+//                        result.setStatus("DELETED");
+//                        return result;
+//                    }
+//                }
+//                return null;
+//            }
+//        }
         if (task != null) {
-            task.setRepeatOn("0000000");
+            task.setIsDeleted(Boolean.TRUE);
             Task taskDeleted = taskRepository.save(task);
 
             if (taskDeleted != null) {
                 TaskDeleteResponseDTO result = new TaskDeleteResponseDTO();
                 result.setTaskId(taskDeleted.getTaskId());
-                result.setStatus("DELETED");
+                result.setStatus(Constants.status.DELETED.toString());
                 return result;
             }
         }
@@ -362,7 +368,7 @@ public class TaskService {
     public TaskUpdateResponseDTO submitTaskForChild(Task task, MultipartFile proofPhoto) {
         task.setProofPhoto(Util.saveImageToSystem(
                 task.getTaskId().toString(), "Child_Submitted", proofPhoto));
-        task.setStatus("HANDED");
+        task.setStatus(Constants.status.HANDED.toString());
 
         Task taskResult = taskRepository.save(task);
         if (taskResult != null) {
@@ -373,7 +379,7 @@ public class TaskService {
             result.setAssignDate(Util.formatTimestampToDateTime(taskResult.getAssignDate()));
             result.setName(taskResult.getName());
 
-            result.setStatus("HANDED");
+            result.setStatus(Constants.status.HANDED.toString());
             return result;
         }
 
@@ -382,9 +388,9 @@ public class TaskService {
 
     public TaskUpdateResponseDTO approveTaskFromChild(Task task, Boolean isSuccess) {
         if (isSuccess.booleanValue()) {
-            task.setStatus("DONE");
+            task.setStatus(Constants.status.DONE.toString());
         } else {
-            task.setStatus("FAILED");
+            task.setStatus(Constants.status.FAILED.toString());
         }
 
         Task taskResult = taskRepository.save(task);
@@ -412,7 +418,8 @@ public class TaskService {
         Long endDayOfMonth = Util.endDayInMonth(dateTimeStamp);
         List<Task> listTaskResult =
                 taskRepository.findTasksByChildChildIdAndAssignDateIsBetweenAndStatusAndIsDeleted(
-                        childId, startDayOfMonth, endDayOfMonth, "HANDED", Boolean.FALSE);
+                        childId, startDayOfMonth, endDayOfMonth,
+                        Constants.status.HANDED.toString(), Boolean.FALSE);
 
         if (listTaskResult != null) {
             List<ListTaskHandedResponseDTO> result = new ArrayList<>();

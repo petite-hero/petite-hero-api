@@ -1,5 +1,6 @@
 package capstone.petitehero.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -24,6 +25,7 @@ public class Subscription implements Serializable {
     @OneToOne(fetch = FetchType.LAZY,
             cascade = CascadeType.ALL,
             mappedBy = "subscription")
+    @JsonManagedReference
     private Parent parent;
 
     @ManyToOne

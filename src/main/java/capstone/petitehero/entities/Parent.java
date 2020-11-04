@@ -1,6 +1,7 @@
 package capstone.petitehero.entities;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -75,9 +76,11 @@ public class Parent implements Serializable {
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "phone_number")
+    @JsonManagedReference
     private Account account;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "subscription_id")
+    @JsonBackReference
     private Subscription subscription;
 }

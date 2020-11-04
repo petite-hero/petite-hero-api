@@ -48,19 +48,19 @@ public class TaskController {
             return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
         }
 
-        if (isDuplicatedTask != null) {
-            if (isDuplicatedTask.booleanValue()) {
-                TaskDeleteResponseDTO result = taskService.deleteTask(taskResult, Boolean.TRUE);
-                if (result != null) {
-                    responseObject = new ResponseObject(200, "OK");
-                    responseObject.setData(result);
-                    return new ResponseEntity<>(responseObject, HttpStatus.OK);
-                }
-
-                responseObject = new ResponseObject(Constants.CODE_500, "Server cannot delete task for child");
-                return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-        }
+//        if (isDuplicatedTask != null) {
+//            if (isDuplicatedTask.booleanValue()) {
+//                TaskDeleteResponseDTO result = taskService.deleteTask(taskResult, Boolean.TRUE);
+//                if (result != null) {
+//                    responseObject = new ResponseObject(200, "OK");
+//                    responseObject.setData(result);
+//                    return new ResponseEntity<>(responseObject, HttpStatus.OK);
+//                }
+//
+//                responseObject = new ResponseObject(Constants.CODE_500, "Server cannot delete task for child");
+//                return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+//            }
+//        }
 
         TaskDeleteResponseDTO result = taskService.deleteTask(taskResult, null);
         if (result != null) {
@@ -90,12 +90,12 @@ public class TaskController {
         }
         if (listTaskOfChild != null) {
             // duplicated task has repeat on
-            List<Task> taskDuplicated = taskService.findAllChildTaskHasRepeatOn(childId, dateTimestamp);
-            if (!taskDuplicated.isEmpty()) {
-                for (Task task :  taskDuplicated) {
-                    listTaskOfChild.add(task);
-                }
-            }
+//            List<Task> taskDuplicated = taskService.findAllChildTaskHasRepeatOn(childId, dateTimestamp);
+//            if (!taskDuplicated.isEmpty()) {
+//                for (Task task :  taskDuplicated) {
+//                    listTaskOfChild.add(task);
+//                }
+//            }
 
             List<ListTaskResponseDTO> result = taskService.getChildListOfTask(listTaskOfChild);
 

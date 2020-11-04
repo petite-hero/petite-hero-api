@@ -3,6 +3,8 @@ package capstone.petitehero.utilities;
 import capstone.petitehero.config.common.Constants;
 import capstone.petitehero.dtos.ResponseObject;
 import capstone.petitehero.entities.IsExceptionDate;
+import capstone.petitehero.entities.Parent;
+import capstone.petitehero.entities.Parent_Child;
 import org.apache.commons.io.FileUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -15,6 +17,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class Util {
 
@@ -72,6 +75,7 @@ public class Util {
             f.mkdir();
         }
         try {
+
 
             Path path = Paths.get(Constants.UPLOAD_FOLDER + fileName);
             byte[] bytesPhoto = photo.getBytes();
@@ -238,17 +242,6 @@ public class Util {
         return Boolean.FALSE;
     }
 
-    public static Long getCurrentDayTimestamp() {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(new Date());
-        calendar.set(Calendar.HOUR, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
-
-        return calendar.getTimeInMillis();
-    }
-
     public static String getCurrentWeekday() {
         Calendar calendar = Calendar.getInstance();
         int day = calendar.get(Calendar.DAY_OF_WEEK);
@@ -256,5 +249,73 @@ public class Util {
         map.put(1, "sun"); map.put(2, "mon"); map.put(3, "tue"); map.put(4, "wed");
         map.put(5, "thu"); map.put(6, "fri"); map.put(7, "sat");
         return  map.get(day);
+    }
+
+    public static Boolean checkSubscriptionWhenParentAddChild(Parent parentAccount) {
+        int countMaxChildParentAccount = 0;
+        // get data from table parent_child so the data about child of parent will be duplicated
+        // filter
+        List<Parent_Child> filterChildForParentAccount =
+                parentAccount.getParent_childCollection().stream()
+                        .filter(Util.distinctByKey(Parent_Child::getChild))
+                        .collect(Collectors.toList());
+
+        // only child not disable in the system is count
+        for (Parent_Child childOfParent : filterChildForParentAccount) {
+            if (!childOfParent.getChild().getIsDisabled().booleanValue()) {
+                countMaxChildParentAccount++;
+            }
+        }
+        if (countMaxChildParentAccount >=
+                parentAccount.getSubscription().getSubscriptionType().getMaxChildren()) {
+            return Boolean.TRUE;
+        }
+        return Boolean.FALSE;
+    }
+
+    public static Boolean checkSubscriptionWhenParentAddCollaborator(Parent parentAccount) {
+        int maxCollaborator = 0;
+        List<Parent_Child> filterCollaboratorForParent =
+                parentAccount.getParent_collaboratorCollection().stream()
+                        .filter(Util.distinctByKey(Parent_Child::getCollaborator))
+                        .collect(Collectors.toList());
+
+        for (Parent_Child parent_child : filterCollaboratorForParent) {
+            if (!parent_child.getCollaborator().getIsDisabled().booleanValue()) {
+                maxCollaborator++;
+            }
+        }
+
+        if (maxCollaborator ==
+                parentAccount.getSubscription().getSubscriptionType().getMaxCollaborator().intValue()) {
+            return Boolean.TRUE;
+        }
+        return Boolean.FALSE;
+    }
+
+    public static Boolean validateFromTimeToTimeOfTask(Long fromTime, Long toTime) {
+        if (fromTime.longValue() > toTime.longValue()) {
+            return Boolean.FALSE;
+        }
+        return Boolean.TRUE;
+    }
+
+    // set fromTime, toTime for duplicate task
+    // because request body send can more than 1 assigned date
+    public static Long setTimeForAssignDate(Long assignedDate, Long time) {
+        // get new assigned date for duplicate task
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date(assignedDate));
+
+        // get fromTime or toTime
+        Calendar timeCalendar = Calendar.getInstance();
+        timeCalendar.setTime(new Date(time));
+
+        calendar.set(Calendar.HOUR_OF_DAY, timeCalendar.get(Calendar.HOUR_OF_DAY));
+        calendar.set(Calendar.MINUTE, timeCalendar.get(Calendar.MINUTE));
+        calendar.set(Calendar.SECOND, timeCalendar.get(Calendar.SECOND));
+        calendar.set(Calendar.MILLISECOND, timeCalendar.get(Calendar.MILLISECOND));
+
+        return calendar.getTime().getTime();
     }
 }

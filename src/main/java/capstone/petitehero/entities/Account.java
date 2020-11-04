@@ -1,5 +1,7 @@
 package capstone.petitehero.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -24,5 +26,6 @@ public class Account implements Serializable {
     @OneToOne(fetch = FetchType.LAZY,
             cascade = CascadeType.ALL,
             mappedBy = "account")
+    @JsonBackReference
     private Parent parent;
 }

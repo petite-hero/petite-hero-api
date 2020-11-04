@@ -4,12 +4,16 @@ import capstone.petitehero.entities.Account;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface AccountRepository extends JpaRepository<Account, Long> {
 
     Account findAdminByUsernameEqualsAndPasswordEquals(String username, String password);
 
-    Account findAccountByUsername(String username);
+    List<Account> findAccountsByParent_IsDisabledAndRole(Boolean isDisabled, String role);
 
     Boolean existsAccountByUsername(String username);
+
+    Account findAccountByUsernameAndAndRole(String username, String role);
 }

@@ -7,7 +7,7 @@ import java.io.Serializable;
 
 @Setter
 @Getter
-public class QuestDeleteResponseDTO implements Serializable {
+public class QuestStatusResponseDTO implements Serializable {
 
     private Long questId;
     private String status;

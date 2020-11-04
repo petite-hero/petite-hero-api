@@ -24,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @RestController
 @RequestMapping(value = "/child")
@@ -118,6 +119,10 @@ public class ChildController {
                                                          @RequestParam(value = "childPhoto", required = false) MultipartFile childPhoto) {
         ResponseObject responseObject;
         Child child = childService.findChildByChildId(childId, Boolean.FALSE);
+        if (child == null) {
+            responseObject = new ResponseObject(Constants.CODE_404, "Cannot found that child in the system");
+            return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
+        }
         if (updateChildProfileRequestDTO.getFirstName() != null && !updateChildProfileRequestDTO.getFirstName().isEmpty()) {
             child.setFirstName(updateChildProfileRequestDTO.getFirstName());
         }
@@ -168,10 +173,6 @@ public class ChildController {
             responseObject = new ResponseObject(Constants.CODE_400, "Task's name cannot be missing or empty");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
-        if (taskCreateRequestDTO.getAssignDate() == null || taskCreateRequestDTO.getAssignDate().toString().isEmpty()) {
-            responseObject = new ResponseObject(Constants.CODE_400, "Task's assigned date cannot be missing or empty");
-            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
-        }
         if (taskCreateRequestDTO.getFromTime() == null || taskCreateRequestDTO.getFromTime().toString().isEmpty()) {
             responseObject = new ResponseObject(Constants.CODE_400, "Task's start deadline time cannot be missing or empty");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
@@ -180,8 +181,16 @@ public class ChildController {
             responseObject = new ResponseObject(Constants.CODE_400, "Task's end deadline time cannot be missing or empty");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
+        if (!Util.validateFromTimeToTimeOfTask(taskCreateRequestDTO.getFromTime(), taskCreateRequestDTO.getToTime())) {
+            responseObject = new ResponseObject(Constants.CODE_400, "Task's end deadline time cannot before task's start deadline");
+            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+        }
         if (taskCreateRequestDTO.getType() == null || taskCreateRequestDTO.getType().isEmpty()) {
             responseObject = new ResponseObject(Constants.CODE_400, "Task's type cannot be missing or empty");
+            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+        }
+        if (taskCreateRequestDTO.getAssignDateList() == null || taskCreateRequestDTO.getAssignDateList().isEmpty()) {
+            responseObject = new ResponseObject(Constants.CODE_400, "Task's assign date cannot be missing or empty");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
         // end validate mandatory fields
@@ -189,39 +198,33 @@ public class ChildController {
         Child child = childService.findChildByChildId(taskCreateRequestDTO.getChildId(), Boolean.FALSE);
 
         if (child != null) {
-            Task task = new Task();
-            task.setName(taskCreateRequestDTO.getName());
-            task.setDescription(taskCreateRequestDTO.getDescription());
+            List<Task> taskList = new ArrayList<>();
+            Parent creatorInformation = parentService.findParentByPhoneNumber(taskCreateRequestDTO.getCreatorPhoneNumber());
+            if (creatorInformation == null) {
+                responseObject = new ResponseObject(Constants.CODE_404, "Cannot found that creator account in the system");
+                return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
+            }
+            for (Long assignDate: taskCreateRequestDTO.getAssignDateList()) {
+                Task task = new Task();
+                task.setName(taskCreateRequestDTO.getName());
+                task.setDescription(taskCreateRequestDTO.getDescription());
+                task.setAssignDate(assignDate);
+                task.setFromTime(new Date(Util.setTimeForAssignDate(assignDate, taskCreateRequestDTO.getFromTime())));
+                task.setToTime(new Date(Util.setTimeForAssignDate(assignDate, taskCreateRequestDTO.getToTime())));
+                task.setCreatedDate(new Date().getTime());
+                task.setType(taskCreateRequestDTO.getType());
+                task.setIsDeleted(Boolean.FALSE);
+                task.setStatus("ASSIGNED");
 
-            task.setAssignDate(new Date(taskCreateRequestDTO.getAssignDate()).getTime());
-            task.setFromTime(new Date(taskCreateRequestDTO.getFromTime()));
-            task.setToTime(new Date(taskCreateRequestDTO.getToTime()));
-            task.setCreatedDate(new Date().getTime());
-            task.setType(taskCreateRequestDTO.getType());
+                task.setChild(child);
+                task.setParent(creatorInformation);
 
-            task.setIsDeleted(Boolean.FALSE);
-            task.setStatus("ASSIGNED");
-
-            //
-            if (taskCreateRequestDTO.getRepeatOn() == null || taskCreateRequestDTO.getRepeatOn().isEmpty()) {
-                responseObject = new ResponseObject(Constants.CODE_400,"Repeat on of task cannot be empty or missing");
-                return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
-            } else {
-                if (!taskCreateRequestDTO.getRepeatOn().matches("[1,0]{7}")) {
-                    responseObject = new ResponseObject(Constants.CODE_400,"Repeat on of task should only contains 7 digits (1 or 0)");
-                    return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
-                }
-                task.setRepeatOn(taskCreateRequestDTO.getRepeatOn());
+                taskList.add(task);
             }
 
-            task.setChild(child);
+            List<TaskCreateResponseDTO> result = taskService.addTaskByParent(taskList);
 
-            Parent creatorInformation = parentService.findParentByPhoneNumber(taskCreateRequestDTO.getCreatorPhoneNumber());
-            task.setParent(creatorInformation);
-
-            TaskCreateResponseDTO result = taskService.addTaskByParent(task);
-
-            if (result != null) {
+            if (!result.isEmpty()) {
                 responseObject = new ResponseObject(Constants.CODE_200, "OK");
                 responseObject.setData(result);
                 return new ResponseEntity<>(responseObject, HttpStatus.OK);
@@ -238,8 +241,7 @@ public class ChildController {
     @RequestMapping(value = "/quest", method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<Object> assignQuestByParent(@ModelAttribute QuestCreateRequestDTO questCreateRequestDTO,
-                                                      @RequestParam("rewardPhoto") MultipartFile rewardPhoto,
-                                                      @RequestParam("questBadge") MultipartFile questBadge) {
+                                                      @RequestParam(value = "rewardPhoto", required = false) MultipartFile rewardPhoto) {
         ResponseObject responseObject;
 
         // validate mandatory fields
@@ -256,21 +258,23 @@ public class ChildController {
         Child child = childService.findChildByChildId(questCreateRequestDTO.getChildId(), Boolean.FALSE);
 
         if (child != null) {
+
+            Parent creatorInformation = parentService.findParentByPhoneNumber(questCreateRequestDTO.getCreatorPhoneNumber());
+            if (creatorInformation == null) {
+                responseObject = new ResponseObject(Constants.CODE_404, "Cannot found that creator account in the system");
+                return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
+            }
             Quest quest = new Quest();
 
             quest.setName(questCreateRequestDTO.getName());
             quest.setDescription(questCreateRequestDTO.getDescription());
-            quest.setQuestBadge(questBadge.getOriginalFilename());
+            quest.setQuestBadge(questCreateRequestDTO.getQuestBadgeId());
             quest.setRewardName(questCreateRequestDTO.getRewardName());
-
+            quest.setIsDeleted(Boolean.FALSE);
             quest.setCreatedDate(new Date().getTime());
             quest.setStatus("ASSIGNED");
 
             quest.setChild(child);
-            quest.setIsDeleted(Boolean.FALSE);
-
-            Parent creatorInformation = parentService.findParentByPhoneNumber(questCreateRequestDTO.getCreatorPhoneNumber());
-
             quest.setParent(creatorInformation);
 
             QuestCreateResponseDTO result = questService.addQuestByParentOrCollaborator(quest, rewardPhoto);

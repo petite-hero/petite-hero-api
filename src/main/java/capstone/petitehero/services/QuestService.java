@@ -1,5 +1,6 @@
 package capstone.petitehero.services;
 
+import capstone.petitehero.config.common.Constants;
 import capstone.petitehero.dtos.common.Assignee;
 import capstone.petitehero.dtos.common.Assigner;
 import capstone.petitehero.dtos.response.quest.*;
@@ -39,10 +40,11 @@ public class QuestService {
             result.setQuestId(questResult.getQuestId());
             result.setName(questResult.getName());
             result.setDescription(questResult.getDescription());
+            result.setQuestBadgeId(questResult.getQuestBadge());
 
             result.setCreatedDate(Util.formatTimestampToDateTime(questResult.getCreatedDate()));
 
-            result.setStatus("ASSIGNED");
+            result.setStatus(Constants.status.ASSIGNED.toString());
 
             // information of assigner (colaborator or parent)
             Assigner assigner = new Assigner();
@@ -75,7 +77,7 @@ public class QuestService {
     }
 
 
-    public QuestDetailResponseDTO getDetailOfQuest(Long questId) {
+    public QuestDetailResponseDTO getDetailOfQuest(Long questId, String role) {
         Quest questResult = questRepository.findQuestByQuestIdAndAndIsDeleted(questId, Boolean.FALSE);
 
         if (questResult != null) {
@@ -83,13 +85,13 @@ public class QuestService {
             result.setQuestId(questResult.getQuestId());
             result.setName(questResult.getName());
             result.setDescription(questResult.getDescription());
-
-            result.setCreatedDate(Util.formatTimestampToDateTime(questResult.getCreatedDate()));
-
-//            result.setRewardName(questResult.getRewardName());
-//            result.setRewardPhoto(questResult.getRewardPhoto());
+            result.setCreatedDate(questResult.getCreatedDate());
             result.setStatus(questResult.getStatus());
-            result.setQuestBadge(Util.fromBadgeImageFileToBase64String(questResult.getQuestBadge()));
+            result.setQuestBadgeId(questResult.getQuestBadge());
+            if (role.equals(Constants.PARENT)) {
+                result.setRewardName(questResult.getRewardName());
+                result.setRewardPhoto(Util.fromImageFileToBase64String(questResult.getRewardPhoto()));
+            }
 
             // information of assigner (colaborator or parent)
             Assigner assigner = new Assigner();
@@ -121,17 +123,15 @@ public class QuestService {
         return null;
     }
 
-    public QuestDeleteResponseDTO deleteQuest(Long questId) {
-        Quest quest = questRepository.findQuestByQuestId(questId);
-
+    public QuestStatusResponseDTO deleteQuest(Quest quest) {
         if (quest != null) {
             quest.setIsDeleted(Boolean.TRUE);
             Quest questResult = questRepository.save(quest);
 
             if (questResult != null) {
-                QuestDeleteResponseDTO result = new QuestDeleteResponseDTO();
+                QuestStatusResponseDTO result = new QuestStatusResponseDTO();
                 result.setQuestId(questResult.getQuestId());
-                result.setStatus("DELETED");
+                result.setStatus(Constants.status.DELETED.toString());
 
                 return result;
             }
@@ -154,9 +154,10 @@ public class QuestService {
 
                 resultData.setQuestId(questResult.getQuestId());
                 resultData.setName(questResult.getName());
+                resultData.setStatus(questResult.getStatus());
 
                 if (questResult.getQuestBadge() != null) {
-                    resultData.setQuestBadge(Util.fromBadgeImageFileToBase64String(questResult.getQuestBadge()));
+                    resultData.setQuestBadgeId(questResult.getQuestBadge());
                 }
 
                 result.add(resultData);
@@ -179,21 +180,38 @@ public class QuestService {
 
             for (Quest questBadgeDistinct : filterQuestBadgeList) {
                 QuestBadgeResponseDTO dataResult = new QuestBadgeResponseDTO();
-                dataResult.setQuestBadgeImage(questBadgeDistinct.getQuestBadge());
+                dataResult.setQuestBadgeId(questBadgeDistinct.getQuestBadge());
 
                 result.add(dataResult);
             }
 
             for (QuestBadgeResponseDTO questBadgeDistinct : result) {
                 Long questCompleted = listQuestResult.stream()
-                        .filter(quest -> quest.getQuestBadge().equals(questBadgeDistinct.getQuestBadgeImage()))
+                        .filter(quest -> quest.getQuestBadge().equals(questBadgeDistinct.getQuestBadgeId()))
                         .count();
                 questBadgeDistinct.setQuestCompletedNumber(questCompleted.intValue());
-                questBadgeDistinct.setQuestBadgeImage(Util.fromBadgeImageFileToBase64String(questBadgeDistinct.getQuestBadgeImage()));
+                questBadgeDistinct.setQuestBadgeId(questBadgeDistinct.getQuestBadgeId());
             }
 
             result.sort(Comparator.comparing(QuestBadgeResponseDTO::getQuestCompletedNumber).reversed());
 
+            return result;
+        }
+        return null;
+    }
+
+    public Quest findQuestById(Long questId) {
+        return questRepository.findQuestByQuestIdAndAndIsDeleted(questId, Boolean.FALSE);
+    }
+
+    public QuestStatusResponseDTO updateStatusOfQuest(Quest quest, String status) {
+        quest.setStatus(status.toUpperCase());
+
+        Quest questResult = questRepository.save(quest);
+        if (questResult != null) {
+            QuestStatusResponseDTO result = new QuestStatusResponseDTO();
+            result.setQuestId(questResult.getQuestId());
+            result.setStatus(questResult.getStatus());
             return result;
         }
         return null;

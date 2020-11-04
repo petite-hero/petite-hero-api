@@ -1,27 +1,29 @@
 package capstone.petitehero.services;
 
+import capstone.petitehero.config.common.Constants;
+import capstone.petitehero.dtos.ResponseObject;
 import capstone.petitehero.dtos.common.ChildInformation;
 import capstone.petitehero.dtos.response.collaborator.AddCollaboratorResponseDTO;
+import capstone.petitehero.dtos.response.collaborator.ListCollaboratorResponseDTO;
 import capstone.petitehero.entities.Parent;
 import capstone.petitehero.entities.Parent_Child;
 import capstone.petitehero.repositories.ChildRepository;
 import capstone.petitehero.repositories.ParentChildRepository;
 import capstone.petitehero.repositories.ParentRepository;
+import capstone.petitehero.utilities.Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ParentChildService {
 
     @Autowired
     private ParentChildRepository parentChildRepository;
-
-    @Autowired
-    private ParentRepository parentRepository;
 
     @Autowired
     private ChildRepository childRepository;
@@ -113,7 +115,7 @@ public class ParentChildService {
             }
         }
         if (!result.getListChildren().isEmpty()) {
-            result.setStatus("ADDED");
+            result.setStatus(Constants.status.ADDED.toString());
         }
         return result;
     }
@@ -154,7 +156,7 @@ public class ParentChildService {
             }
         }
         if (!result.getListChildren().isEmpty()) {
-            result.setStatus("CONFIRMED");
+            result.setStatus(Constants.status.CONFIRMED.toString());
         }
         return result;
     }
@@ -181,7 +183,35 @@ public class ParentChildService {
             }
         }
         if (!result.getListChildren().isEmpty()) {
-            result.setStatus("DELETED");
+            result.setStatus(Constants.status.DELETED.toString());
+        }
+
+        return result;
+    }
+
+    public List<ListCollaboratorResponseDTO> getParentCollaborator(String phoneNumber) {
+        List<Parent_Child> parentChildListResult =
+                parentChildRepository.findDistinctByParent_Account_UsernameAndCollaboratorNotNull(phoneNumber);
+
+        List<ListCollaboratorResponseDTO> result = new ArrayList<>();
+        if (parentChildListResult != null) {
+            if (!parentChildListResult.isEmpty()) {
+                for (Parent_Child collaborator : parentChildListResult) {
+                    ListCollaboratorResponseDTO collaboratorData = new ListCollaboratorResponseDTO();
+
+                    collaboratorData.setPhoneNumber(collaborator.getCollaborator().getAccount().getUsername());
+                    collaboratorData.setLastName(collaborator.getCollaborator().getLastName());
+                    collaboratorData.setFirstName(collaborator.getCollaborator().getFirstName());
+                    if (collaborator.getCollaborator().getGender().booleanValue()) {
+                        collaboratorData.setGender("Male");
+                    } else {
+                        collaboratorData.setGender("Female");
+                    }
+                    collaboratorData.setIsConfirm(collaborator.getIsCollaboratorConfirm());
+
+                    result.add(collaboratorData);
+                }
+            }
         }
 
         return result;

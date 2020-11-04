@@ -19,4 +19,6 @@ public interface ParentChildRepository extends JpaRepository<Parent_Child, Long>
     Parent_Child findParent_ChildByChild_ChildIdAndCollaborator_Account_UsernameAndIsCollaboratorConfirm(Long childId, String collaboratorPhoneNumber, Boolean isConfirm);
 
     Parent_Child findParent_ChildByChild_ChildIdAndCollaborator_Account_Username(Long childId, String collaboratorPhoneNumber);
+
+    List<Parent_Child> findDistinctByParent_Account_UsernameAndCollaboratorNotNull(String phoneNumber);
 }

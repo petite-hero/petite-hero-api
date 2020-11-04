@@ -31,8 +31,8 @@ public class Quest implements Serializable {
     @Column(length = 30)
     private String rewardName;
 
-    @Column(length = Integer.MAX_VALUE)
-    private String questBadge;
+    @Column
+    private Integer questBadge;
 
     @Column
     private Long createdDate;

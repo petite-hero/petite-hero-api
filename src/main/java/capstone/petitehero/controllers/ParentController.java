@@ -5,13 +5,13 @@ import capstone.petitehero.dtos.ResponseObject;
 import capstone.petitehero.dtos.common.ChildInformation;
 import capstone.petitehero.dtos.request.child.AddChildRequestDTO;
 import capstone.petitehero.dtos.request.collaborator.AddCollaboratorRequestDTO;
-import capstone.petitehero.dtos.request.parent.ParentChangePasswordRequestDTO;
 import capstone.petitehero.dtos.request.parent.ParentRegisterRequestDTO;
 import capstone.petitehero.dtos.request.parent.ParentUpdateProfileRequestDTO;
 import capstone.petitehero.dtos.request.parent.UpdatePushTokenRequestDTO;
 import capstone.petitehero.dtos.request.parent.payment.ParentPaymentCreateRequestDTO;
 import capstone.petitehero.dtos.response.child.AddChildResponseDTO;
 import capstone.petitehero.dtos.response.collaborator.AddCollaboratorResponseDTO;
+import capstone.petitehero.dtos.response.collaborator.ListCollaboratorResponseDTO;
 import capstone.petitehero.dtos.response.parent.DisableParentResponseDTO;
 import capstone.petitehero.dtos.response.parent.ParentProfileRegisterResponseDTO;
 import capstone.petitehero.dtos.response.parent.ParentUpdateProfileResponseDTO;
@@ -35,7 +35,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.springframework.http.MediaType.*;
 
@@ -146,7 +145,6 @@ public class ParentController {
 
                 // save avatar for parent
                 if (uploadFile != null && !uploadFile.isEmpty()) {
-
                     parent.setPhoto(Util.saveImageToSystem(parentRegisterRequestDTO.getPhoneNumber(), "Avatar Added", uploadFile));
                 }
 
@@ -155,17 +153,13 @@ public class ParentController {
                     responseObject = new ResponseObject(Constants.CODE_200, "OK");
                     responseObject.setData(result);
                     return new ResponseEntity<>(responseObject, HttpStatus.OK);
-                } else {
-                    responseObject = new ResponseObject(Constants.CODE_500, "Server is down cannot save your profile.");
-                    return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
                 }
             } else {
                 responseObject = new ResponseObject(Constants.CODE_404, "Cannot find your account in the system");
                 return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
             }
         }
-
-        responseObject = new ResponseObject(Constants.CODE_500, "Server is down pls come back again");
+        responseObject = new ResponseObject(Constants.CODE_500, "Server is down cannot save your profile.");
         return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
@@ -254,26 +248,9 @@ public class ParentController {
 
         Parent parentAccount = parentService.findParentByPhoneNumber(parentPhoneNumber);
         if (parentAccount != null) {
-
-            int countMaxChildParentAccount = 0;
-
-            // get data from table parent_child so the data about child of parent will be duplicated
-            // filter
-            List<Parent_Child> filterChildForParentAccount =
-                    parentAccount.getParent_childCollection().stream()
-                            .filter(Util.distinctByKey(Parent_Child::getChild))
-                            .collect(Collectors.toList());
-
-            // only child not disable in the system is count
-            for (Parent_Child childOfParent : filterChildForParentAccount) {
-                if (!childOfParent.getChild().getIsDisabled().booleanValue()) {
-                    countMaxChildParentAccount++;
-                }
-            }
-
-            if (countMaxChildParentAccount >=
-                    parentAccount.getSubscription().getSubscriptionType().getMaxChildren()) {
-                responseObject = new ResponseObject(Constants.CODE_400, "Your subscription only support max " + countMaxChildParentAccount +
+            if (Util.checkSubscriptionWhenParentAddChild(parentAccount)) {
+                responseObject = new ResponseObject(Constants.CODE_400, "Your subscription only support max "
+                        + parentAccount.getSubscription().getSubscriptionType().getMaxChildren() +
                         " child and you already full");
                 return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
             }
@@ -332,21 +309,9 @@ public class ParentController {
 
         Parent parentAccount = parentService.findParentByPhoneNumber(parentPhoneNumber);
         if (parentAccount != null) {
-            int maxCollaborator = 0;
-            List<Parent_Child> filterCollaboratorForParent =
-                    parentAccount.getParent_collaboratorCollection().stream()
-                    .filter(Util.distinctByKey(Parent_Child::getCollaborator))
-                    .collect(Collectors.toList());
-
-            for (Parent_Child parent_child : filterCollaboratorForParent) {
-                if (!parent_child.getCollaborator().getIsDisabled().booleanValue()) {
-                    maxCollaborator++;
-                }
-            }
-
-            if (maxCollaborator ==
-                    parentAccount.getSubscription().getSubscriptionType().getMaxCollaborator().intValue()) {
-                responseObject = new ResponseObject(Constants.CODE_400, "Your subscription only support max " + maxCollaborator +
+            if (Util.checkSubscriptionWhenParentAddCollaborator(parentAccount)) {
+                responseObject = new ResponseObject(Constants.CODE_400, "Your subscription only support max "
+                        + parentAccount.getSubscription().getSubscriptionType().getMaxCollaborator() +
                         " collaborator and you already full");
                 return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
             }
@@ -438,20 +403,20 @@ public class ParentController {
         }
     }
 
-    @RequestMapping(value = "/{childId}/regenerate-qrcode", method = RequestMethod.GET)
-    @ResponseBody
-    public ResponseEntity<Object> regenerateQRCodeForChildVerify(@PathVariable("childId") Long childId) {
-        ResponseObject responseObject;
-
-        AddChildResponseDTO result = childService.regenerateQRCodeForChildVerify(childId);
-        if (result != null) {
-            responseObject = new ResponseObject(Constants.CODE_200, "OK");
-            responseObject.setData(result);
-            return new ResponseEntity<>(responseObject, HttpStatus.OK);
-        }
-        responseObject = new ResponseObject(Constants.CODE_500, "Cannot regenerate qr code for child to verify");
-        return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+//    @RequestMapping(value = "/{childId}/regenerate-qrcode", method = RequestMethod.GET)
+//    @ResponseBody
+//    public ResponseEntity<Object> regenerateQRCodeForChildVerify(@PathVariable("childId") Long childId) {
+//        ResponseObject responseObject;
+//
+//        AddChildResponseDTO result = childService.regenerateQRCodeForChildVerify(childId);
+//        if (result != null) {
+//            responseObject = new ResponseObject(Constants.CODE_200, "OK");
+//            responseObject.setData(result);
+//            return new ResponseEntity<>(responseObject, HttpStatus.OK);
+//        }
+//        responseObject = new ResponseObject(Constants.CODE_500, "Cannot regenerate qr code for child to verify");
+//        return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+//    }
 
     @RequestMapping(value = "/token", method = RequestMethod.PUT)
     @ResponseBody
@@ -459,55 +424,30 @@ public class ParentController {
         return parentService.updateAccountPushToken(data);
     }
 
-    @RequestMapping(value = "/{phone}/password", method = RequestMethod.PUT)
-    @ResponseBody
-    public ResponseEntity<Object> changePasswordForParent(@PathVariable("phone") String parentPhoneNumber,
-                                                          @RequestBody ParentChangePasswordRequestDTO parentChangePasswordRequestDTO) {
-        ResponseObject responseObject;
-        if (parentChangePasswordRequestDTO.getPassword() == null || parentChangePasswordRequestDTO.getPassword().isEmpty()) {
-            responseObject = new ResponseObject(Constants.CODE_400, "New password cannot be null");
-            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
-        }
-        if (!Util.validatePasswordForAllAccount(parentChangePasswordRequestDTO.getPassword())) {
-            responseObject = new ResponseObject(Constants.CODE_400, "Password should between 6-8 characters and no special characters");
-            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
-        }
-        if (parentChangePasswordRequestDTO.getConfirmPassword() == null || parentChangePasswordRequestDTO.getConfirmPassword().isEmpty()) {
-            responseObject = new ResponseObject(Constants.CODE_400, "Confirm password cannot be null");
-            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
-        } else {
-            if (!Util.validatePasswordForAllAccount(parentChangePasswordRequestDTO.getConfirmPassword())) {
-                responseObject = new ResponseObject(Constants.CODE_400, "Password should between 6-8 characters and no special characters");
-                return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
-            }
-            if (!parentChangePasswordRequestDTO.getConfirmPassword().equals(parentChangePasswordRequestDTO.getPassword())) {
-                responseObject = new ResponseObject(Constants.CODE_400, "Password and confirm password is not match");
-                return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
-            }
-        }
-
-        Parent parent = parentService.findParentByPhoneNumber(parentPhoneNumber);
-        if (parent != null) {
-            parent.getAccount().setPassword(parentChangePasswordRequestDTO.getPassword());
-
-            String result = parentService.changeParentAccountPassword(parent);
-            if (result != null) {
-                responseObject = new ResponseObject(Constants.CODE_200, "OK");
-                responseObject.setData(result);
-                return new ResponseEntity<>(responseObject, HttpStatus.OK);
-            }
-        } else {
-            responseObject = new ResponseObject(Constants.CODE_404, "Cannot found your parent account in the system");
-            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
-        }
-        responseObject = new ResponseObject(Constants.CODE_500, "Server is down cannot change password");
-        return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    @RequestMapping(value = "/{phone}/collaborators", method = RequestMethod.GET)
+    @RequestMapping(value = "/{phone}/collaborator", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<Object> getListCollaboratorOfParent(@PathVariable("phone") String phoneNumber) {
-        return null;
+        ResponseObject responseObject;
+
+        Parent parentAccount = parentService.findParentByPhoneNumber(phoneNumber);
+        if (parentAccount == null) {
+            responseObject = new ResponseObject(Constants.CODE_404, "Cannot found your account in the system");
+            return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
+        }
+
+        List<ListCollaboratorResponseDTO> result = parentChildService.getParentCollaborator(phoneNumber);
+        if (result != null) {
+            if (result.isEmpty()) {
+                responseObject = new ResponseObject(Constants.CODE_200, "Your collaborator list is empty");
+            } else {
+                responseObject = new ResponseObject(Constants.CODE_200, "OK");
+            }
+            responseObject.setData(result);
+            return new ResponseEntity<>(responseObject,HttpStatus.OK);
+        }
+
+        responseObject = new ResponseObject(Constants.CODE_500, "Cannot get your collaborator in the system");
+        return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @RequestMapping(value = "/{phone}/children", method = RequestMethod.GET)
@@ -515,16 +455,21 @@ public class ParentController {
     public ResponseEntity<Object> getListChildrenOfParent(@PathVariable("phone") String phoneNumber) {
         ResponseObject responseObject;
 
+        Parent parentAccount = parentService.findParentByPhoneNumber(phoneNumber);
+        if (parentAccount == null) {
+            responseObject = new ResponseObject(Constants.CODE_404, "Cannot found your account in the system");
+            return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
+        }
+
         List<ChildInformation> result = parentChildService.getListChildOfParent(phoneNumber);
         if (result != null) {
             if (result.isEmpty()) {
-                responseObject = new ResponseObject(Constants.CODE_200, "Your list children is empty");
-                return new ResponseEntity<>(responseObject, HttpStatus.OK);
+                responseObject = new ResponseObject(Constants.CODE_200, "Your children list is empty");
             } else {
                 responseObject = new ResponseObject(Constants.CODE_200, "OK");
-                responseObject.setData(result);
-                return new ResponseEntity<>(responseObject, HttpStatus.OK);
             }
+            responseObject.setData(result);
+            return new ResponseEntity<>(responseObject, HttpStatus.OK);
         }
         responseObject = new ResponseObject(Constants.CODE_500, "Cannot get your children in the system");
         return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -578,6 +523,10 @@ public class ParentController {
                     parentPayment.setStatus("PENDING");
 
                     Parent parent = parentService.findParentByPhoneNumber(phoneNumber);
+                    if (parent == null) {
+                        responseObject = new ResponseObject(Constants.CODE_404, "Cannot found your account in the system");
+                        return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
+                    }
 
                     parentPayment.setLink(links.getHref());
                     parentPayment.setParent(parent);
@@ -649,18 +598,6 @@ public class ParentController {
                     responseObject = new ResponseObject(Constants.CODE_404, "Cannot found your account in the system");
                     return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
                 }
-                // refresh 30 day when parent buy a subscription
-                Calendar calendar = Calendar.getInstance();
-                calendar.set(Calendar.MONTH, 30);
-                parent.getSubscription().setExpiredDate(calendar.getTime().getTime());
-                // update subscription type
-                parent.getSubscription().setSubscriptionType(subscriptionType);
-
-                // update parent subscription in the system
-                if (parentService.saveParentInformationToSystem(parent) == null) {
-                    responseObject = new ResponseObject(Constants.CODE_500, "Cannot updated your account in the system. Please come back later");
-                    return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
-                }
 
                 ParentPayment recentParentPayment = parentPaymentService.findParentPaymentToCompletePayment(parentPhoneNumber, createdDateTimeStamp);
 
@@ -671,6 +608,19 @@ public class ParentController {
 
                     ParentPaymentCompledResponseDTO result = parentPaymentService.completedSuccessParentPayment(recentParentPayment);
                     if (result != null) {
+                        // refresh 30 day when parent buy a subscription
+                        Calendar calendar = Calendar.getInstance();
+                        calendar.set(Calendar.MONTH, 30);
+                        parent.getSubscription().setExpiredDate(calendar.getTime().getTime());
+                        // update subscription type
+                        parent.getSubscription().setSubscriptionType(subscriptionType);
+
+                        // update parent subscription in the system
+                        if (parentService.saveParentInformationToSystem(parent) == null) {
+                            responseObject = new ResponseObject(Constants.CODE_500, "Cannot updated your account in the system. Please come back later");
+                            return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+                        }
+
                         responseObject = new ResponseObject(Constants.CODE_200, "OK");
                         responseObject.setData(result);
                         return new ResponseEntity<>(responseObject, HttpStatus.OK);
@@ -745,4 +695,6 @@ public class ParentController {
         responseObject = new ResponseObject(Constants.CODE_500, "Server cannot disable parent account");
         return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+
 }

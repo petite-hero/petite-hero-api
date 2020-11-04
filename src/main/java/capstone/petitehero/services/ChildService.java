@@ -133,17 +133,17 @@ public class ChildService {
         return null;
     }
 
-    public AddChildResponseDTO regenerateQRCodeForChildVerify(Long childId) {
-        Child childResult = childRepository.findChildByChildIdEqualsAndIsDisabled(childId, Boolean.FALSE);
-        if (childResult != null) {
-            AddChildResponseDTO result = new AddChildResponseDTO();
-
-            result.setChildId(childResult.getChildId());
-//            result.setToken(childResult.getCreatedDate().longValue());
-            return result;
-        }
-        return null;
-    }
+//    public AddChildResponseDTO regenerateQRCodeForChildVerify(Long childId) {
+//        Child childResult = childRepository.findChildByChildIdEqualsAndIsDisabled(childId, Boolean.FALSE);
+//        if (childResult != null) {
+//            AddChildResponseDTO result = new AddChildResponseDTO();
+//
+//            result.setChildId(childResult.getChildId());
+////            result.setToken(childResult.getCreatedDate().longValue());
+//            return result;
+//        }
+//        return null;
+//    }
 
     public DeleteChildResponseDTO disableChildById(Long childId) {
         Child child = childRepository.findChildByChildIdEqualsAndIsDisabled(childId, Boolean.FALSE);
@@ -215,12 +215,9 @@ public class ChildService {
                 if (childResult.getLanguage().booleanValue()) {
                     result.setLanguage("Vietnamese");
                 } else {
-                    result.setLanguage("Englisg");
+                    result.setLanguage("English");
                 }
             }
-
-            //TODO get list collaborator of child if have
-//            result.setCollaborator(null);
 
             return result;
         }
