@@ -170,7 +170,9 @@ public class QuestService {
 
 
     public List<QuestBadgeResponseDTO> getBadgeListChildArchived(Long childId) {
-        List<Quest> listQuestResult = questRepository.findQuestsByChildChildIdAndIsDeletedAndStatus(childId, Boolean.FALSE, "FINISHED");
+        List<Quest> listQuestResult =
+                questRepository.findQuestsByChildChildIdAndIsDeletedAndStatus(
+                        childId, Boolean.FALSE, Constants.status.DONE.toString());
 
         if (listQuestResult != null) {
             List<QuestBadgeResponseDTO> result = new ArrayList<>();
@@ -204,8 +206,12 @@ public class QuestService {
         return questRepository.findQuestByQuestIdAndAndIsDeleted(questId, Boolean.FALSE);
     }
 
-    public QuestStatusResponseDTO updateStatusOfQuest(Quest quest, String status) {
-        quest.setStatus(status.toUpperCase());
+    public QuestStatusResponseDTO updateStatusOfQuest(Quest quest, Boolean isSuccess) {
+        if (isSuccess.booleanValue()) {
+            quest.setStatus(Constants.status.DONE.toString());
+        } else {
+            quest.setStatus(Constants.status.FAILED.toString());
+        }
 
         Quest questResult = questRepository.save(quest);
         if (questResult != null) {

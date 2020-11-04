@@ -110,13 +110,11 @@ public class QuestController {
     @RequestMapping(value = "/{questId}", method = RequestMethod.PUT)
     @ResponseBody
     public ResponseEntity<Object> updateStatusOfQuestByParent(@PathVariable("questId") Long questId,
-                                                              @RequestParam("status") String status) {
+                                                              @RequestParam("status") Boolean isSuccess) {
         ResponseObject responseObject;
 
-        if (status == null
-                && !status.equalsIgnoreCase(Constants.status.DONE.toString())
-                && !status.equalsIgnoreCase(Constants.status.FAILED.toString())) {
-            responseObject = new ResponseObject(Constants.CODE_400, "Quest's status update should be DONE or FAILED");
+        if (isSuccess == null) {
+            responseObject = new ResponseObject(Constants.CODE_400, "Quest's status update should not be missing");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
 
@@ -126,7 +124,7 @@ public class QuestController {
             return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
         }
 
-        QuestStatusResponseDTO result = questService.updateStatusOfQuest(quest, status);
+        QuestStatusResponseDTO result = questService.updateStatusOfQuest(quest, isSuccess);
         if (result != null) {
             responseObject = new ResponseObject(Constants.CODE_200, "OK");
             responseObject.setData(result);
