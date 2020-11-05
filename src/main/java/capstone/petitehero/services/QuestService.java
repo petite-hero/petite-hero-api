@@ -15,7 +15,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,20 +28,13 @@ public class QuestService {
         Quest questResult = questRepository.save(quest);
 
         if (questResult != null) {
-            questResult.setRewardPhoto(Util.saveImageToSystem(
-                    questResult.getQuestId().toString(),
-                    "Reward_Image",
-                    rewardPhoto));
-
-            // save reward image to db
-            questRepository.save(questResult);
-
             QuestCreateResponseDTO result = new QuestCreateResponseDTO();
 
             result.setQuestId(questResult.getQuestId());
             result.setName(questResult.getName());
             result.setDescription(questResult.getDescription());
-            result.setQuestBadgeId(questResult.getQuestBadge());
+            result.setRewardDetail(questResult.getRewardDetail());
+            result.setReward(questResult.getReward());
 
             result.setCreatedDate(Util.formatTimestampToDateTime(questResult.getCreatedDate()));
 
@@ -95,14 +87,11 @@ public class QuestService {
             QuestDetailResponseDTO result = new QuestDetailResponseDTO();
             result.setQuestId(questResult.getQuestId());
             result.setName(questResult.getName());
-            result.setDescription(questResult.getDescription());
+            result.setRewardDetail(questResult.getRewardDetail());
             result.setCreatedDate(questResult.getCreatedDate());
             result.setStatus(questResult.getStatus());
-            result.setQuestBadgeId(questResult.getQuestBadge());
-            if (role.equals(Constants.PARENT)) {
-                result.setRewardName(questResult.getRewardName());
-                result.setRewardPhoto(Util.fromImageFileToBase64String(questResult.getRewardPhoto()));
-            }
+            result.setReward(questResult.getReward());
+            result.setDescription(questResult.getDescription());
 
             // information of assigner (colaborator or parent)
             Assigner assigner = new Assigner();
@@ -167,8 +156,8 @@ public class QuestService {
                 resultData.setName(questResult.getName());
                 resultData.setStatus(questResult.getStatus());
 
-                if (questResult.getQuestBadge() != null) {
-                    resultData.setQuestBadgeId(questResult.getQuestBadge());
+                if (questResult.getReward() != null) {
+                    resultData.setQuestBadgeId(questResult.getReward());
                 }
 
                 result.add(resultData);
@@ -189,18 +178,18 @@ public class QuestService {
             List<QuestBadgeResponseDTO> result = new ArrayList<>();
 
             List<Quest> filterQuestBadgeList = listQuestResult.stream()
-                    .filter(Util.distinctByKey(Quest::getQuestBadge)).collect(Collectors.toList());
+                    .filter(Util.distinctByKey(Quest::getReward)).collect(Collectors.toList());
 
             for (Quest questBadgeDistinct : filterQuestBadgeList) {
                 QuestBadgeResponseDTO dataResult = new QuestBadgeResponseDTO();
-                dataResult.setQuestBadgeId(questBadgeDistinct.getQuestBadge());
+                dataResult.setQuestBadgeId(questBadgeDistinct.getReward());
 
                 result.add(dataResult);
             }
 
             for (QuestBadgeResponseDTO questBadgeDistinct : result) {
                 Long questCompleted = listQuestResult.stream()
-                        .filter(quest -> quest.getQuestBadge().equals(questBadgeDistinct.getQuestBadgeId()))
+                        .filter(quest -> quest.getReward().equals(questBadgeDistinct.getQuestBadgeId()))
                         .count();
                 questBadgeDistinct.setQuestCompletedNumber(questCompleted.intValue());
                 questBadgeDistinct.setQuestBadgeId(questBadgeDistinct.getQuestBadgeId());

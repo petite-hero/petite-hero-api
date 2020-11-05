@@ -144,17 +144,16 @@ public class ChildService {
 //        return null;
 //    }
 
-    public DeleteChildResponseDTO disableChildById(Long childId) {
-        Child child = childRepository.findChildByChildIdEqualsAndIsDisabled(childId, Boolean.FALSE);
-        if (child != null) {
-            child.setIsDisabled(Boolean.TRUE);
-            Child childResult = childRepository.save(child);
-            if (childResult != null) {
-                DeleteChildResponseDTO result = new DeleteChildResponseDTO();
-                result.setStatus(Constants.status.DELETED.toString());
-                return result;
-            }
+    public DeleteChildResponseDTO disableChildById(Child child) {
+        child.setIsDisabled(Boolean.TRUE);
+
+        Child childResult = childRepository.save(child);
+        if (childResult != null) {
+            DeleteChildResponseDTO result = new DeleteChildResponseDTO();
+            result.setStatus(Constants.status.DELETED.toString());
+            return result;
         }
+
         return null;
     }
 
@@ -223,7 +222,7 @@ public class ChildService {
         return null;
     }
 
-    public ResponseObject getSWTrackingStatus (Long childId) {
+    public ResponseObject getSWTrackingStatus(Long childId) {
         ResponseObject result = Util.createResponse();
         try {
             Child child = childRepository.getOne(childId);

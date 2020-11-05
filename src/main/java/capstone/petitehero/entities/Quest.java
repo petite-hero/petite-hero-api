@@ -26,13 +26,10 @@ public class Quest implements Serializable {
     private String description;
 
     @Column(length = Integer.MAX_VALUE)
-    private String rewardPhoto;
-
-    @Column(length = 30)
-    private String rewardName;
+    private String rewardDetail;
 
     @Column
-    private Integer questBadge;
+    private Integer reward;
 
     @Column
     private Long createdDate;

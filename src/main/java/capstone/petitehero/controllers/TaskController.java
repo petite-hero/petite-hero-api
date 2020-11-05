@@ -27,12 +27,12 @@ public class TaskController {
 
         TaskDetailResponseDTO result = taskService.getDetailOfTask(taskId);
         if (result != null) {
-            responseObject = new ResponseObject(200, "OK");
+            responseObject = new ResponseObject(Constants.CODE_200, "OK");
             responseObject.setData(result);
             return new ResponseEntity<>(responseObject, HttpStatus.OK);
         }
 
-        responseObject = new ResponseObject(404, "Cannot found that task in the system");
+        responseObject = new ResponseObject(Constants.CODE_404, "Cannot found that task in the system");
         return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
     }
 
@@ -64,7 +64,7 @@ public class TaskController {
 
         TaskDeleteResponseDTO result = taskService.deleteTask(taskResult, null);
         if (result != null) {
-            responseObject = new ResponseObject(200, "Task and all duplicated task from this is all deleted");
+            responseObject = new ResponseObject(Constants.CODE_200, "Task and all duplicated task from this is all deleted");
             return new ResponseEntity<>(responseObject, HttpStatus.OK);
         }
 
@@ -80,7 +80,7 @@ public class TaskController {
         List<Task> listTaskOfChild;
         if (dateTimestamp != null && !dateTimestamp.toString().isEmpty()) {
             if (!dateTimestamp.toString().matches("\\d+")) {
-                responseObject = new ResponseObject(400, "Not a right timestamp format");
+                responseObject = new ResponseObject(Constants.CODE_400, "Not a right timestamp format");
                 return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
             } else {
                 listTaskOfChild = taskService.getChildOfTaskAtAssignedDate(childId, dateTimestamp);
@@ -108,7 +108,7 @@ public class TaskController {
             return new ResponseEntity<>(responseObject, HttpStatus.OK);
         }
 
-        responseObject = new ResponseObject(500, "Server is down cannot get children list of task");
+        responseObject = new ResponseObject(Constants.CODE_500, "Server is down cannot get children list of task");
         return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
@@ -182,7 +182,7 @@ public class TaskController {
             return new ResponseEntity<>(responseObject, HttpStatus.OK);
         }
 
-        responseObject = new ResponseObject(500, "Server is down cannot get children list of task");
+        responseObject = new ResponseObject(Constants.CODE_500, "Server is down cannot get children list of task");
         return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

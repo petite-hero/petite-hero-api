@@ -13,12 +13,11 @@ public class QuestDetailResponseDTO implements Serializable {
 
     private Long questId;
     private String name;
-    private String description;
     private String status;
     private Long createdDate;
-    private String rewardName;
-    private String rewardPhoto;
-    private Integer questBadgeId;
+    private String description;
+    private Integer reward;
+    private String rewardDetail;
     private Assignee assignee;
     private Assigner assigner;
 }

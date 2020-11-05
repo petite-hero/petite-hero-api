@@ -101,7 +101,13 @@ public class ChildController {
     public ResponseEntity<Object> disableChildById(@PathVariable("childId") Long childId) {
         ResponseObject responseObject;
 
-        DeleteChildResponseDTO result = childService.disableChildById(childId);
+        Child child = childService.findChildByChildId(childId, Boolean.FALSE);
+        if (child == null) {
+            responseObject = new ResponseObject(Constants.CODE_404, "Cannot found that child in the system");
+            return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
+        }
+
+        DeleteChildResponseDTO result = childService.disableChildById(child);
 
         if (result != null) {
             responseObject = new ResponseObject(Constants.CODE_200, "OK");
@@ -159,7 +165,7 @@ public class ChildController {
             responseObject.setData(result);
             return new ResponseEntity<>(responseObject, HttpStatus.OK);
         }
-        responseObject = new ResponseObject(500, "Cannot update children profile");
+        responseObject = new ResponseObject(Constants.CODE_500, "Cannot update children profile");
         return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
@@ -250,8 +256,13 @@ public class ChildController {
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
 
-        if (questCreateRequestDTO.getRewardName() == null || questCreateRequestDTO.getRewardName().isEmpty()) {
-            responseObject = new ResponseObject(Constants.CODE_400, "Quest's reward name cannot be missing or empty");
+        if (questCreateRequestDTO.getReward() == null || questCreateRequestDTO.getReward().toString().isEmpty()) {
+            responseObject = new ResponseObject(Constants.CODE_400, "Quest's reward cannot be missing or empty");
+            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+        }
+
+        if (questCreateRequestDTO.getRewardDetail() == null || questCreateRequestDTO.getRewardDetail().isEmpty()) {
+            responseObject = new ResponseObject(Constants.CODE_400, "Quest's reward detail cannot be missing or empty");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
         //end validate mandatory fields
@@ -268,8 +279,8 @@ public class ChildController {
 
             quest.setName(questCreateRequestDTO.getName());
             quest.setDescription(questCreateRequestDTO.getDescription());
-            quest.setQuestBadge(questCreateRequestDTO.getQuestBadgeId());
-            quest.setRewardName(questCreateRequestDTO.getRewardName());
+            quest.setRewardDetail(questCreateRequestDTO.getRewardDetail());
+            quest.setReward(questCreateRequestDTO.getReward());
             quest.setIsDeleted(Boolean.FALSE);
             quest.setCreatedDate(new Date().getTime());
             quest.setStatus(Constants.status.ASSIGNED.toString());
