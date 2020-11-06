@@ -356,7 +356,7 @@ public class TaskService {
         return result;
     }
 
-    public List<ListTaskResponseDTO> getChildListOfTask(List<Task> taskOfChild) {
+    public List<ListTaskResponseDTO> getChildListOfTask(List<Task> taskOfChild, String provider) {
         List<ListTaskResponseDTO> result = new ArrayList<>();
         if (taskOfChild != null) {
             for (Task taskResult: taskOfChild) {
@@ -368,6 +368,10 @@ public class TaskService {
                 resultData.setFromTime(Util.formatTimestampToTime(taskResult.getFromTime().getTime()));
                 resultData.setToTime(Util.formatTimestampToTime(taskResult.getToTime().getTime()));
                 resultData.setType(taskResult.getType());
+                if (provider != null && provider.equalsIgnoreCase(Constants.SMART_WATCH)) {
+                    resultData.setPhoto(Util.fromImageFileToBase64String(taskResult.getProofPhoto()));
+                    resultData.setDescription(taskResult.getDescription());
+                }
 
                 result.add(resultData);
             }

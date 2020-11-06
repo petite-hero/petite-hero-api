@@ -75,7 +75,8 @@ public class TaskController {
     @RequestMapping(value = "/list/{childId}", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<Object> getChildListOfTaskByChildId(@PathVariable("childId") Long childId,
-                                                     @RequestParam(value = "date", required = false) Long dateTimestamp) {
+                                                              @RequestParam(value = "date", required = false) Long dateTimestamp,
+                                                              @RequestParam(value = "provider", required = false, defaultValue = Constants.MOBILE) String provider) {
         ResponseObject responseObject;
         List<Task> listTaskOfChild;
         if (dateTimestamp != null && !dateTimestamp.toString().isEmpty()) {
@@ -97,7 +98,7 @@ public class TaskController {
 //                }
 //            }
 
-            List<ListTaskResponseDTO> result = taskService.getChildListOfTask(listTaskOfChild);
+            List<ListTaskResponseDTO> result = taskService.getChildListOfTask(listTaskOfChild, provider);
 
             if (!result.isEmpty()) {
                 responseObject = new ResponseObject(Constants.CODE_200, "OK");

@@ -21,6 +21,10 @@ public class Constants {
     public static final String ADMIN = "Admin";
     public static final String CHILD = "Child";
 
+    // provider
+    public static final String SMART_WATCH = "SW";
+    public static final String MOBILE = "MOBILE";
+
 
     // status values
     public static final boolean SAFE = true;

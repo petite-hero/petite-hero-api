@@ -157,7 +157,7 @@ public class QuestService {
                 resultData.setStatus(questResult.getStatus());
 
                 if (questResult.getReward() != null) {
-                    resultData.setQuestBadgeId(questResult.getReward());
+                    resultData.setReward(questResult.getReward());
                 }
 
                 result.add(resultData);

@@ -55,7 +55,7 @@ public class Util {
 
             return Base64.getEncoder().encodeToString(bytesPhoto);
         } catch (Exception e) {
-            return "Cannot get image";
+            return null;
         }
     }
 

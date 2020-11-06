@@ -15,4 +15,6 @@ public class ListTaskResponseDTO implements Serializable {
     private String fromTime;
     private String toTime;
     private String type;
+    private String photo;
+    private String description;
 }
