@@ -260,7 +260,7 @@ public class SafeZoneService {
                 List<Safezone> safezoneList = safeZoneRepository.getListSafeZone(child, currentDateMilli, currentWeekdayRegex);
                 if (safezoneList.size() != 0 && currentChild.getPushToken() != null) {
                     noti.setData(safezoneList);
-                    notiService.pushSilentNotificationSW(noti, currentChild.getPushToken());
+                    notiService.pushNotificationSW(noti, currentChild.getPushToken());
                 }
             }
         } catch (Exception e) {
