@@ -65,7 +65,7 @@ public class Constants {
     public static final String GET_DATA_SUCCESSFULLY = "Get data successfully!";
 
     public static final String EMERGENCY = "emergency";
-    public static final String STOP_EMERGENCY = "stop_emergency";
+    public static final String STOP_EMERGENCY = "stop-emergency";
     public static final String TRACKING_ACTIVE = "active";
     public static final String TRACKING_INACTIVE = "inactive";
 
@@ -79,6 +79,8 @@ public class Constants {
     public static final String SILENT_NOTI = "silent-noti";
     public static final String NEW_SAFEZONES = "new-safezones";
     public static final String UPDATED_SAFEZONES = "updated-safezones";
+    public static final String NEW_TASKS = "new-tasks";
+    public static final String UPDATED_TASKS = "updated-tasks";
     public static final String CHILD_SAFE = "Child is currently safe";
     public static final String CHILD_NOT_SAFE = "Child is currently not safe";
     public static final String DONE_SETTING_UP_DEVICE = "Done setting up child's device";

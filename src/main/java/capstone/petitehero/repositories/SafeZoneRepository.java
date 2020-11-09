@@ -27,10 +27,12 @@ public interface SafeZoneRepository extends JpaRepository<Safezone, Long>{
             "\tAND s.date = :currentDate")
     public List<Safezone> getListSafeZone(@Param("childId") Long childId, @Param("currentDate") Long currentDate, @Param("regex") String regex);
 
-    @Query(nativeQuery = true, value = "" +
-            "SELECT DISTINCT s.child_id\n" +
-            "FROM petite_hero.safezone s\n" +
-            "WHERE s.is_disabled = FALSE \n" +
-            "\tAND ((s.date >= :currentDate) OR (s.repeat_on IS NOT NULL));")
-    public List<Long> getChildListBySafeZones (@Param("currentDate") Long currentDate);
+//    @Query(nativeQuery = true, value = "" +
+//            "SELECT DISTINCT c.*\n" +
+//            "FROM petite_hero.safezone s, petite_hero.child c\n" +
+//            "WHERE s.is_disabled = FALSE \n" +
+//            "\tAND ((s.date >= :currentDate) OR (s.repeat_on IS NOT NULL))\n" +
+//            "\tAND s.child_id = c.child_id;")
+//    public List<Child> getChildListBySafeZones (@Param("currentDate") Long currentDate);
+
 }
