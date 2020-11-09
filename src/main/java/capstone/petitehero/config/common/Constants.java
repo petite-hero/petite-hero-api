@@ -52,6 +52,14 @@ public class Constants {
     public static final boolean SUCCESS = true;
     public static final boolean FAILED = false;
 
+    public static final String MON_REGEX = "1(0|1){6}";
+    public static final String TUE_REGEX = "(0|1){1}1(0|1){5}";
+    public static final String WED_REGEX = "(0|1){2}1(0|1){4}";
+    public static final String THU_REGEX = "(0|1){3}1(0|1){3}";
+    public static final String FRI_REGEX = "(0|1){4}1(0|1){2}";
+    public static final String SAT_REGEX = "(0|1){5}1(0|1){1}";
+    public static final String SUN_REGEX = "(0|1){6}1";
+
     public static final String GET_DATA_SUCCESSFULLY = "Get data successfully!";
 
     public static final String EMERGENCY = "emergency";

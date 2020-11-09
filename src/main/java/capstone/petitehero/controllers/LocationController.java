@@ -38,7 +38,7 @@ public class LocationController {
     @ResponseBody
     public ResponseObject getListByDate(@PathVariable(value = "child") Long child,
                                         @PathVariable(value = "date") Long date) {
-        return safeZoneService.getListByDate(child, date);
+        return safeZoneService.getListSafeZoneByDate(child, date);
     }
 
     @RequestMapping(value = "/latest/{child}", method = RequestMethod.GET)

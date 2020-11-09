@@ -259,6 +259,15 @@ public class Util {
         return  map.get(day);
     }
 
+    public static String getCurrentWeekdayRegex() {
+        String weekday = getCurrentWeekday();
+        HashMap<String, String> map = new HashMap<>();
+        map.put("sun", Constants.SUN_REGEX); map.put("mon", Constants.MON_REGEX);
+        map.put("tue", Constants.TUE_REGEX); map.put("wed", Constants.WED_REGEX);
+        map.put("thu", Constants.THU_REGEX); map.put("fri", Constants.FRI_REGEX); map.put("sat", Constants.SAT_REGEX);
+        return  map.get(weekday);
+    }
+
     public static Boolean checkSubscriptionWhenParentAddChild(Parent parentAccount) {
         int countMaxChildParentAccount = 0;
         // get data from table parent_child so the data about child of parent will be duplicated

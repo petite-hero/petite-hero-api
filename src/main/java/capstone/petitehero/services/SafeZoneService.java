@@ -33,7 +33,7 @@ public class SafeZoneService {
     private ParentRepository parentRepository;
 
     @Autowired
-    private LocationService locationService;
+    private NotificationService notiService;
 
     public ResponseObject addSafeZone(AddNewSafeZoneRequestDTO sentSafeZone) {
         ResponseObject result = Util.createResponse();
@@ -53,7 +53,11 @@ public class SafeZoneService {
                 addedSafeZone.setFromTime(sentSafeZone.getFromTime());
                 addedSafeZone.setToTime(sentSafeZone.getToTime());
                 addedSafeZone.setDate(sentSafeZone.getDate());
-                addedSafeZone.setRepeatOn(sentSafeZone.getRepeatOn());
+                if (sentSafeZone.getRepeatOn() == null || sentSafeZone.getRepeatOn().isEmpty()) {
+                    addedSafeZone.setRepeatOn(null);
+                } else {
+                    addedSafeZone.setRepeatOn(sentSafeZone.getRepeatOn());
+                }
                 addedSafeZone.setRadius(sentSafeZone.getRadius());
                 addedSafeZone.setIsDisabled(false);
                 addedSafeZone.setType(sentSafeZone.getType());
@@ -67,7 +71,7 @@ public class SafeZoneService {
                     result.setMsg("Added successfully!");
 
                     //  notify SW if current date' safe zones changed
-                    Integer pushStatus = notifySWSafeZoneChanges(safezone.getChild().getPushToken(), safezone.getRepeatOn());
+                    Integer pushStatus = notiService.notifySWSafeZoneChanges(safezone.getChild().getPushToken(), safezone.getRepeatOn());
                     if (pushStatus == Constants.CODE_200) {
                         result.setMsg(Constants.NO_ERROR);
                     } else {
@@ -88,7 +92,7 @@ public class SafeZoneService {
         return  result;
     }
 
-    public ResponseObject getListByDate(Long childId, Long date) {
+    public ResponseObject getListSafeZoneByDate(Long childId, Long currentDate) {
         ResponseObject result = Util.createResponse();
         try {
             Child child = childRepository.getOne(childId);
@@ -97,7 +101,7 @@ public class SafeZoneService {
                 result.setMsg("Bad request - Child doesn't exist");
                 result.setCode(Constants.CODE_400);
             } else {
-                List<Safezone> rawData = safeZoneRepository.getListByDate(childId, date);
+                List<Safezone> rawData = safeZoneRepository.getListSafeZone(childId, currentDate, Util.getCurrentWeekdayRegex());
                 List<GetListByDateResponseDTO> filteredData = new ArrayList<>();
                 GetListByDateResponseDTO temp;
                 for (Safezone safezone : rawData) {
@@ -164,7 +168,7 @@ public class SafeZoneService {
 
                 if (updatedSafezone != null) {
                     //  notify SW if current date' safe zones changed
-                    Integer pushStatus = notifySWSafeZoneChanges(safezone.getChild().getPushToken(), safezone.getRepeatOn());
+                    Integer pushStatus = notiService.notifySWSafeZoneChanges(safezone.getChild().getPushToken(), safezone.getRepeatOn());
                     if (pushStatus == Constants.CODE_200) {
                         result.setMsg(Constants.NO_ERROR);
                     } else {
@@ -221,7 +225,7 @@ public class SafeZoneService {
                 Safezone updatedSafezone = safeZoneRepository.save(safezone);
                 if (updatedSafezone != null) {
                     //  notify SW if current date' safe zones changed
-                    Integer pushStatus = notifySWSafeZoneChanges(safezone.getChild().getPushToken(), safezone.getRepeatOn());
+                    Integer pushStatus = notiService.notifySWSafeZoneChanges(safezone.getChild().getPushToken(), safezone.getRepeatOn());
 
                     if (pushStatus == Constants.CODE_200) {
                         result.setMsg(Constants.NO_ERROR);
@@ -240,37 +244,4 @@ public class SafeZoneService {
         }
         return result;
     }
-
-    public Integer notifySWSafeZoneChanges(String pushToken, String repeatOn) {
-        Integer pushStatus = 100;
-        try {
-            if (Util.fromRepeatOnStringToDayInWeek(repeatOn).contains(Util.getCurrentWeekday())) {
-                PushSilentNotiSWDTO data = new PushSilentNotiSWDTO("Updated Safe Zone", null, null);
-                pushStatus = locationService.pushSilentNotificationSW(data, pushToken);
-            } else {
-                pushStatus = Constants.CODE_200;
-            }
-        } catch (Exception e) {
-            System.out.println("Error at notifySWSafeZoneChanges: " + e.toString());
-            e.printStackTrace();
-        }
-        return pushStatus;
-    }
-
-//    public void pushSWNotification() {
-//        try {
-//            FileInputStream serviceAccount =
-//                    new FileInputStream("pure-display-290409-firebase-adminsdk-rhjpl-af1073d6dc.json");
-//
-//            FirebaseOptions options = new FirebaseOptions.Builder()
-//                    .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-//                    .setDatabaseUrl("https://pure-display-290409.firebaseio.com")
-//                    .build();
-//
-//            FirebaseApp.initializeApp(options);
-//        } catch (Exception e) {
-//
-//        }
-//
-//    }
 }
