@@ -79,6 +79,7 @@ public class Constants {
     public static final String PETITE_HERO = "Petite Hero";
     public static final String SILENT_NOTI = "silent-noti";
     public static final String NEW_SAFEZONES = "new-safezones";
+    public static final String UPDATED_SAFEZONES = "updated-safezones";
     public static final String CHILD_SAFE = "Child is currently safe";
     public static final String CHILD_NOT_SAFE = "Child is currently not safe";
     public static final String DONE_SETTING_UP_DEVICE = "Done setting up child's device";

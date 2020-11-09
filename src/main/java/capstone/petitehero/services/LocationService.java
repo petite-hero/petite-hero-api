@@ -69,7 +69,7 @@ public class LocationService {
                     }
                     Integer pushStatus = 100;
                     if (emergency) { // in case mobile device demands emergency mode
-                        pushStatus = notiService.pushSilentNotificationMobile(sentLocation, tokens);
+                        pushStatus = notiService.pushNotificationMobile(null, sentLocation, tokens);
                     } else { // in case mobile device doesn't demand emergency mode
                         if (location.getStatus() != latestLocation.getStatus()) { // notify mobile if child' status changes
                             String msg = location.getStatus() ? Constants.CHILD_SAFE : Constants.CHILD_NOT_SAFE;
@@ -158,15 +158,15 @@ public class LocationService {
                 result.setMsg("Bad Request - Child ID doesn't exist");
                 result.setCode(Constants.CODE_400);
             } else {
-                PushNotiSWDTO data = new PushNotiSWDTO();
+                PushNotiSWDTO data = new PushNotiSWDTO(Constants.SILENT_NOTI, null, null);
                 if (emergency) {
-                    data.setTitle(Constants.EMERGENCY);
+                    data.setBody(Constants.EMERGENCY);
                 } else {
-                    data.setTitle(Constants.STOP_EMERGENCY);
+                    data.setBody(Constants.STOP_EMERGENCY);
                 }
                 getLatestChildLocation(childId);
                 System.out.println("====> Child token: " + child.getPushToken());
-                Integer pushStatus = notiService.pushSilentNotificationSW(data, child.getPushToken());
+                Integer pushStatus = notiService.pushNotificationSW(data, child.getPushToken());
                 if (pushStatus == Constants.CODE_200) {
                     result.setMsg("Update emergency successfully!");
                 } else if (pushStatus == Constants.CODE_500) {
@@ -192,14 +192,14 @@ public class LocationService {
                 child.setTrackingActive(status);
                 childRepository.save(child);
 
-                PushNotiSWDTO data = new PushNotiSWDTO();
+                PushNotiSWDTO data = new PushNotiSWDTO(Constants.SILENT_NOTI, null, null);
                 if (status) {
-                    data.setTitle(Constants.TRACKING_ACTIVE);
+                    data.setBody(Constants.TRACKING_ACTIVE);
                 } else {
-                    data.setTitle(Constants.TRACKING_INACTIVE);
+                    data.setBody(Constants.TRACKING_INACTIVE);
                 }
                 System.out.println("====> Child token: " + child.getPushToken());
-                Integer pushStatus = notiService.pushSilentNotificationSW(data, child.getPushToken());
+                Integer pushStatus = notiService.pushNotificationSW(data, child.getPushToken());
                 if (pushStatus == Constants.CODE_200) {
                     result.setMsg("Change status successfully!");
                 } else if (pushStatus == Constants.CODE_500) {

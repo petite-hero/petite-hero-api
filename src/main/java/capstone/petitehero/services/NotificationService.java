@@ -51,7 +51,7 @@ public class NotificationService {
         return result;
     }
 
-    public Integer pushSilentNotificationSW(Object data, String pushToken) {
+    public Integer pushNotificationSW(Object data, String pushToken) {
         HttpClient httpClient = HttpClientBuilder.create().build();
         Integer result;
         try {
@@ -88,11 +88,15 @@ public class NotificationService {
         try {
             HttpPost request = new HttpPost(Constants.EXPO_PUSH_NOTI_URL);
             HashMap<String, Object> body = new HashMap<String, Object>();
-            body.put("title", Constants.PETITE_HERO);
-            body.put("body", msg);
+            body.put("title", Constants.SILENT_NOTI);
             body.put("data", new Gson().toJson(data));
             body.put("to", pushTokens);
             StringEntity bodyJson = new StringEntity(new Gson().toJson(body));
+
+            if (msg != null && !msg.isEmpty()) {
+                body.put("title", Constants.PETITE_HERO);
+                body.put("body", msg);
+            }
 
             // headers specified by Expo to request push notifications
             request.setHeader(HttpHeaders.HOST, "exp.host");
@@ -120,8 +124,8 @@ public class NotificationService {
         Integer pushStatus = 100;
         try {
             if (Util.fromRepeatOnStringToDayInWeek(repeatOn).contains(Util.getCurrentWeekday())) {
-                PushNotiSWDTO data = new PushNotiSWDTO("Updated Safe Zone", null, null);
-                pushStatus = pushSilentNotificationSW(data, pushToken);
+                PushNotiSWDTO data = new PushNotiSWDTO(Constants.SILENT_NOTI, Constants.UPDATED_SAFEZONES, null);
+                pushStatus = pushNotificationSW(data, pushToken);
             } else {
                 pushStatus = Constants.CODE_200;
             }
