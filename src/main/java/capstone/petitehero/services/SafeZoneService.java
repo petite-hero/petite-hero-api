@@ -2,10 +2,11 @@ package capstone.petitehero.services;
 
 import capstone.petitehero.config.common.Constants;
 import capstone.petitehero.dtos.ResponseObject;
+import capstone.petitehero.dtos.common.CRONJobChildDTO;
 import capstone.petitehero.dtos.request.location.AddNewSafeZoneRequestDTO;
 import capstone.petitehero.dtos.request.location.PushNotiSWDTO;
 import capstone.petitehero.dtos.request.location.UpdateSafeZoneRequestDTO;
-import capstone.petitehero.dtos.response.location.GetListByDateResponseDTO;
+import capstone.petitehero.dtos.response.location.GetListSafeZoneByDateResponseDTO;
 import capstone.petitehero.dtos.response.location.GetSafeZoneDetailResponseDTO;
 import capstone.petitehero.entities.Child;
 import capstone.petitehero.entities.Parent;
@@ -103,12 +104,7 @@ public class SafeZoneService {
                 result.setCode(Constants.CODE_400);
             } else {
                 List<Safezone> rawData = safeZoneRepository.getListSafeZone(childId, currentDate, Util.getCurrentWeekdayRegex());
-                List<GetListByDateResponseDTO> filteredData = new ArrayList<>();
-                GetListByDateResponseDTO temp;
-                for (Safezone safezone : rawData) {
-                    temp = new GetListByDateResponseDTO(safezone.getSafezoneId(), safezone.getName(), safezone.getLatitude(), safezone.getLongitude(), safezone.getRadius(), safezone.getRepeatOn(), safezone.getFromTime(), safezone.getToTime(), safezone.getType());
-                    filteredData.add(temp);
-                }
+                List<GetListSafeZoneByDateResponseDTO> filteredData = Util.castToSafeZoneResponse(rawData);
                 result.setData(filteredData);
                 result.setMsg(Constants.NO_ERROR);
             }
@@ -246,21 +242,23 @@ public class SafeZoneService {
         return result;
     }
 
-    @Scheduled(fixedRate = 30000)
+    @Scheduled(cron = "0 05 00 * * ?")
     public void cronJobSafeZone () {
         try {
             Long currentDateMilli = Util.getCurrentDateMilliValue();
             String currentWeekdayRegex = Util.getCurrentWeekdayRegex();
             PushNotiSWDTO noti = new PushNotiSWDTO(Constants.SILENT_NOTI, Constants.NEW_SAFEZONES, null);
 
-            List<Long> childList = safeZoneRepository.getChildListBySafeZones(Util.getCurrentDateMilliValue());
-            for (Long child : childList) {
-                Child currentChild = childRepository.getOne(child);
+            List<Object[]> rawList = childRepository.getChildListBySafeZones(Util.getCurrentDateMilliValue());
+            List<CRONJobChildDTO> childList =  Util.castToCronObject(rawList);
+            for (CRONJobChildDTO currentChild : childList) {
+                String pushToken = currentChild.getPushToken();
+                List<Safezone> rawSafeZoneList = safeZoneRepository.getListSafeZone(currentChild.getChildId(), currentDateMilli, currentWeekdayRegex);
+                List<GetListSafeZoneByDateResponseDTO> safezoneList = Util.castToSafeZoneResponse(rawSafeZoneList);
 
-                List<Safezone> safezoneList = safeZoneRepository.getListSafeZone(child, currentDateMilli, currentWeekdayRegex);
-                if (safezoneList.size() != 0 && currentChild.getPushToken() != null) {
+                if (safezoneList.size() != 0 && pushToken != null) {
                     noti.setData(safezoneList);
-                    notiService.pushNotificationSW(noti, currentChild.getPushToken());
+                    notiService.pushNotificationSW(noti, pushToken);
                 }
             }
         } catch (Exception e) {

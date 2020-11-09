@@ -2,9 +2,13 @@ package capstone.petitehero.utilities;
 
 import capstone.petitehero.config.common.Constants;
 import capstone.petitehero.dtos.ResponseObject;
+import capstone.petitehero.dtos.common.CRONJobChildDTO;
+import capstone.petitehero.dtos.response.location.GetListSafeZoneByDateResponseDTO;
 import capstone.petitehero.entities.IsExceptionDate;
 import capstone.petitehero.entities.Parent;
 import capstone.petitehero.entities.Parent_Child;
+import capstone.petitehero.entities.Safezone;
+import com.fasterxml.jackson.databind.util.JSONPObject;
 import com.google.gson.Gson;
 import org.apache.commons.io.FileUtils;
 import org.apache.http.HttpHeaders;
@@ -343,5 +347,34 @@ public class Util {
         calendar.set(Calendar.MILLISECOND, timeCalendar.get(Calendar.MILLISECOND));
 
         return calendar.getTime().getTime();
+    }
+
+    public static List<CRONJobChildDTO> castToCronObject(List<Object[]> input) {
+        List<CRONJobChildDTO> result = new ArrayList<>();
+
+        Iterator it = input.iterator();
+        while(it.hasNext()){
+            Object[] line = (Object[])it.next();
+            CRONJobChildDTO cronJobChildDTO = new CRONJobChildDTO();
+            cronJobChildDTO.setChildId(Long.parseLong(line[0].toString()));
+            cronJobChildDTO.setPushToken(line[1].toString());
+            result.add(cronJobChildDTO);
+        }
+        return result;
+    }
+
+    public static List<GetListSafeZoneByDateResponseDTO> castToSafeZoneResponse(List<Safezone> input) {
+        List<GetListSafeZoneByDateResponseDTO> result = new ArrayList<>();
+        try {
+            GetListSafeZoneByDateResponseDTO temp;
+            for (Safezone safezone : input) {
+                temp = new GetListSafeZoneByDateResponseDTO(safezone.getSafezoneId(), safezone.getName(), safezone.getLatitude(), safezone.getLongitude(), safezone.getDate(), safezone.getRadius(), safezone.getRepeatOn(), safezone.getFromTime(), safezone.getToTime(), safezone.getType(), safezone.getChild().getChildId(), safezone.getParent().getId());
+                result.add(temp);
+            }
+        } catch (Exception e) {
+            System.out.println("Error at castToSafeZoneResponse: " + e.toString());
+            e.printStackTrace();
+        }
+        return result;
     }
 }
