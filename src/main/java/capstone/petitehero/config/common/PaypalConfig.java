@@ -1,4 +1,4 @@
-package capstone.petitehero.utilities;
+package capstone.petitehero.config.common;
 
 import com.paypal.base.rest.APIContext;
 import com.paypal.base.rest.OAuthTokenCredential;
@@ -7,12 +7,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
-public class PaypalUtil {
+public class PaypalConfig {
+
 
     @Value("${paypal.client.app}")
     private String clientId;
@@ -39,23 +39,5 @@ public class PaypalUtil {
         APIContext apiContext = new APIContext(authTokenCredential().getAccessToken());
         apiContext.setConfigurationMap(paypalSdkConfig());
         return apiContext;
-    }
-
-    // for paypal to redirect back to our backend after user complete paypal payment
-    public static String getBaseURL(HttpServletRequest request) {
-        String scheme = request.getScheme();
-        String serverName = request.getServerName();
-        int serverPort = request.getServerPort();
-        String contextPath = request.getContextPath();
-        StringBuffer url =  new StringBuffer();
-        url.append(scheme).append("://").append(serverName);
-        if ((serverPort != 80) && (serverPort != 443)) {
-            url.append(":").append(serverPort);
-        }
-        url.append(contextPath);
-        if(url.toString().endsWith("/")){
-            url.append("/");
-        }
-        return url.toString();
     }
 }

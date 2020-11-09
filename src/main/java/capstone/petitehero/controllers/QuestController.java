@@ -8,6 +8,7 @@ import capstone.petitehero.dtos.response.quest.QuestDetailResponseDTO;
 import capstone.petitehero.dtos.response.quest.badge.QuestBadgeResponseDTO;
 import capstone.petitehero.entities.Quest;
 import capstone.petitehero.services.QuestService;
+import capstone.petitehero.utilities.Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -71,6 +72,10 @@ public class QuestController {
         List<ListQuestResponseDTO> result;
 
         if (status != null ) {
+            if (!Util.validateQuestStatus(status)) {
+                responseObject = new ResponseObject(Constants.CODE_400, "Quest status contains only ASSIGNED, DONE, FAILED");
+                return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+            }
             result = questService.getChildListOfQuest(childId, status);
         } else {
             result = questService.getChildListOfQuest(childId, null);

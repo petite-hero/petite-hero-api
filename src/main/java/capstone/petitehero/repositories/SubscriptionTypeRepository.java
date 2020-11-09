@@ -8,4 +8,6 @@ import java.util.List;
 
 @Repository
 public interface SubscriptionTypeRepository extends JpaRepository<SubscriptionType, Long> {
+
+    SubscriptionType findSubscriptionTypeBySubscriptionTypeId(Long subscriptionTypeId);
 }

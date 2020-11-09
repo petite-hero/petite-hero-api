@@ -9,8 +9,6 @@ import java.util.List;
 @Repository
 public interface QuestRepository extends JpaRepository<Quest, Long> {
 
-    Quest findQuestByQuestId(Long questId);
-
     Quest findQuestByQuestIdAndAndIsDeleted(Long questId, Boolean idDeleted);
 
     List<Quest> findQuestsByChildChildIdAndIsDeletedOrderByCreatedDateDesc(Long childId, Boolean isDeleted);

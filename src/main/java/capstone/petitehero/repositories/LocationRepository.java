@@ -14,10 +14,10 @@ import java.util.List;
 @Repository
 public interface LocationRepository extends JpaRepository<LocationHistory, Long> {
     @Query(nativeQuery = true, value = "SELECT * FROM location_history WHERE child_id = :childId ORDER BY location_history_id DESC LIMIT 1")
-    public LocationHistory findLatestLocation(@Param("childId") Long childId);
+    LocationHistory findLatestLocation(@Param("childId") Long childId);
 
     @Query(nativeQuery = true, value = "SELECT * FROM location_history WHERE child_id = :childId AND time >= :from && time <= :to")
-    public List<LocationHistory> getListByTime(@Param("childId") Long childId, @Param("from") Long from, @Param("to") Long to);
+    List<LocationHistory> getListByTime(@Param("childId") Long childId, @Param("from") Long from, @Param("to") Long to);
 
 //    @Query(nativeQuery = true, value = "" +
 //            "SELECT p.id as parent_id, CONCAT(p.first_name, ' ', p.last_name) AS parent_name, c.child_id, CONCAT(c.first_name, ' ' ,c.last_name) AS child_name, p.push_token as parent_push_token, c.push_token as child_push_token\n" +
@@ -35,5 +35,5 @@ public interface LocationRepository extends JpaRepository<LocationHistory, Long>
             "\tFROM parent_child pc \n" +
             "\tWHERE pc.child_id = :childId) pc\n" +
             "WHERE pc.parent_id = p.id")
-    public ArrayList<String> getParentPushToken(@Param("childId") Long childId);
+    ArrayList<String> getParentPushToken(@Param("childId") Long childId);
 }

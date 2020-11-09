@@ -10,15 +10,14 @@ import capstone.petitehero.entities.Parent_Child;
 import capstone.petitehero.entities.Safezone;
 import com.fasterxml.jackson.databind.util.JSONPObject;
 import com.google.gson.Gson;
+import capstone.petitehero.dtos.common.SummaryTaskDetail;
+import capstone.petitehero.entities.Parent;
+import capstone.petitehero.entities.Parent_Child;
+import capstone.petitehero.entities.Task;
 import org.apache.commons.io.FileUtils;
-import org.apache.http.HttpHeaders;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.HttpClientBuilder;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -32,7 +31,7 @@ import java.util.stream.Collectors;
 
 public class Util {
 
-    public boolean validatePhoneNumberParent(String phoneNumber) {
+    public static boolean validatePhoneNumberParent(String phoneNumber) {
         // 1234567890
         // 123-456-7890
         // 123 456 7890
@@ -47,7 +46,7 @@ public class Util {
         return result;
     }
 
-    public boolean validateEmail(String email) {
+    public static boolean validateEmail(String email) {
         return email.matches("^[a-zA-Z0-9]+@([a-zA-Z]{2,6}\\.)+[a-zA-Z]{2,6}$");
     }
 
@@ -63,18 +62,6 @@ public class Util {
         }
     }
 
-    public static String fromBadgeImageFileToBase64String(String questBadge) {
-        try {
-            File imageLocation = new File(Constants.BADGE_FOLDER + "/" + questBadge);
-
-            byte[] bytesPhoto = FileUtils.readFileToByteArray(imageLocation);
-
-            return Base64.getEncoder().encodeToString(bytesPhoto);
-        } catch (Exception e) {
-            return "Cannot get badge image";
-        }
-    }
-
     public static String saveImageToSystem(String idImage, String content, MultipartFile photo) {
         File f = new File(Constants.UPLOAD_FOLDER);
 
@@ -86,8 +73,6 @@ public class Util {
             f.mkdir();
         }
         try {
-
-
             Path path = Paths.get(Constants.UPLOAD_FOLDER + fileName);
             byte[] bytesPhoto = photo.getBytes();
             Files.write(path, bytesPhoto);
@@ -99,8 +84,37 @@ public class Util {
         }
     }
 
-    public static boolean validatePasswordForAllAccount(String password) {
-        return password.matches("[a-zA-Z0-9]{6,8}");
+    public static boolean validateLengthOfString(String str, int min, int max) {
+        return str.length() >= min && str.length() <= max;
+    }
+
+    public static boolean validateName(String str, int min, int max) {
+        // p{L} regex for unicode characters
+        return str.matches("[\\p{L}\\s]{" + min + "," + max + "}");
+    }
+
+    public static boolean validateTimestamp(String timestamp) {
+        return timestamp.matches("\\-?(\\d+)");
+    }
+
+    public static boolean validateTaskType(String taskType) {
+        return taskType.equalsIgnoreCase(Constants.taskType.SKILLS.toString())
+                || taskType.equalsIgnoreCase(Constants.taskType.HOUSEWORK.toString())
+                || taskType.equalsIgnoreCase(Constants.taskType.EDUCATION.toString());
+    }
+
+    public static boolean validateQuestStatus(String status) {
+        return status.equalsIgnoreCase(Constants.status.ASSIGNED.toString())
+                || status.equalsIgnoreCase(Constants.status.DONE.toString())
+                || status.equalsIgnoreCase(Constants.status.FAILED.toString());
+    }
+
+    public static boolean validateLongNumber(String number) {
+        return number.matches("\\d+");
+    }
+
+    public static boolean validateFloatNumber(String number) {
+        return number.matches("\\d+\\.?\\d*");
     }
 
     public static String formatTimestampToDateTime(Long timeStamp) {
@@ -145,33 +159,6 @@ public class Util {
         calendar.set(Calendar.MILLISECOND, 999);
 
         return calendar.getTimeInMillis();
-    }
-
-    // this method will return an int
-    // return value is to get the index of day need to query
-    // in the string repeat on of task or safe zone
-    public static int fromTimeStampToDayInWeek(Long timeStampDayRepeat) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(new Date(timeStampDayRepeat));
-        int dayInWeek = calendar.get(Calendar.DAY_OF_WEEK);
-        // Calendar.DAY_OF_WEEK will return int
-        // SunDay - Saturday will be 1 - 7 (1 is Sunday and 7 is Saturday)
-        if (dayInWeek == 1) { // Sunday
-            return 6;
-        } else if (dayInWeek == 2) { // Monday
-            return 0;
-        } else if (dayInWeek == 3) { // Tuesday
-            return 1;
-        } else if (dayInWeek == 4) { // Wednesday
-            return 2;
-        } else if (dayInWeek == 5) { // Thursday
-            return 3;
-        } else if (dayInWeek == 6) { // Friday
-            return 4;
-        } else if (dayInWeek == 7) { // Saturday
-            return 5;
-        }
-        return -1;
     }
 
     public static String fromRepeatOnStringToDayInWeek(String repeatOnString) {
@@ -243,15 +230,6 @@ public class Util {
         return calendar.getTimeInMillis();
     }
 
-    public static Boolean isExceptionDate(List<IsExceptionDate> listExceptionDate, Long timeStampDate) {
-        for (IsExceptionDate isExceptionDate : listExceptionDate) {
-            if (Util.getStartDay(isExceptionDate.getExceptionDate()).longValue()
-                    == Util.getStartDay(timeStampDate).longValue()) {
-                return Boolean.TRUE;
-            }
-        }
-        return Boolean.FALSE;
-    }
 
     public static Long getCurrentDateMilliValue() {
         Calendar calendar = Calendar.getInstance();
@@ -376,5 +354,49 @@ public class Util {
             e.printStackTrace();
         }
         return result;
+    public static SummaryTaskDetail summaryTaskType(List<Task> taskList) {
+        SummaryTaskDetail taskDetail = new SummaryTaskDetail();
+
+        taskDetail.setTotalTaskAssigned(taskList.stream().count());
+        // count tasks are done
+        taskDetail.setTaskDone(taskList
+                .stream()
+                .filter(task -> task.getStatus().equalsIgnoreCase(Constants.status.DONE.toString()))
+                .count());
+        // count tasks ar failed
+        taskDetail.setTaskFailed(taskList
+                .stream()
+                .filter(task -> task.getStatus().equalsIgnoreCase(Constants.status.FAILED.toString()))
+                .count());
+        // count tasks are handed
+        taskDetail.setTaskHanded(taskList
+                .stream()
+                .filter(task -> task.getStatus().equalsIgnoreCase(Constants.status.HANDED.toString()))
+                .count());
+        //count task are assigned
+        taskDetail.setTaskAssigned(taskList
+                .stream()
+                .filter(task -> task.getStatus().equalsIgnoreCase(Constants.status.ASSIGNED.toString()))
+                .count());
+
+        return taskDetail;
+    }
+
+    // for paypal to redirect back to our backend after user complete paypal payment
+    public static String getBaseURL(HttpServletRequest request) {
+        String scheme = request.getScheme();
+        String serverName = request.getServerName();
+        int serverPort = request.getServerPort();
+        String contextPath = request.getContextPath();
+        StringBuffer url =  new StringBuffer();
+        url.append(scheme).append("://").append(serverName);
+        if ((serverPort != 80) && (serverPort != 443)) {
+            url.append(":").append(serverPort);
+        }
+        url.append(contextPath);
+        if(url.toString().endsWith("/")){
+            url.append("/");
+        }
+        return url.toString();
     }
 }

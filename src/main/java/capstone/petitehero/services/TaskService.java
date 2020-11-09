@@ -1,10 +1,8 @@
 package capstone.petitehero.services;
 
 import capstone.petitehero.config.common.Constants;
-import capstone.petitehero.dtos.common.Assignee;
-import capstone.petitehero.dtos.common.Assigner;
-import capstone.petitehero.dtos.common.ChildInformation;
-import capstone.petitehero.dtos.common.NotificationDTO;
+import capstone.petitehero.dtos.ResponseObject;
+import capstone.petitehero.dtos.common.*;
 import capstone.petitehero.dtos.response.task.*;
 import capstone.petitehero.entities.Child;
 import capstone.petitehero.entities.Task;
@@ -15,10 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -83,6 +78,7 @@ public class TaskService {
                     notificationDTO.setAssignee(assignee);
                     ArrayList<String> pushTokenList = new ArrayList<>();
                     pushTokenList.add(taskResult.getParent().getPushToken());
+
                     notiService.pushNotificationMobile(
                             assigner.getFirstName() + assigner.getLastName() + " assigned new task for you" + assignee.getFirstName() + assignee.getLastName()
                             , notificationDTO, pushTokenList);
@@ -111,13 +107,6 @@ public class TaskService {
             result.setType(taskResult.getType());
             result.setStatus(taskResult.getStatus());
 
-//            if (taskResult.getIsDuplicateTask() != null) {
-//                Task tempTask = taskRepository.findTasksByTaskIdAndIsDeleted(
-//                        taskResult.getIsDuplicateTask(), Boolean.FALSE);
-//                result.setIsRepeatOn(Util.fromRepeatOnStringToDayInWeek(tempTask.getRepeatOn()));
-//            } else {
-//                result.setIsRepeatOn(Util.fromRepeatOnStringToDayInWeek(taskResult.getRepeatOn()));
-//            }
 
             // information of assigner (colaborator or parent)
             Assigner assigner = new Assigner();
@@ -157,23 +146,7 @@ public class TaskService {
         return null;
     }
 
-    public TaskDeleteResponseDTO deleteTask(Task task, Boolean isDuplicatedTask) {
-//        if (isDuplicatedTask != null) {
-//            if (isDuplicatedTask.booleanValue()) {
-//                if (task != null) {
-//                    task.setIsDeleted(Boolean.TRUE);
-//                    Task taskDeleted = taskRepository.save(task);
-//
-//                    if (taskDeleted != null) {
-//                        TaskDeleteResponseDTO result = new TaskDeleteResponseDTO();
-//                        result.setTaskId(taskDeleted.getTaskId());
-//                        result.setStatus("DELETED");
-//                        return result;
-//                    }
-//                }
-//                return null;
-//            }
-//        }
+    public TaskDeleteResponseDTO deleteTask(Task task) {
         if (task != null) {
             task.setIsDeleted(Boolean.TRUE);
             Task taskDeleted = taskRepository.save(task);
@@ -187,8 +160,8 @@ public class TaskService {
         }
         return null;
     }
-    
-    public List<Task> getChildOfTaskAtAssignedDate(Long childId, Long assignedDateTimeStamp) {
+
+    public List<ListTaskResponseDTO> getChildOfTaskAtAssignedDate(Long childId, Long assignedDateTimeStamp, String provider) {
         List<Task> listTaskResult;
         if (assignedDateTimeStamp != null) {
             Long startDateTimeStamp = Util.getStartDay(assignedDateTimeStamp);
@@ -200,186 +173,36 @@ public class TaskService {
         }
 
         if (listTaskResult != null) {
-            return listTaskResult;
-        }
+            if (!listTaskResult.isEmpty()) {
+                List<ListTaskResponseDTO> result = new ArrayList<>();
 
-        return null;
-    }
+                for (Task taskResult : listTaskResult) {
+                    ListTaskResponseDTO resultData = new ListTaskResponseDTO();
 
-    public List<Task> findAllChildTaskHasRepeatOn(Long childId, Long timeStampDateRepeat) {
-        List<Task> result = new ArrayList<>();
-        List<Task> allTaskHasRepeat = taskRepository.findTasksByChildChildIdAndIsDeletedAndRepeatOnIsNotNull(childId, Boolean.FALSE);
+                    resultData.setName(taskResult.getName());
+                    resultData.setStatus(taskResult.getStatus());
+                    resultData.setTaskId(taskResult.getTaskId());
+                    resultData.setFromTime(Util.formatTimestampToTime(taskResult.getFromTime().getTime()));
+                    resultData.setToTime(Util.formatTimestampToTime(taskResult.getToTime().getTime()));
+                    resultData.setType(taskResult.getType());
+                    if (provider != null && provider.equalsIgnoreCase(Constants.SMART_WATCH)) {
+                        resultData.setDescription(taskResult.getDescription());
+                    }
 
-        // filter task that's already duplicated
-        Long startDateTimeStamp = Util.getStartDay(timeStampDateRepeat);
-        Long endDateTimeStamp = Util.getEndDay(timeStampDateRepeat);
-        List<Task> taskHasBeenDuplicated = taskRepository.findTasksByChildChildIdAndAssignDateIsBetweenAndAndIsDuplicateTaskIsNotNull(
-            childId, startDateTimeStamp, endDateTimeStamp);
-
-        // find all the task that need duplicate
-        int indexOfDayRepeat = Util.fromTimeStampToDayInWeek(timeStampDateRepeat);
-        List<Task> taskNeedToRepeat = new ArrayList<>();
-        for (Task task : allTaskHasRepeat) {
-            // check the string repeat on of task at index of n is 1
-            // if is 1 that's the task need to duplicate in the system
-            if (String.format("%c", task.getRepeatOn().charAt(indexOfDayRepeat)).equals("1")
-                    && task.getCreatedDate() < Util.getStartDay(timeStampDateRepeat)
-                    && Util.getStartDay(task.getAssignDate()).longValue() != Util.getStartDay(timeStampDateRepeat)) {
-                taskNeedToRepeat.add(task);
-            }
-        }
-        // end find all the task that need duplicate
-
-        // filter all task that all ready duplicated
-        if (!taskHasBeenDuplicated.isEmpty()) {
-            for (Task task : taskHasBeenDuplicated) {
-                Task alreadyDuplicated = taskNeedToRepeat.stream()
-                        .filter(t -> t.getTaskId() == task.getIsDuplicateTask())
-                        .findAny().orElse(null);
-                if (alreadyDuplicated != null) {
-                    taskNeedToRepeat.remove(alreadyDuplicated);
+                    result.add(resultData);
                 }
-            }
-        }
-        // end filter all task that all ready duplicated
-
-        // duplicate task and save to the system
-        if (!taskNeedToRepeat.isEmpty()) {
-            for (Task taskNeedDuplicate : taskNeedToRepeat) {
-                Task taskDuplicate = new Task();
-
-                // basic information that's not change
-                taskDuplicate.setName(taskNeedDuplicate.getName());
-                taskDuplicate.setDescription(taskNeedDuplicate.getDescription());
-                taskDuplicate.setParent(taskNeedDuplicate.getParent());
-                taskDuplicate.setChild(taskNeedDuplicate.getChild());
-                taskDuplicate.setCreatedDate(taskNeedDuplicate.getCreatedDate());
-                taskDuplicate.setIsDeleted(Boolean.FALSE);
-                taskDuplicate.setType(taskNeedDuplicate.getType());
-
-                // information that's change
-                taskDuplicate.setAssignDate(timeStampDateRepeat);
-
-                // get from time of old task
-                Calendar calendarFromTimeOldTask = Calendar.getInstance();
-                calendarFromTimeOldTask.setTime(taskNeedDuplicate.getFromTime());
-
-                Calendar calendar = Calendar.getInstance();
-                calendar.setTime(new Date(timeStampDateRepeat));
-                // change from time
-                calendar.set(Calendar.HOUR, calendarFromTimeOldTask.get(Calendar.HOUR));
-                calendar.set(Calendar.MINUTE, calendarFromTimeOldTask.get(Calendar.MINUTE));
-                calendar.set(Calendar.SECOND, calendarFromTimeOldTask.get(Calendar.SECOND));
-                calendar.set(Calendar.MILLISECOND, calendarFromTimeOldTask.get(Calendar.MILLISECOND));
-                taskDuplicate.setFromTime(calendar.getTime());
-
-                // change to time
-                Calendar calendarToTimeOldTask = Calendar.getInstance();
-                calendarToTimeOldTask.setTime(taskNeedDuplicate.getToTime());
-                // change from time
-                calendar.set(Calendar.HOUR, calendarToTimeOldTask.get(Calendar.HOUR));
-                calendar.set(Calendar.MINUTE, calendarToTimeOldTask.get(Calendar.MINUTE));
-                calendar.set(Calendar.SECOND, calendarToTimeOldTask.get(Calendar.SECOND));
-                calendar.set(Calendar.MILLISECOND, calendarToTimeOldTask.get(Calendar.MILLISECOND));
-                taskDuplicate.setToTime(calendar.getTime());
-
-                taskDuplicate.setStatus(Constants.status.ASSIGNED.toString());
-
-                // information need to unique for not duplicate redundant
-                taskDuplicate.setRepeatOn(null);
-                taskDuplicate.setIsDuplicateTask(taskNeedDuplicate.getTaskId());
-
-                Task taskResultData = taskRepository.save(taskDuplicate);
-                if (taskResultData != null) {
-                    result.add(taskResultData);
-                }
-            }
-        }
-        return result;
-    }
-
-    public List<Task> getTaskDuplicateOnThatDate(Long childId, Long timeStampDateRepeat) {
-        List<Task> result = new ArrayList<>();
-        List<Task> allTaskHasRepeat = taskRepository.findTasksByChildChildIdAndIsDeletedAndRepeatOnIsNotNull(childId, Boolean.FALSE);
-
-        // find all the task that need duplicate
-        int indexOfDayRepeat = Util.fromTimeStampToDayInWeek(timeStampDateRepeat);
-        List<Task> taskNeedToRepeat = new ArrayList<>();
-        for (Task task : allTaskHasRepeat) {
-            // check the string repeat on of task at index of n is 1
-            // if is 1 that's the task need to duplicate in the system
-            if (String.format("%c", task.getRepeatOn().charAt(indexOfDayRepeat)).equals("1")
-                    && task.getCreatedDate() < Util.getStartDay(timeStampDateRepeat)
-                    && !Util.isExceptionDate(new ArrayList<>(task.getTask_ExceptionDateCollection()), timeStampDateRepeat)
-                    && Util.getStartDay(task.getAssignDate()).longValue() != Util.getStartDay(timeStampDateRepeat)) {
-                taskNeedToRepeat.add(task);
-            }
-        }
-        // end find all the task that need duplicate
-
-        // duplicate task and save to the system
-        if (!taskNeedToRepeat.isEmpty()) {
-            for (Task taskNeedDuplicate : taskNeedToRepeat) {
-                Task taskDuplicate = new Task();
-
-                // basic information that's not change
-                taskDuplicate.setTaskId(taskNeedDuplicate.getTaskId());
-                taskDuplicate.setName(taskNeedDuplicate.getName());
-                taskDuplicate.setIsDeleted(taskNeedDuplicate.getIsDeleted());
-                taskDuplicate.setType(taskNeedDuplicate.getType());
-
-                // get from time of old task
-                Calendar calendarFromTimeOldTask = Calendar.getInstance();
-                calendarFromTimeOldTask.setTime(taskNeedDuplicate.getFromTime());
-
-                Calendar calendar = Calendar.getInstance();
-                calendar.setTime(new Date(timeStampDateRepeat));
-                // change from time
-                calendar.set(Calendar.HOUR, calendarFromTimeOldTask.get(Calendar.HOUR));
-                calendar.set(Calendar.MINUTE, calendarFromTimeOldTask.get(Calendar.MINUTE));
-                calendar.set(Calendar.SECOND, calendarFromTimeOldTask.get(Calendar.SECOND));
-                calendar.set(Calendar.MILLISECOND, calendarFromTimeOldTask.get(Calendar.MILLISECOND));
-                taskDuplicate.setFromTime(calendar.getTime());
-
-                // change to time
-                Calendar calendarToTimeOldTask = Calendar.getInstance();
-                calendarToTimeOldTask.setTime(taskNeedDuplicate.getToTime());
-                // change from time
-                calendar.set(Calendar.HOUR, calendarToTimeOldTask.get(Calendar.HOUR));
-                calendar.set(Calendar.MINUTE, calendarToTimeOldTask.get(Calendar.MINUTE));
-                calendar.set(Calendar.SECOND, calendarToTimeOldTask.get(Calendar.SECOND));
-                calendar.set(Calendar.MILLISECOND, calendarToTimeOldTask.get(Calendar.MILLISECOND));
-                taskDuplicate.setToTime(calendar.getTime());
-
-                taskDuplicate.setStatus(Constants.status.ASSIGNED.toString());
-
-                result.add(taskDuplicate);
-            }
-        }
-        return result;
-    }
-
-    public List<ListTaskResponseDTO> getChildListOfTask(List<Task> taskOfChild, String provider) {
-        List<ListTaskResponseDTO> result = new ArrayList<>();
-        if (taskOfChild != null) {
-            for (Task taskResult: taskOfChild) {
-                ListTaskResponseDTO resultData = new ListTaskResponseDTO();
-
-                resultData.setName(taskResult.getName());
-                resultData.setStatus(taskResult.getStatus());
-                resultData.setTaskId(taskResult.getTaskId());
-                resultData.setFromTime(Util.formatTimestampToTime(taskResult.getFromTime().getTime()));
-                resultData.setToTime(Util.formatTimestampToTime(taskResult.getToTime().getTime()));
-                resultData.setType(taskResult.getType());
                 if (provider != null && provider.equalsIgnoreCase(Constants.SMART_WATCH)) {
-                    resultData.setPhoto(Util.fromImageFileToBase64String(taskResult.getProofPhoto()));
-                    resultData.setDescription(taskResult.getDescription());
+                    return result.stream()
+                            .filter(task -> task.getStatus().equalsIgnoreCase(Constants.status.ASSIGNED.toString()))
+                            .sorted(Comparator.comparing(ListTaskResponseDTO::getFromTime))
+                            .collect(Collectors.toList());
                 }
-
-                result.add(resultData);
+                return result.stream()
+                        .sorted(Comparator.comparing(ListTaskResponseDTO::getFromTime))
+                        .collect(Collectors.toList());
             }
         }
-        return result;
+        return null;
     }
 
     public Task findTaskByTaskId(Long taskId) {
@@ -462,6 +285,67 @@ public class TaskService {
             return result.stream()
                     .filter(Util.distinctByKey(ListTaskHandedResponseDTO::getDate))
                     .collect(Collectors.toList());
+        }
+        return null;
+    }
+
+    public SummaryListTaskResponseDTO summaryChildrenListTask(Long childId) {
+        List<Task> listTaskResult = taskRepository.findTasksByChildChildIdAndIsDeleted(childId, Boolean.FALSE);
+
+        if (listTaskResult != null) {
+            if (!listTaskResult.isEmpty()) {
+                SummaryListTaskResponseDTO result = new SummaryListTaskResponseDTO();
+                // get all tasks has type is housework
+                List<Task> taskHouseworkAssigned = listTaskResult.stream()
+                        .filter(task -> task.getType().equalsIgnoreCase(Constants.taskType.HOUSEWORK.toString()))
+                        .collect(Collectors.toList());
+                // get all tasks has type is education
+                List<Task> taskEducationAssigned = listTaskResult.stream()
+                        .filter(task -> task.getType().equalsIgnoreCase(Constants.taskType.EDUCATION.toString()))
+                        .collect(Collectors.toList());
+                // get all tasks has type is skills
+                List<Task> taskSkillsAssigned = listTaskResult.stream()
+                        .filter(task -> task.getType().equalsIgnoreCase(Constants.taskType.SKILLS.toString()))
+                        .collect(Collectors.toList());
+
+                // summary for task type is housework
+                SummaryTaskDetail houseworkTaskType = Util.summaryTaskType(taskHouseworkAssigned);
+                // summary for task type is education
+                SummaryTaskDetail educationTaskType = Util.summaryTaskType(taskEducationAssigned);
+                // summary for task type is skills
+                SummaryTaskDetail skillsTaskType = Util.summaryTaskType(taskSkillsAssigned);
+
+                result.setChildId(childId);
+                result.setEducationTasks(educationTaskType);
+                result.setHouseworkTasks(houseworkTaskType);
+                result.setSkillsTasks(skillsTaskType);
+
+                return result;
+            }
+        }
+
+        return null;
+    }
+
+    public Boolean summaryHourOfChildrenTaskList(Long childId, Long dateTimeStamp) {
+        Long startDateTimeStamp = Util.getStartDay(dateTimeStamp);
+        Long endDateTimeStamp = Util.getEndDay(dateTimeStamp);
+
+        List<Task> taskListResult = taskRepository.findTasksByChildChildIdAndIsDeletedAndAssignDateIsBetween(
+                childId, Boolean.FALSE, startDateTimeStamp, endDateTimeStamp);
+
+        if (taskListResult != null) {
+            if (!taskListResult.isEmpty()) {
+                Boolean isWarning = Boolean.FALSE;
+                Long totalHourTaskHasAssigned = 0L;
+                for (Task t : taskListResult) {
+                    totalHourTaskHasAssigned += t.getToTime().getTime() - t.getFromTime().getTime();
+                }
+                if (totalHourTaskHasAssigned / (60 * 60 * 1000) >= 3) {
+                    isWarning = Boolean.TRUE;
+                }
+                return isWarning;
+            }
         }
         return null;
     }

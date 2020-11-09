@@ -6,6 +6,7 @@ import capstone.petitehero.dtos.common.Assigner;
 import capstone.petitehero.dtos.common.NotificationDTO;
 import capstone.petitehero.dtos.response.quest.*;
 import capstone.petitehero.dtos.response.quest.badge.QuestBadgeResponseDTO;
+import capstone.petitehero.entities.Parent_Child;
 import capstone.petitehero.entities.Quest;
 import capstone.petitehero.repositories.QuestRepository;
 import capstone.petitehero.utilities.Util;
@@ -73,9 +74,14 @@ public class QuestService {
             notificationDTO.setAssignee(assignee);
             ArrayList<String> pushTokenList = new ArrayList<>();
             pushTokenList.add(questResult.getParent().getPushToken());
-            notiService.pushNotificationMobile(
-                    assigner.getFirstName() + assigner.getLastName() + " assigned new quest to " + assignee.getFirstName() + assignee.getLastName()
+
+            notiService.pushNotificationMobile(assigner.getFirstName() + assigner.getLastName() + " assigned new quest to " + assignee.getFirstName() + assignee.getLastName()
                     , notificationDTO, pushTokenList);
+
+            long count = questResult.getChild().getChild_parentCollection().stream()
+                    .filter(Util.distinctByKey(Parent_Child::getParent))
+                    .count();
+            System.out.println("Count: " + count);
 
             return result;
         }

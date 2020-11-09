@@ -10,10 +10,7 @@ import capstone.petitehero.dtos.request.parent.ParentRegisterDTO;
 import capstone.petitehero.dtos.response.account.AccountLoginResponseDTO;
 import capstone.petitehero.dtos.response.account.ParentDetailResponseDTO;
 import capstone.petitehero.dtos.response.parent.ParentRegisterResponseDTO;
-import capstone.petitehero.entities.Account;
-import capstone.petitehero.entities.Parent;
-import capstone.petitehero.entities.Subscription;
-import capstone.petitehero.entities.SubscriptionType;
+import capstone.petitehero.entities.*;
 import capstone.petitehero.exceptions.DuplicateKeyException;
 import capstone.petitehero.services.AccountService;
 import capstone.petitehero.services.ParentService;
@@ -22,9 +19,11 @@ import capstone.petitehero.utilities.Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -60,6 +59,14 @@ public class AccountController {
             responseObject = new ResponseObject(Constants.CODE_400, "Password cannot be empty");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
+        if (!Util.validateLengthOfString(accountLoginDTO.getUsername(), 6, 30)) {
+            responseObject = new ResponseObject(Constants.CODE_400, "Username should between 6 characters to 30 characters");
+            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+        }
+        if (!Util.validateLengthOfString(accountLoginDTO.getPassword(), 6, 30)) {
+            responseObject = new ResponseObject(Constants.CODE_400, "Password should between 6 characters to 30 characters");
+            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+        }
         Account account = new Account();
         account.setUsername(accountLoginDTO.getUsername());
         account.setPassword(accountLoginDTO.getPassword());
@@ -85,14 +92,13 @@ public class AccountController {
     // parent input phone number to get OTP code for verify to access (register) system.
     public ResponseEntity<Object> registerByPhoneNumber(@RequestBody ParentRegisterDTO parentRegisterDTO) {
         ResponseObject responseObject;
-        Util util = new Util();
 
         // validate phone number of parent
         if (parentRegisterDTO.getPhoneNumber() == null || parentRegisterDTO.getPhoneNumber().isEmpty()) {
             responseObject = new ResponseObject(Constants.CODE_400, "Parent's phone number cannot be missing or be empty when register");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
-        if (!util.validatePhoneNumberParent(parentRegisterDTO.getPhoneNumber())) {
+        if (!Util.validatePhoneNumberParent(parentRegisterDTO.getPhoneNumber())) {
             responseObject = new ResponseObject(Constants.CODE_400, "Phone number is not in right format" +
                     "Phone number should be (1234567890) or (123( |-)456( |-)7890)");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
@@ -156,7 +162,7 @@ public class AccountController {
 
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     @ResponseBody
-    public ResponseEntity<Object> loginByAccountAdmin(@RequestBody AccountLoginDTO accountLoginDTO) {
+    public ResponseEntity<Object> loginAccount(@RequestBody AccountLoginDTO accountLoginDTO) {
         ResponseObject responseObject;
         //validate mandatory fields
         if (accountLoginDTO.getUsername() == null) {
@@ -173,6 +179,10 @@ public class AccountController {
         }
         if (accountLoginDTO.getPassword().isEmpty()) {
             responseObject = new ResponseObject(Constants.CODE_400, "Password cannot be empty");
+            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+        }
+        if (!Util.validateLengthOfString(accountLoginDTO.getPassword(), 6, 30)) {
+            responseObject = new ResponseObject(Constants.CODE_400, "Password should between 6 characters to 30 characters");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
         // end validate mandatory fields
@@ -194,6 +204,10 @@ public class AccountController {
         ResponseObject responseObject;
         if (accountChangePasswordRequestDTO.getPassword() == null || accountChangePasswordRequestDTO.getPassword().isEmpty()) {
             responseObject = new ResponseObject(Constants.CODE_400, "New password cannot be null");
+            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+        }
+        if (Util.validateLengthOfString(accountChangePasswordRequestDTO.getPassword(), 6, 30)) {
+            responseObject = new ResponseObject(Constants.CODE_400, "Password should between 6 characters to 30 characters");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
         if (accountChangePasswordRequestDTO.getConfirmPassword() == null || accountChangePasswordRequestDTO.getConfirmPassword().isEmpty()) {
@@ -244,7 +258,7 @@ public class AccountController {
         return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @RequestMapping(value = "{username}", method = RequestMethod.GET)
+    @RequestMapping(value = "/{username}", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<Object> getDetailOfParentAccount(@PathVariable("username") String parentPhoneNumber) {
         ResponseObject responseObject;
@@ -258,5 +272,19 @@ public class AccountController {
 
         responseObject = new ResponseObject(Constants.CODE_404, "Cannot found that parent account in the system");
         return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
+    }
+
+    @RequestMapping(value = "/reset-password", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<Object> resetPassword(@RequestParam("username") String username) {
+        ResponseObject responseObject;
+        Parent parent = parentService.findParentByPhoneNumber(username);
+        if (parent == null) {
+            responseObject = new ResponseObject(Constants.CODE_404, "Cannot found your account in the systen");
+            return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
+        }
+
+        responseObject = new ResponseObject(Constants.CODE_500, "Cannot not reset password for your account");
+        return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
