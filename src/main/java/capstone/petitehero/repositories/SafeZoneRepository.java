@@ -11,8 +11,6 @@ import java.util.List;
 
 @Repository
 public interface SafeZoneRepository extends JpaRepository<Safezone, Long>{
-//    @Query(nativeQuery = true, value = "SELECT * FROM petite_hero.safezone WHERE petite_hero.safezone.child_id = :childId AND petite_hero.safezone.date = :date AND petite_hero.safezone.is_disabled = FALSE")
-//    public List<Safezone> getListByDate(@Param("childId") Long childId, @Param("date") Long date);
 
     @Query(nativeQuery = true, value = "" +
             "SELECT *\n" +

@@ -19,7 +19,6 @@ import capstone.petitehero.dtos.response.parent.payment.ListPaymentTransactionRe
 import capstone.petitehero.dtos.response.parent.payment.ParentPaymentCompledResponseDTO;
 import capstone.petitehero.entities.*;
 import capstone.petitehero.services.*;
-import capstone.petitehero.utilities.PaypalUtil;
 import capstone.petitehero.utilities.Util;
 import com.paypal.api.payments.Links;
 import com.paypal.api.payments.Payment;
@@ -53,9 +52,6 @@ public class ParentController {
     private ParentChildService parentChildService;
 
     @Autowired
-    private PaypalServices paypalServices;
-
-    @Autowired
     private ParentPaymentService parentPaymentService;
 
     @Autowired
@@ -76,16 +72,23 @@ public class ParentController {
             responseObject = new ResponseObject(Constants.CODE_400, "First name cannot be missing or be empty");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
+        if (!Util.validateName(parentRegisterRequestDTO.getFirstName(), 2, 30)) {
+            responseObject = new ResponseObject(Constants.CODE_400, "First name should between 2 to 30 characters and special characters");
+            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+        }
         if (parentRegisterRequestDTO.getLastName() == null || parentRegisterRequestDTO.getLastName().isEmpty()) {
             responseObject = new ResponseObject(Constants.CODE_400, "Last name cannot be missing or be empty");
+            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+        }
+        if (!Util.validateName(parentRegisterRequestDTO.getLastName(), 2, 30)) {
+            responseObject = new ResponseObject(Constants.CODE_400, "Last name should between 2 to 30 characters and special characters");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
         if (parentRegisterRequestDTO.getEmail() == null || parentRegisterRequestDTO.getEmail().isEmpty()) {
             responseObject = new ResponseObject(Constants.CODE_400, "Email cannot be missing or be empty");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         } else {
-            Util util = new Util();
-            if (!util.validateEmail(parentRegisterRequestDTO.getEmail())) {
+            if (!Util.validateEmail(parentRegisterRequestDTO.getEmail())) {
                 responseObject = new ResponseObject(Constants.CODE_400, "Email is not valid");
                 return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
             }
@@ -94,18 +97,14 @@ public class ParentController {
             responseObject = new ResponseObject(Constants.CODE_400, "Password cannot be missing or be empty");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
-        if (!Util.validatePasswordForAllAccount(parentRegisterRequestDTO.getPassword())) {
-            responseObject = new ResponseObject(Constants.CODE_400, "Password should between 6-8 characters and no special characters");
+        if (!Util.validateLengthOfString(parentRegisterRequestDTO.getPassword(), 6, 30)) {
+            responseObject = new ResponseObject(Constants.CODE_400, "Password should between 6 characters to 30 characters");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
         if (parentRegisterRequestDTO.getConfirmPassword() == null || parentRegisterRequestDTO.getConfirmPassword().isEmpty()) {
             responseObject = new ResponseObject(Constants.CODE_400, "Confirm password cannot be missing or be empty");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         } else {
-            if (!Util.validatePasswordForAllAccount(parentRegisterRequestDTO.getConfirmPassword())) {
-                responseObject = new ResponseObject(Constants.CODE_400, "Password should between 6-8 characters and no special characters");
-                return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
-            }
             if (!parentRegisterRequestDTO.getPassword().equals(parentRegisterRequestDTO.getConfirmPassword())) {
                 responseObject = new ResponseObject(Constants.CODE_400, "Password and confirm password is not match");
                 return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
@@ -178,12 +177,24 @@ public class ParentController {
         }
 
         if (parentUpdateProfileRequestDTO.getFirstName() != null && !parentUpdateProfileRequestDTO.getFirstName().isEmpty()) {
+            if (!Util.validateName(parentUpdateProfileRequestDTO.getFirstName(), 2, 30)) {
+                responseObject = new ResponseObject(Constants.CODE_400, "First name should between 2 to 30 characters and special characters");
+                return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+            }
             parent.setFirstName(parentUpdateProfileRequestDTO.getFirstName());
         }
         if (parentUpdateProfileRequestDTO.getLastName() != null && !parentUpdateProfileRequestDTO.getLastName().isEmpty()) {
+            if (!Util.validateName(parentUpdateProfileRequestDTO.getLastName(), 2, 30)) {
+                responseObject = new ResponseObject(Constants.CODE_400, "Last name should between 2 to 30 characters and special characters");
+                return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+            }
             parent.setLastName(parentUpdateProfileRequestDTO.getLastName());
         }
         if (parentUpdateProfileRequestDTO.getEmail() != null && !parentUpdateProfileRequestDTO.getEmail().isEmpty()) {
+            if (!Util.validateEmail(parentUpdateProfileRequestDTO.getEmail())) {
+                responseObject = new ResponseObject(Constants.CODE_400, "Email is not valid");
+                return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+            }
             parent.setEmail(parentUpdateProfileRequestDTO.getEmail());
         }
         if (parentUpdateProfileRequestDTO.getGender() != null && !parentUpdateProfileRequestDTO.getGender().isEmpty()) {
@@ -228,8 +239,16 @@ public class ParentController {
             responseObject = new ResponseObject(Constants.CODE_400, "Child's first name cannot be missing or empty");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
+        if (!Util.validateName(addChildRequestDTO.getFirstName(), 2, 30)) {
+            responseObject = new ResponseObject(Constants.CODE_400, "Child's first name should between 2 characters to 30 characters and special characters");
+            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+        }
         if (addChildRequestDTO.getLastName() == null || addChildRequestDTO.getLastName().isEmpty()) {
             responseObject = new ResponseObject(Constants.CODE_400, "Child's first name cannot be missing or empty");
+            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+        }
+        if (!Util.validateName(addChildRequestDTO.getLastName(), 2, 30)) {
+            responseObject = new ResponseObject(Constants.CODE_400, "Child's last name should between 2 characters to 30 characters and special characters");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
         if (addChildRequestDTO.getYob() == null || addChildRequestDTO.getYob().toString().isEmpty()) {
@@ -403,21 +422,6 @@ public class ParentController {
         }
     }
 
-//    @RequestMapping(value = "/{childId}/regenerate-qrcode", method = RequestMethod.GET)
-//    @ResponseBody
-//    public ResponseEntity<Object> regenerateQRCodeForChildVerify(@PathVariable("childId") Long childId) {
-//        ResponseObject responseObject;
-//
-//        AddChildResponseDTO result = childService.regenerateQRCodeForChildVerify(childId);
-//        if (result != null) {
-//            responseObject = new ResponseObject(Constants.CODE_200, "OK");
-//            responseObject.setData(result);
-//            return new ResponseEntity<>(responseObject, HttpStatus.OK);
-//        }
-//        responseObject = new ResponseObject(Constants.CODE_500, "Cannot regenerate qr code for child to verify");
-//        return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
-//    }
-
     @RequestMapping(value = "/token", method = RequestMethod.PUT)
     @ResponseBody
     public ResponseObject updateAccountPushToken (@RequestBody UpdatePushTokenRequestDTO data) {
@@ -483,12 +487,12 @@ public class ParentController {
         ResponseObject responseObject;
         Long currentTimeStamp = new Date().getTime();
         // url when parent cancel payment (paypal api redirect back)
-        String cancelUrl = PaypalUtil.getBaseURL(request)
+        String cancelUrl = Util.getBaseURL(request)
                 + "/parent/" + phoneNumber
                 + "/payment/cancel?createdDate=" + currentTimeStamp;
 
         // url when parent success payment (paypal api redirect back)
-        String successUrl = PaypalUtil.getBaseURL(request)
+        String successUrl = Util.getBaseURL(request)
                 + "/parent/" + phoneNumber
                 + "/payment/success?createdDate=" + currentTimeStamp
                 + "&subscriptionTypeId=" + parentPaymentCreateRequestDTO.getSubscriptionTypeId();
@@ -507,7 +511,7 @@ public class ParentController {
             Double usdCurrency = subscriptionType.getPrice() / Double.parseDouble(currency);
 
             // parse 2 digits after digital. Because paypal api only required number has 6 digit and 2 digit after decimal
-            Payment payment = paypalServices.createPayment(Double.parseDouble(String.format("%.2f", usdCurrency)),
+            Payment payment = parentPaymentService.createPayment(Double.parseDouble(String.format("%.2f", usdCurrency)),
                     "USD",
                     "paypal",
                     "sale",
@@ -520,7 +524,7 @@ public class ParentController {
                     ParentPayment parentPayment = new ParentPayment();
                     parentPayment.setContent(parentPaymentCreateRequestDTO.getDescription());
                     parentPayment.setAmount(subscriptionType.getPrice());
-                    parentPayment.setStatus("PENDING");
+                    parentPayment.setStatus(Constants.status.PENDING.toString());
 
                     Parent parent = parentService.findParentByPhoneNumber(phoneNumber);
                     if (parent == null) {
@@ -583,7 +587,7 @@ public class ParentController {
                              @RequestParam(value = "PayerID") String payerId){
         ResponseObject responseObject;
         try {
-            Payment payment = paypalServices.executePayment(paymentId, payerId);
+            Payment payment = parentPaymentService.executePayment(paymentId, payerId);
             if(payment.getState().equals("approved")){
                 SubscriptionType subscriptionType = subscriptionService.findSubscriptionTypeById(subscriptionTypeId);
 
@@ -649,9 +653,9 @@ public class ParentController {
         ResponseObject responseObject;
         List<ListPaymentTransactionResponseDTO> result;
         if (status != null) {
-            if (!status.equalsIgnoreCase("pending") &&
-                    !status.equalsIgnoreCase("success") &&
-                    !status.equalsIgnoreCase("failed")) {
+            if (!status.equalsIgnoreCase(Constants.status.PENDING.toString()) &&
+                    !status.equalsIgnoreCase(Constants.status.SUCCESS.toString()) &&
+                    !status.equalsIgnoreCase(Constants.status.FAILED.toString())) {
                 responseObject = new ResponseObject(Constants.CODE_400, "Status should be success or failed or pending");
                 return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
             }

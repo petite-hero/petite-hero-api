@@ -73,10 +73,6 @@ public class ChildService {
         return childRepository.findChildByChildIdEqualsAndIsDisabled(childId, isDisable);
     }
 
-    public Child saveChildToSystem(Child child) {
-        return childRepository.save(child);
-    }
-
     public VerifyParentResponseDTO verifyParentByScanQRCode(Child child, String parentPhoneNumber) {
         VerifyParentResponseDTO result = new VerifyParentResponseDTO();
 
@@ -131,18 +127,6 @@ public class ChildService {
         }
         return null;
     }
-
-//    public AddChildResponseDTO regenerateQRCodeForChildVerify(Long childId) {
-//        Child childResult = childRepository.findChildByChildIdEqualsAndIsDisabled(childId, Boolean.FALSE);
-//        if (childResult != null) {
-//            AddChildResponseDTO result = new AddChildResponseDTO();
-//
-//            result.setChildId(childResult.getChildId());
-////            result.setToken(childResult.getCreatedDate().longValue());
-//            return result;
-//        }
-//        return null;
-//    }
 
     public DeleteChildResponseDTO disableChildById(Child child) {
         child.setIsDisabled(Boolean.TRUE);

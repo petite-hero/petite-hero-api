@@ -65,7 +65,7 @@ public class SubscriptionService {
     }
 
     public SubscriptionTypeDetailResponseDTO getSubscriptionTypeDetail(Long subscriptionTypeId) {
-        SubscriptionType subscriptionTypeResult = subscriptionTypeRepository.findById(subscriptionTypeId).get();
+        SubscriptionType subscriptionTypeResult = subscriptionTypeRepository.findSubscriptionTypeBySubscriptionTypeId(subscriptionTypeId);
         if (subscriptionTypeResult != null) {
             SubscriptionTypeDetailResponseDTO result = new SubscriptionTypeDetailResponseDTO();
 
@@ -82,17 +82,17 @@ public class SubscriptionService {
         return null;
     }
 
-    public ModifySubscriptionTypeResponseDTO modifySubscriptionType(Long subscriptionTypeId, SubscriptionType subscriptionType) {
-        SubscriptionType subscriptionTypeResult = subscriptionTypeRepository.findById(subscriptionTypeId).get();
+    public ModifySubscriptionTypeResponseDTO modifySubscriptionType(SubscriptionType subscriptionType) {
+        SubscriptionType subscriptionTypeResult = subscriptionTypeRepository.save(subscriptionType);
         if (subscriptionTypeResult != null) {
             ModifySubscriptionTypeResponseDTO result = new ModifySubscriptionTypeResponseDTO();
 
-            result.setSubscriptionTypeId(subscriptionTypeResult.getSubscriptionTypeId());
-            result.setName(subscriptionTypeResult.getName());
-            result.setDescription(subscriptionTypeResult.getDescription());
-            result.setMaxChildren(subscriptionTypeResult.getMaxChildren());
-            result.setMaxCollaborator(subscriptionTypeResult.getMaxCollaborator());
-            result.setPrice(subscriptionTypeResult.getPrice());
+            result.setSubscriptionTypeId(subscriptionType.getSubscriptionTypeId());
+            result.setName(subscriptionType.getName());
+            result.setDescription(subscriptionType.getDescription());
+            result.setMaxChildren(subscriptionType.getMaxChildren());
+            result.setMaxCollaborator(subscriptionType.getMaxCollaborator());
+            result.setPrice(subscriptionType.getPrice());
             result.setStatus(Constants.status.UPDATED.toString());
 
             return result;
@@ -102,7 +102,7 @@ public class SubscriptionService {
     }
 
     public SubscriptionType findSubscriptionTypeById(Long subscriptionTypeId) {
-        return subscriptionTypeRepository.findById(subscriptionTypeId).get();
+        return subscriptionTypeRepository.findSubscriptionTypeBySubscriptionTypeId(subscriptionTypeId);
     }
 
     public Subscription createFreeTrialSubscriptionForParentAccount(Subscription subscription) {

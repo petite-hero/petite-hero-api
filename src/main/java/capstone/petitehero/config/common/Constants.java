@@ -36,7 +36,10 @@ public class Constants {
         DONE, FAILED, HANDED,
         ASSIGNED, DELETED, CREATED,
         UPDATED, ADDED, CONFIRMED,
-        SUCCESS, CANCELLED
+        SUCCESS, CANCELLED, PENDING
+    }
+    public enum taskType {
+        HOUSEWORK, SKILLS, EDUCATION
     }
 
     // error messages

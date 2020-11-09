@@ -246,27 +246,27 @@ public class SafeZoneService {
         return result;
     }
 
-    @Scheduled(fixedRate = 30000)
-    public void cronJobSafeZone () {
-        try {
-            Long currentDateMilli = Util.getCurrentDateMilliValue();
-            String currentWeekdayRegex = Util.getCurrentWeekdayRegex();
-            PushNotiSWDTO noti = new PushNotiSWDTO(Constants.SILENT_NOTI, Constants.NEW_SAFEZONES, null);
-
-            List<Long> childList = safeZoneRepository.getChildListBySafeZones(Util.getCurrentDateMilliValue());
-            for (Long child : childList) {
-                Child currentChild = childRepository.getOne(child);
-
-                List<Safezone> safezoneList = safeZoneRepository.getListSafeZone(child, currentDateMilli, currentWeekdayRegex);
-                if (safezoneList.size() != 0 && currentChild.getPushToken() != null) {
-                    noti.setData(safezoneList);
-                    notiService.pushSilentNotificationSW(noti, currentChild.getPushToken());
-                }
-            }
-        } catch (Exception e) {
-            System.out.println("===> Error at CRON job SafeZone: " + e.toString());
-            e.printStackTrace();
-        }
-    }
+//    @Scheduled(fixedRate = 30000)
+//    public void cronJobSafeZone () {
+//        try {
+//            Long currentDateMilli = Util.getCurrentDateMilliValue();
+//            String currentWeekdayRegex = Util.getCurrentWeekdayRegex();
+//            PushNotiSWDTO noti = new PushNotiSWDTO(Constants.SILENT_NOTI, Constants.NEW_SAFEZONES, null);
+//
+//            List<Long> childList = safeZoneRepository.getChildListBySafeZones(Util.getCurrentDateMilliValue());
+//            for (Long child : childList) {
+//                Child currentChild = childRepository.getOne(child);
+//
+//                List<Safezone> safezoneList = safeZoneRepository.getListSafeZone(child, currentDateMilli, currentWeekdayRegex);
+//                if (safezoneList.size() != 0 && currentChild.getPushToken() != null) {
+//                    noti.setData(safezoneList);
+//                    notiService.pushSilentNotificationSW(noti, currentChild.getPushToken());
+//                }
+//            }
+//        } catch (Exception e) {
+//            System.out.println("===> Error at CRON job SafeZone: " + e.toString());
+//            e.printStackTrace();
+//        }
+//    }
 
 }

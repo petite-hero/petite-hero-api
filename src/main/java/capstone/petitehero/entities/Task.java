@@ -50,23 +50,11 @@ public class Task implements Serializable {
     @Temporal(value = TemporalType.TIME)
     private Date toTime;
 
-    @Column(length = 8)
-    private String repeatOn;
-
-    @Column
-    private Long isDuplicateTask;
-
     @Column
     private Boolean isDeleted;
 
     @Column(length = 30)
     private String type;
-
-    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL)
-    @EqualsAndHashCode.Exclude // không sử dụng trường này trong equals và hashcode
-    @ToString.Exclude // Không sử dụng trong toString()
-    @JsonBackReference
-    private Collection<IsExceptionDate> task_ExceptionDateCollection;
 
     @ManyToOne
     @JoinColumn(name = "assignee_id")

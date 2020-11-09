@@ -9,6 +9,7 @@ import capstone.petitehero.dtos.response.subscription.type.ModifySubscriptionTyp
 import capstone.petitehero.dtos.response.subscription.type.SubscriptionTypeDetailResponseDTO;
 import capstone.petitehero.entities.SubscriptionType;
 import capstone.petitehero.services.SubscriptionService;
+import capstone.petitehero.utilities.Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,8 +40,8 @@ public class SubscriptionController {
             responseObject = new ResponseObject(Constants.CODE_400, "Subscription type max children value cannot be missing or be empty");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         } else {
-            if (createSubscriptionTypeRequestDTO.getMaxChildren().longValue() < 0) {
-                responseObject = new ResponseObject(Constants.CODE_400, "Subscription type max children value cannot be a negative number");
+            if (!Util.validateLongNumber(createSubscriptionTypeRequestDTO.getMaxChildren().toString())) {
+                responseObject = new ResponseObject(Constants.CODE_400, "Subscription type max children value cannot be a negative number or a characters");
                 return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
             }
         }
@@ -48,8 +49,8 @@ public class SubscriptionController {
             responseObject = new ResponseObject(Constants.CODE_400, "Subscription type max collaborator value cannot be missing or be empty");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         } else {
-            if (createSubscriptionTypeRequestDTO.getMaxCollaborator().longValue() < 0) {
-                responseObject = new ResponseObject(Constants.CODE_400, "Subscription type max collaborator value cannot be a negative number");
+            if (!Util.validateLongNumber(createSubscriptionTypeRequestDTO.getMaxCollaborator().toString())) {
+                responseObject = new ResponseObject(Constants.CODE_400, "Subscription type max collaborator value cannot be a negative number or a characters");
                 return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
             }
         }
@@ -57,8 +58,8 @@ public class SubscriptionController {
             responseObject = new ResponseObject(Constants.CODE_400, "Subscription type price cannot be missing or be empty");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         } else  {
-            if (createSubscriptionTypeRequestDTO.getPrice().doubleValue() < 0) {
-                responseObject = new ResponseObject(Constants.CODE_400, "Subscription type price cannot be a negative number");
+            if (!Util.validateFloatNumber(createSubscriptionTypeRequestDTO.getPrice().toString())) {
+                responseObject = new ResponseObject(Constants.CODE_400, "Subscription type price cannot be a negative number or a characters");
                 return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
             }
         }
@@ -100,16 +101,28 @@ public class SubscriptionController {
             subscriptionType.setDescription(modifySubscriptionTypeRequestDTO.getDescription());
         }
         if (modifySubscriptionTypeRequestDTO.getMaxCollaborator() != null && !modifySubscriptionTypeRequestDTO.getMaxCollaborator().toString().isEmpty()) {
+            if (!Util.validateLongNumber(modifySubscriptionTypeRequestDTO.getMaxCollaborator().toString())) {
+                responseObject = new ResponseObject(Constants.CODE_400, "Subscription type max collaborator cannot be a negative number or a characters");
+                return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+            }
             subscriptionType.setMaxCollaborator(modifySubscriptionTypeRequestDTO.getMaxCollaborator());
         }
         if (modifySubscriptionTypeRequestDTO.getMaxChildren() != null && !modifySubscriptionTypeRequestDTO.getMaxChildren().toString().isEmpty()) {
+            if (!Util.validateLongNumber(modifySubscriptionTypeRequestDTO.getMaxChildren().toString())) {
+                responseObject = new ResponseObject(Constants.CODE_400, "Subscription type max children cannot be a negative number or a characters");
+                return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+            }
             subscriptionType.setMaxChildren(modifySubscriptionTypeRequestDTO.getMaxChildren());
         }
         if (modifySubscriptionTypeRequestDTO.getPrice() != null && !modifySubscriptionTypeRequestDTO.getPrice().toString().isEmpty()) {
+            if (!Util.validateFloatNumber(modifySubscriptionTypeRequestDTO.getPrice().toString())) {
+                responseObject = new ResponseObject(Constants.CODE_400, "Subscription type price cannot be a negative number or a characters");
+                return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+            }
             subscriptionType.setPrice(modifySubscriptionTypeRequestDTO.getPrice());
         }
 
-        ModifySubscriptionTypeResponseDTO result = subscriptionService.modifySubscriptionType(subscriptionTypeId, subscriptionType);
+        ModifySubscriptionTypeResponseDTO result = subscriptionService.modifySubscriptionType(subscriptionType);
         if (result != null) {
             responseObject = new ResponseObject(Constants.CODE_200, "OK");
             responseObject.setData(result);

@@ -41,6 +41,7 @@ public class NotificationService {
 
             // handle response here...
             result = response.getStatusLine().getStatusCode();
+            System.out.println(result);
 
         } catch (Exception ex) {
             result = Constants.CODE_500;

@@ -43,7 +43,7 @@ public class AccountService {
 
             if (accountResult != null) {
                 AccountLoginResponseDTO result = new AccountLoginResponseDTO();
-                result.setRole("Admin");
+                result.setRole(Constants.ADMIN);
                 return result;
             }
             return null;
@@ -77,7 +77,7 @@ public class AccountService {
                 String token = jwtUtil.generateToken(userDetails);
 
                 LoginResponseDTO result = new LoginResponseDTO();
-                if (account.getRole().equals("Parent")) {
+                if (account.getRole().equals(Constants.PARENT)) {
                     result.setJwt(token);
                     result.setPhoneNumber(account.getUsername());
                 } else {
