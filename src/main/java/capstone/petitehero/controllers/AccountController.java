@@ -19,7 +19,6 @@ import capstone.petitehero.utilities.Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Calendar;
@@ -59,14 +58,14 @@ public class AccountController {
             responseObject = new ResponseObject(Constants.CODE_400, "Password cannot be empty");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
-        if (!Util.validateLengthOfString(accountLoginDTO.getUsername(), 6, 30)) {
-            responseObject = new ResponseObject(Constants.CODE_400, "Username should between 6 characters to 30 characters");
-            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
-        }
-        if (!Util.validateLengthOfString(accountLoginDTO.getPassword(), 6, 30)) {
-            responseObject = new ResponseObject(Constants.CODE_400, "Password should between 6 characters to 30 characters");
-            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
-        }
+//        if (!Util.validateLengthOfString(accountLoginDTO.getUsername(), 6, 30)) {
+//            responseObject = new ResponseObject(Constants.CODE_400, "Username should between 6 characters to 30 characters");
+//            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+//        }
+//        if (!Util.validateLengthOfString(accountLoginDTO.getPassword(), 6, 30)) {
+//            responseObject = new ResponseObject(Constants.CODE_400, "Password should between 6 characters to 30 characters");
+//            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+//        }
         Account account = new Account();
         account.setUsername(accountLoginDTO.getUsername());
         account.setPassword(accountLoginDTO.getPassword());
@@ -181,10 +180,10 @@ public class AccountController {
             responseObject = new ResponseObject(Constants.CODE_400, "Password cannot be empty");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
-        if (!Util.validateLengthOfString(accountLoginDTO.getPassword(), 6, 30)) {
-            responseObject = new ResponseObject(Constants.CODE_400, "Password should between 6 characters to 30 characters");
-            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
-        }
+//        if (!Util.validateLengthOfString(accountLoginDTO.getPassword(), 6, 30)) {
+//            responseObject = new ResponseObject(Constants.CODE_400, "Password should between 6 characters to 30 characters");
+//            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+//        }
         // end validate mandatory fields
 
         LoginResponseDTO result = accountService.loginAccount(accountLoginDTO);
@@ -206,10 +205,10 @@ public class AccountController {
             responseObject = new ResponseObject(Constants.CODE_400, "New password cannot be null");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
-        if (Util.validateLengthOfString(accountChangePasswordRequestDTO.getPassword(), 6, 30)) {
-            responseObject = new ResponseObject(Constants.CODE_400, "Password should between 6 characters to 30 characters");
-            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
-        }
+//        if (Util.validateLengthOfString(accountChangePasswordRequestDTO.getPassword(), 6, 30)) {
+//            responseObject = new ResponseObject(Constants.CODE_400, "Password should between 6 characters to 30 characters");
+//            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+//        }
         if (accountChangePasswordRequestDTO.getConfirmPassword() == null || accountChangePasswordRequestDTO.getConfirmPassword().isEmpty()) {
             responseObject = new ResponseObject(Constants.CODE_400, "Confirm password cannot be null");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);

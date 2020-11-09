@@ -76,18 +76,18 @@ public class Util {
         }
     }
 
-    public static boolean validateLengthOfString(String str, int min, int max) {
-        return str.length() >= min && str.length() <= max;
-    }
+//    public static boolean validateLengthOfString(String str, int min, int max) {
+//        return str.length() >= min && str.length() <= max;
+//    }
 
-    public static boolean validateName(String str, int min, int max) {
-        // p{L} regex for unicode characters
-        return str.matches("[\\p{L}\\s]{" + min + "," + max + "}");
-    }
-
-    public static boolean validateTimestamp(String timestamp) {
-        return timestamp.matches("\\-?(\\d+)");
-    }
+//    public static boolean validateName(String str, int min, int max) {
+//        // p{L} regex for unicode characters
+//        return str.matches("[\\p{L}\\s0-9]{" + min + "," + max + "}");
+//    }
+//
+//    public static boolean validateTimestamp(String timestamp) {
+//        return timestamp.matches("\\-?(\\d+)");
+//    }
 
     public static boolean validateTaskType(String taskType) {
         return taskType.equalsIgnoreCase(Constants.taskType.SKILLS.toString())
@@ -219,16 +219,6 @@ public class Util {
         calendar.set(Calendar.SECOND, 59);
         calendar.set(Calendar.MILLISECOND, 999);
 
-        return calendar.getTimeInMillis();
-    }
-
-
-    public static Long getCurrentDateMilliValue() {
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY, 00);
-        calendar.set(Calendar.MINUTE, 00);
-        calendar.set(Calendar.SECOND, 00);
-        calendar.set(Calendar.MILLISECOND, 000);
         return calendar.getTimeInMillis();
     }
 

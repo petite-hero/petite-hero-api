@@ -2,37 +2,41 @@ package capstone.petitehero.utilities;
 
 import org.w3c.dom.Document;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathFactory;
 import java.io.ByteArrayInputStream;
 import java.io.Serializable;
+import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 
 public class XMLUtil implements Serializable {
 
-    public static Document parseXMLFileToXMLDOM(String source) {
-        Document doc = null;
+    public static <T> T unmarshal(String source, Class<T> clazz) {
         try {
-            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-            DocumentBuilder db = dbf.newDocumentBuilder();
-            doc = db.parse(new ByteArrayInputStream(source.getBytes(StandardCharsets.UTF_8)));
-            doc.getOwnerDocument().normalize();
-        } catch (Exception e) {
-            e.printStackTrace();
+            JAXBContext jaxbContext = JAXBContext.newInstance(clazz);
+            Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+            return (T) unmarshaller.unmarshal(new ByteArrayInputStream(source.getBytes(StandardCharsets.UTF_8)));
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return null;
         }
-        return doc;
     }
 
-    public static XPath createXPath() {
-        XPath xPath = null;
+    public static <T> String marshal(T object) {
         try {
-            XPathFactory xpf = XPathFactory.newInstance();
-            xPath = xpf.newXPath();
-        } catch (Exception e) {
-            e.printStackTrace();
+            JAXBContext jaxbContext = JAXBContext.newInstance(object.getClass());
+            Marshaller marshaller = jaxbContext.createMarshaller();
+            StringWriter stringWriter = new StringWriter();
+            marshaller.marshal(object, stringWriter);
+            return stringWriter.toString();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return null;
         }
-        return xPath;
     }
 }
