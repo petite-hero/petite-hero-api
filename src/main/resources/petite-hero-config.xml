@@ -1,7 +1,0 @@
-<config>
-    <outter_radius>100</outter_radius>
-    <report_delay>40000</report_delay>
-    <safezone_cron_time>00:05:00</safezone_cron_time>
-    <license_EN>Sample string sample string sample string</license_EN>
-    <license_VN>Dữ liệu mẫu dữ liệu mẫu dữ liệu mẫu</license_VN>
-</config>

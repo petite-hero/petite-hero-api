@@ -25,7 +25,6 @@ public class Constants {
     public static final String SMART_WATCH = "SW";
     public static final String MOBILE = "MOBILE";
 
-
     // status values
     public static final boolean SAFE = true;
     public static final boolean NOT_SAFE = false;
@@ -92,8 +91,7 @@ public class Constants {
 //    public static final int CHILD_STATUS_CHANGED = 1;
 //    public static final int CHILD_NOT_SAFE = 2;
 //    public static final int CHILD_SAFE = 3;
-
-
+    public static final String CONFIG_FILE = "petite-hero-config.xml";
 
 
 }

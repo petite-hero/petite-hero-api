@@ -66,12 +66,12 @@ public class TaskController {
         ResponseObject responseObject;
         List<ListTaskResponseDTO> result;
         if (dateTimestamp != null && !dateTimestamp.toString().isEmpty()) {
-            if (!Util.validateTimestamp(dateTimestamp.toString())) {
-                responseObject = new ResponseObject(Constants.CODE_400, "Not a right timestamp format");
-                return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
-            } else {
+//            if (!Util.validateTimestamp(dateTimestamp.toString())) {
+//                responseObject = new ResponseObject(Constants.CODE_400, "Not a right timestamp format");
+//                return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+//            } else {
                 result = taskService.getChildOfTaskAtAssignedDate(childId, dateTimestamp, provider);
-            }
+//            }
         } else {
             result = taskService.getChildOfTaskAtAssignedDate(childId, null, provider);
         }
@@ -145,10 +145,10 @@ public class TaskController {
     public ResponseEntity<Object> getTaskHandedByChildForParent(@PathVariable("childId") Long childId,
                                                                 @RequestParam("date") Long dateTimeStamp) {
         ResponseObject responseObject;
-        if (!Util.validateTimestamp(dateTimeStamp.toString())) {
-            responseObject = new ResponseObject(Constants.CODE_400, "Not a right time stamp (should only contains number)");
-            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
-        }
+//        if (!Util.validateTimestamp(dateTimeStamp.toString())) {
+//            responseObject = new ResponseObject(Constants.CODE_400, "Not a right time stamp (should only contains number)");
+//            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+//        }
 
         List<ListTaskHandedResponseDTO> result = taskService.getTaskHandedByChildForParent(childId, dateTimeStamp);
 
@@ -188,10 +188,10 @@ public class TaskController {
     public ResponseEntity<Object> summaryHourChildrenTaskForParent(@PathVariable("childId") Long childId,
                                                                    @RequestParam("date") Long dateTimeStamp) {
         ResponseObject responseObject;
-        if (!Util.validateTimestamp(dateTimeStamp.toString())) {
-            responseObject = new ResponseObject(Constants.CODE_400, "Not a right time stamp (should only contains number)");
-            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
-        }
+//        if (!Util.validateTimestamp(dateTimeStamp.toString())) {
+//            responseObject = new ResponseObject(Constants.CODE_400, "Not a right time stamp (should only contains number)");
+//            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+//        }
 
         Boolean result = taskService.summaryHourOfChildrenTaskList(childId, dateTimeStamp);
         if (result != null) {

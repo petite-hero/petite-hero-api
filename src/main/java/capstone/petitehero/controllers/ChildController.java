@@ -130,17 +130,17 @@ public class ChildController {
             return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
         }
         if (updateChildProfileRequestDTO.getFirstName() != null && !updateChildProfileRequestDTO.getFirstName().isEmpty()) {
-            if (!Util.validateName(updateChildProfileRequestDTO.getFirstName(), 2, 30)) {
-                responseObject = new ResponseObject(Constants.CODE_400, "First name should between 2 characters to 30 characters and no special characters");
-                return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
-            }
+//            if (!Util.validateName(updateChildProfileRequestDTO.getFirstName(), 2, 30)) {
+//                responseObject = new ResponseObject(Constants.CODE_400, "First name should between 2 characters to 30 characters and no special characters");
+//                return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+//            }
             child.setFirstName(updateChildProfileRequestDTO.getFirstName());
         }
         if (updateChildProfileRequestDTO.getLastName() != null && !updateChildProfileRequestDTO.getLastName().isEmpty()) {
-            if (!Util.validateName(updateChildProfileRequestDTO.getLastName(), 2, 30)) {
-                responseObject = new ResponseObject(Constants.CODE_400, "Last name should between 2 characters to 30 characters and no special characters");
-                return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
-            }
+//            if (!Util.validateName(updateChildProfileRequestDTO.getLastName(), 2, 30)) {
+//                responseObject = new ResponseObject(Constants.CODE_400, "Last name should between 2 characters to 30 characters and no special characters");
+//                return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+//            }
             child.setLastName(updateChildProfileRequestDTO.getLastName());
         }
         if (updateChildProfileRequestDTO.getAge() != null && !updateChildProfileRequestDTO.getAge().toString().isEmpty()) {
@@ -187,26 +187,26 @@ public class ChildController {
             responseObject = new ResponseObject(Constants.CODE_400, "Task's name cannot be missing or empty");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
-        if (!Util.validateName(taskCreateRequestDTO.getName(), 6, 30)) {
-            responseObject = new ResponseObject(Constants.CODE_400, "Task's name should between 6 characters to 30 characters and special characters");
-            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
-        }
+//        if (!Util.validateName(taskCreateRequestDTO.getName(), 6, 30)) {
+//            responseObject = new ResponseObject(Constants.CODE_400, "Task's name should between 6 characters to 30 characters and special characters");
+//            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+//        }
         if (taskCreateRequestDTO.getFromTime() == null || taskCreateRequestDTO.getFromTime().toString().isEmpty()) {
             responseObject = new ResponseObject(Constants.CODE_400, "Task's start deadline time cannot be missing or empty");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
-        if (!Util.validateTimestamp(taskCreateRequestDTO.getFromTime().toString())) {
-            responseObject = new ResponseObject(Constants.CODE_400, "Task's start deadline time should be contains only number");
-            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
-        }
+//        if (!Util.validateTimestamp(taskCreateRequestDTO.getFromTime().toString())) {
+//            responseObject = new ResponseObject(Constants.CODE_400, "Task's start deadline time should be contains only number");
+//            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+//        }
         if (taskCreateRequestDTO.getToTime() == null || taskCreateRequestDTO.getToTime().toString().isEmpty()) {
             responseObject = new ResponseObject(Constants.CODE_400, "Task's end deadline time cannot be missing or empty");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
-        if (!Util.validateTimestamp(taskCreateRequestDTO.getToTime().toString())) {
-            responseObject = new ResponseObject(Constants.CODE_400, "Task's end deadline time should be contains only number");
-            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
-        }
+//        if (!Util.validateTimestamp(taskCreateRequestDTO.getToTime().toString())) {
+//            responseObject = new ResponseObject(Constants.CODE_400, "Task's end deadline time should be contains only number");
+//            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+//        }
         if (!Util.validateFromTimeToTimeOfTask(taskCreateRequestDTO.getFromTime(), taskCreateRequestDTO.getToTime())) {
             responseObject = new ResponseObject(Constants.CODE_400, "Task's end deadline time cannot before task's start deadline");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
@@ -280,10 +280,10 @@ public class ChildController {
             responseObject = new ResponseObject(Constants.CODE_400, "Quest's name cannot be missing or empty");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
-        if (!Util.validateName(questCreateRequestDTO.getName(), 6, 30)) {
-            responseObject = new ResponseObject(Constants.CODE_400, "Quest's name should between 6 and 30 characters and no special characters");
-            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
-        }
+//        if (!Util.validateName(questCreateRequestDTO.getName(), 6, 30)) {
+//            responseObject = new ResponseObject(Constants.CODE_400, "Quest's name should between 6 and 30 characters and no special characters");
+//            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+//        }
 
         if (questCreateRequestDTO.getReward() == null || questCreateRequestDTO.getReward().toString().isEmpty()) {
             responseObject = new ResponseObject(Constants.CODE_400, "Quest's reward cannot be missing or empty");
