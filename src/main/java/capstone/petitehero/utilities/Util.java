@@ -4,15 +4,10 @@ import capstone.petitehero.config.common.Constants;
 import capstone.petitehero.dtos.ResponseObject;
 import capstone.petitehero.dtos.common.CRONJobChildDTO;
 import capstone.petitehero.dtos.response.location.GetListSafeZoneByDateResponseDTO;
-import capstone.petitehero.entities.IsExceptionDate;
 import capstone.petitehero.entities.Parent;
 import capstone.petitehero.entities.Parent_Child;
 import capstone.petitehero.entities.Safezone;
-import com.fasterxml.jackson.databind.util.JSONPObject;
-import com.google.gson.Gson;
 import capstone.petitehero.dtos.common.SummaryTaskDetail;
-import capstone.petitehero.entities.Parent;
-import capstone.petitehero.entities.Parent_Child;
 import capstone.petitehero.entities.Task;
 import org.apache.commons.io.FileUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -344,6 +339,17 @@ public class Util {
             e.printStackTrace();
         }
         return result;
+    }
+
+    public static Long getCurrentDateMilliValue() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, 00);
+        calendar.set(Calendar.MINUTE, 00);
+        calendar.set(Calendar.SECOND, 00);
+        calendar.set(Calendar.MILLISECOND, 000);
+        return calendar.getTimeInMillis();
+    }
+
     public static SummaryTaskDetail summaryTaskType(List<Task> taskList) {
         SummaryTaskDetail taskDetail = new SummaryTaskDetail();
 
