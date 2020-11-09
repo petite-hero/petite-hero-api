@@ -1,7 +1,7 @@
 package capstone.petitehero.services;
 
 import capstone.petitehero.config.common.Constants;
-import capstone.petitehero.dtos.request.location.PushSilentNotiSWDTO;
+import capstone.petitehero.dtos.request.location.PushNotiSWDTO;
 import capstone.petitehero.utilities.Util;
 import com.google.gson.Gson;
 import org.apache.http.HttpHeaders;
@@ -119,7 +119,7 @@ public class NotificationService {
         Integer pushStatus = 100;
         try {
             if (Util.fromRepeatOnStringToDayInWeek(repeatOn).contains(Util.getCurrentWeekday())) {
-                PushSilentNotiSWDTO data = new PushSilentNotiSWDTO("Updated Safe Zone", null, null);
+                PushNotiSWDTO data = new PushNotiSWDTO("Updated Safe Zone", null, null);
                 pushStatus = pushSilentNotificationSW(data, pushToken);
             } else {
                 pushStatus = Constants.CODE_200;
@@ -220,8 +220,8 @@ public class NotificationService {
 //
 //    }
 //    public static void main(String[] args) {
-//        PushSilentNotiSWDTO obj = new PushSilentNotiSWDTO("emergency", "This is body", null);
-//        PushSilentNotiSWDTO obj = new PushSilentNotiSWDTO("stop_emergency", "This is body", null);
+//        PushNotiSWDTO obj = new PushNotiSWDTO("emergency", "This is body", null);
+//        PushNotiSWDTO obj = new PushNotiSWDTO("stop_emergency", "This is body", null);
 //        pushSilentNotificationSW(obj,"fHyv-M43R2mFkEeAFB4Y0V:APA91bErIx0LNb5EHDIasKlu2Or_3ZZ6z9buxB85MGTTmCRiGFgZR-c0JKk5F58T81B9xYxWDB6VhsF_mzrxcHq8J_ru9kJzWf0ARgZnBAD0r3aP483aZtPecblYODl_6JDnDBRLpEWf");
 //}
 }

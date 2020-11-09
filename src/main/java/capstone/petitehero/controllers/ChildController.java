@@ -49,7 +49,7 @@ public class ChildController {
     private ParentRepository parentRepository;
 
     @Autowired
-    private LocationService locationService;
+    private NotificationService notiService;
 
     @RequestMapping(value = "/verify/parent", method = RequestMethod.PUT)
     @ResponseBody
@@ -80,7 +80,7 @@ public class ChildController {
 
                     ArrayList<String> pushTokens = new ArrayList<>();
                     pushTokens.add(parent.getPushToken());
-                    locationService.pushNotificationMobile(Constants.DONE_SETTING_UP_DEVICE, verifyParentRequestDTO, pushTokens);
+                    notiService.pushNotificationMobile(Constants.DONE_SETTING_UP_DEVICE, verifyParentRequestDTO, pushTokens);
 
                     return new ResponseEntity<>(responseObject, HttpStatus.OK);
                 }

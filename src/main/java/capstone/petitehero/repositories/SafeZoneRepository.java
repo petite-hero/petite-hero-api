@@ -1,5 +1,6 @@
 package capstone.petitehero.repositories;
 
+import capstone.petitehero.entities.Child;
 import capstone.petitehero.entities.Safezone;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -13,7 +14,8 @@ public interface SafeZoneRepository extends JpaRepository<Safezone, Long>{
 //    @Query(nativeQuery = true, value = "SELECT * FROM petite_hero.safezone WHERE petite_hero.safezone.child_id = :childId AND petite_hero.safezone.date = :date AND petite_hero.safezone.is_disabled = FALSE")
 //    public List<Safezone> getListByDate(@Param("childId") Long childId, @Param("date") Long date);
 
-    @Query(nativeQuery = true, value = "SELECT *\n" +
+    @Query(nativeQuery = true, value = "" +
+            "SELECT *\n" +
             "FROM petite_hero.safezone s\n" +
             "WHERE s.child_id = :childId \n" +
             "\tAND s.is_disabled = FALSE \n" +
@@ -26,4 +28,11 @@ public interface SafeZoneRepository extends JpaRepository<Safezone, Long>{
             "\tAND s.repeat_on IS NULL \n" +
             "\tAND s.date = :currentDate")
     public List<Safezone> getListSafeZone(@Param("childId") Long childId, @Param("currentDate") Long currentDate, @Param("regex") String regex);
+
+    @Query(nativeQuery = true, value = "" +
+            "SELECT DISTINCT s.child_id\n" +
+            "FROM petite_hero.safezone s\n" +
+            "WHERE s.is_disabled = FALSE \n" +
+            "\tAND ((s.date >= :currentDate) OR (s.repeat_on IS NOT NULL));")
+    public List<Long> getChildListBySafeZones (@Param("currentDate") Long currentDate);
 }

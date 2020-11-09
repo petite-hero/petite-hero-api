@@ -3,7 +3,7 @@ package capstone.petitehero.services;
 import capstone.petitehero.config.common.Constants;
 import capstone.petitehero.dtos.ResponseObject;
 import capstone.petitehero.dtos.request.location.AddLocationRequestDTO;
-import capstone.petitehero.dtos.request.location.PushSilentNotiSWDTO;
+import capstone.petitehero.dtos.request.location.PushNotiSWDTO;
 import capstone.petitehero.dtos.response.location.GetLastestLocationResponseDTO;
 import capstone.petitehero.dtos.response.location.GetListByTimeResponseDTO;
 import capstone.petitehero.entities.Child;
@@ -11,18 +11,10 @@ import capstone.petitehero.entities.LocationHistory;
 import capstone.petitehero.repositories.ChildRepository;
 import capstone.petitehero.repositories.LocationRepository;
 import capstone.petitehero.utilities.Util;
-import com.google.gson.Gson;
-import org.apache.http.HttpHeaders;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.HttpClientBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 @Service
@@ -166,7 +158,7 @@ public class LocationService {
                 result.setMsg("Bad Request - Child ID doesn't exist");
                 result.setCode(Constants.CODE_400);
             } else {
-                PushSilentNotiSWDTO data = new PushSilentNotiSWDTO();
+                PushNotiSWDTO data = new PushNotiSWDTO();
                 if (emergency) {
                     data.setTitle(Constants.EMERGENCY);
                 } else {
@@ -200,7 +192,7 @@ public class LocationService {
                 child.setTrackingActive(status);
                 childRepository.save(child);
 
-                PushSilentNotiSWDTO data = new PushSilentNotiSWDTO();
+                PushNotiSWDTO data = new PushNotiSWDTO();
                 if (status) {
                     data.setTitle(Constants.TRACKING_ACTIVE);
                 } else {

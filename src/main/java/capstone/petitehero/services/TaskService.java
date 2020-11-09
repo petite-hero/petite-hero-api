@@ -27,6 +27,9 @@ public class TaskService {
     @Autowired
     private TaskRepository taskRepository;
 
+    @Autowired
+    private NotificationService notiService;
+
     @Transactional
     public List<TaskCreateResponseDTO> addTaskByParent(List<Task> listTask) {
         List<TaskCreateResponseDTO> result = new ArrayList<>();
@@ -80,7 +83,7 @@ public class TaskService {
                     notificationDTO.setAssignee(assignee);
                     ArrayList<String> pushTokenList = new ArrayList<>();
                     pushTokenList.add(taskResult.getParent().getPushToken());
-                    Util.pushNotificationMobile(
+                    notiService.pushNotificationMobile(
                             assigner.getFirstName() + assigner.getLastName() + " assigned new task for you" + assignee.getFirstName() + assignee.getLastName()
                             , notificationDTO, pushTokenList);
                 }

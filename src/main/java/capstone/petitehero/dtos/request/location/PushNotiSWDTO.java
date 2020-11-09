@@ -5,17 +5,17 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class PushSilentNotiSWDTO {
+public class PushNotiSWDTO {
     private String title;
     private String body;
     private Object data;
 
-    public PushSilentNotiSWDTO(String title, String body, Object data) {
+    public PushNotiSWDTO(String title, String body, Object data) {
         this.title = title;
         this.body = body;
         this.data = data;
     }
 
-    public PushSilentNotiSWDTO() {
+    public PushNotiSWDTO() {
     }
 }

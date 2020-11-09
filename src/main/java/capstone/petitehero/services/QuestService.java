@@ -24,6 +24,9 @@ public class QuestService {
     @Autowired
     private QuestRepository questRepository;
 
+    @Autowired
+    private NotificationService notiService;
+
     public QuestCreateResponseDTO addQuestByParentOrCollaborator(Quest quest, MultipartFile rewardPhoto) {
         Quest questResult = questRepository.save(quest);
 
@@ -70,7 +73,7 @@ public class QuestService {
             notificationDTO.setAssignee(assignee);
             ArrayList<String> pushTokenList = new ArrayList<>();
             pushTokenList.add(questResult.getParent().getPushToken());
-            Util.pushNotificationMobile(
+            notiService.pushNotificationMobile(
                     assigner.getFirstName() + assigner.getLastName() + " assigned new quest to " + assignee.getFirstName() + assignee.getLastName()
                     , notificationDTO, pushTokenList);
 
