@@ -4,6 +4,7 @@ import capstone.petitehero.config.common.Constants;
 import capstone.petitehero.dtos.ResponseObject;
 import capstone.petitehero.dtos.common.LicenseDTO;
 import capstone.petitehero.services.ConfigService;
+import capstone.petitehero.utilities.Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,12 +39,24 @@ public class ConfigController {
 
         LicenseDTO licenseDTO = configService.getLicenseForAdmin();
         if (modifyLicenseDTO.getOuter_radius() != null && !modifyLicenseDTO.getOuter_radius().toString().isEmpty()) {
+            if (!Util.validateLongNumber(modifyLicenseDTO.getOuter_radius().toString())) {
+                responseObject = new ResponseObject(Constants.CODE_400, "Outer radius should only contain number");
+                return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+            }
             licenseDTO.setOuter_radius(modifyLicenseDTO.getOuter_radius());
         }
         if (modifyLicenseDTO.getReport_delay() != null && !modifyLicenseDTO.getReport_delay().toString().isEmpty()) {
+            if (!Util.validateLongNumber(modifyLicenseDTO.getReport_delay().toString())) {
+                responseObject = new ResponseObject(Constants.CODE_400, "Report delay should only contain number");
+                return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+            }
             licenseDTO.setReport_delay(modifyLicenseDTO.getReport_delay());
         }
         if (modifyLicenseDTO.getSafezone_cron_time() != null && !modifyLicenseDTO.getSafezone_cron_time().isEmpty()) {
+            if (modifyLicenseDTO.getSafezone_cron_time().matches("^(?:(?:([01]?\\d|2[0-3]):)?([0-5]?\\d):)?([0-5]?\\d)$")) {
+                responseObject = new ResponseObject(Constants.CODE_400, "Safezone cron time should in format HH:MM:ss");
+                return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+            }
             licenseDTO.setSafezone_cron_time(modifyLicenseDTO.getSafezone_cron_time());
         }
         if (modifyLicenseDTO.getLicense_EN() != null && !modifyLicenseDTO.getLicense_EN().isEmpty()) {

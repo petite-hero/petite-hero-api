@@ -16,7 +16,6 @@ public class TaskCreateRequestDTO implements Serializable {
     private String description;
     private Long fromTime;
     private Long toTime;
-//    private Long assignDate;
     private String type;
     private List<Long> assignDateList;
 }

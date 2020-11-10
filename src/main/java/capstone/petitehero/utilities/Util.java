@@ -4,6 +4,7 @@ import capstone.petitehero.config.common.Constants;
 import capstone.petitehero.dtos.ResponseObject;
 import capstone.petitehero.dtos.common.CRONJobChildDTO;
 import capstone.petitehero.dtos.response.location.GetListSafeZoneByDateResponseDTO;
+import capstone.petitehero.dtos.response.task.ListTaskResponseDTO;
 import capstone.petitehero.entities.Parent;
 import capstone.petitehero.entities.Parent_Child;
 import capstone.petitehero.entities.Safezone;
@@ -394,5 +395,24 @@ public class Util {
             url.append("/");
         }
         return url.toString();
+    }
+
+    public static List<ListTaskResponseDTO> notiTasksAtCurrentDateForChild(List<Task> taskList){
+        List<ListTaskResponseDTO> result = new ArrayList<>();
+        if (taskList != null) {
+            if (!taskList.isEmpty()) {
+                for (Task task : taskList) {
+                    ListTaskResponseDTO resultData = new ListTaskResponseDTO();
+
+                    resultData.setTaskId(task.getTaskId());
+                    resultData.setName(task.getName());
+                    resultData.setDescription(task.getDescription());
+                    resultData.setFromTime(Util.formatTimestampToTime(task.getFromTime().getTime()));
+                    resultData.setToTime(Util.formatTimestampToTime(task.getToTime().getTime()));
+                    resultData.setType(task.getType());
+                }
+            }
+        }
+        return result;
     }
 }

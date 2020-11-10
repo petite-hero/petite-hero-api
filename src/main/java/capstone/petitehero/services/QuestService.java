@@ -37,7 +37,7 @@ public class QuestService {
             result.setQuestId(questResult.getQuestId());
             result.setName(questResult.getName());
             result.setDescription(questResult.getDescription());
-            result.setRewardDetail(questResult.getRewardDetail());
+//            result.setRewardDetail(questResult.getRewardDetail());
             result.setReward(questResult.getReward());
 
             result.setCreatedDate(Util.formatTimestampToDateTime(questResult.getCreatedDate()));
@@ -70,18 +70,19 @@ public class QuestService {
             result.setAssignee(assignee);
 
             NotificationDTO notificationDTO = new NotificationDTO();
-            notificationDTO.setAssigner(assigner);
-            notificationDTO.setAssignee(assignee);
+            notificationDTO.setData(questResult);
             ArrayList<String> pushTokenList = new ArrayList<>();
             pushTokenList.add(questResult.getParent().getPushToken());
 
-            notiService.pushNotificationMobile(assigner.getFirstName() + assigner.getLastName() + " assigned new quest to " + assignee.getFirstName() + assignee.getLastName()
-                    , notificationDTO, pushTokenList);
+            if (!questResult.getChild().getChild_parentCollection()
+                    .stream()
+                    .anyMatch(pc ->
+                            pc.getParent().getId().longValue() ==
+                                    questResult.getParent().getId().longValue())) {
+                notiService.pushNotificationMobile(assigner.getFirstName() + assigner.getLastName() + " assigned new quest to " + assignee.getFirstName() + assignee.getLastName()
+                        , notificationDTO, pushTokenList);
 
-            long count = questResult.getChild().getChild_parentCollection().stream()
-                    .filter(Util.distinctByKey(Parent_Child::getParent))
-                    .count();
-            System.out.println("Count: " + count);
+            }
 
             return result;
         }
@@ -96,7 +97,7 @@ public class QuestService {
             QuestDetailResponseDTO result = new QuestDetailResponseDTO();
             result.setQuestId(questResult.getQuestId());
             result.setName(questResult.getName());
-            result.setRewardDetail(questResult.getRewardDetail());
+//            result.setRewardDetail(questResult.getRewardDetail());
             result.setCreatedDate(questResult.getCreatedDate());
             result.setStatus(questResult.getStatus());
             result.setReward(questResult.getReward());
@@ -156,25 +157,26 @@ public class QuestService {
         } else {
             listQuestResult = questRepository.findQuestsByChildChildIdAndIsDeletedOrderByCreatedDateDesc(childId, Boolean.FALSE);
         }
+        List<ListQuestResponseDTO> result = new ArrayList<>();
+
         if (listQuestResult != null) {
-            List<ListQuestResponseDTO> result = new ArrayList<>();
-            for (Quest questResult : listQuestResult) {
-                ListQuestResponseDTO resultData = new ListQuestResponseDTO();
+            if (!listQuestResult.isEmpty()) {
+                for (Quest questResult : listQuestResult) {
+                    ListQuestResponseDTO resultData = new ListQuestResponseDTO();
 
-                resultData.setQuestId(questResult.getQuestId());
-                resultData.setName(questResult.getName());
-                resultData.setStatus(questResult.getStatus());
+                    resultData.setQuestId(questResult.getQuestId());
+                    resultData.setName(questResult.getName());
+                    resultData.setStatus(questResult.getStatus());
 
-                if (questResult.getReward() != null) {
-                    resultData.setReward(questResult.getReward());
+                    if (questResult.getReward() != null) {
+                        resultData.setReward(questResult.getReward());
+                    }
+
+                    result.add(resultData);
                 }
-
-                result.add(resultData);
             }
-            return result;
         }
-
-        return null;
+        return result;
     }
 
 

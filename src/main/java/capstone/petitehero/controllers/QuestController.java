@@ -45,7 +45,7 @@ public class QuestController {
     @ResponseBody
     public ResponseEntity<Object> deleteQuestByQuestId(@PathVariable("questId") Long questId) {
         ResponseObject responseObject;
-        
+
         Quest quest = questService.findQuestById(questId);
         if (quest == null) {
             responseObject = new ResponseObject(Constants.CODE_404, "Cannot find that quest by that id");
@@ -71,7 +71,7 @@ public class QuestController {
         ResponseObject responseObject;
         List<ListQuestResponseDTO> result;
 
-        if (status != null ) {
+        if (status != null) {
             if (!Util.validateQuestStatus(status)) {
                 responseObject = new ResponseObject(Constants.CODE_400, "Quest status contains only ASSIGNED, DONE, FAILED");
                 return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
@@ -81,18 +81,14 @@ public class QuestController {
             result = questService.getChildListOfQuest(childId, null);
         }
 
-        if (result != null) {
-            if (result.isEmpty()) {
-                responseObject = new ResponseObject(Constants.CODE_200, "Child's list of quest is empty");
-            } else {
-                responseObject = new ResponseObject(Constants.CODE_200, "OK");
-            }
-
-            responseObject.setData(result);
-            return new ResponseEntity<>(responseObject, HttpStatus.OK);
+        if (result.isEmpty()) {
+            responseObject = new ResponseObject(Constants.CODE_200, "Child's list of quest is empty");
+        } else {
+            responseObject = new ResponseObject(Constants.CODE_200, "OK");
         }
-        responseObject = new ResponseObject(Constants.CODE_500, "Server is down pls come back again");
-        return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+
+        responseObject.setData(result);
+        return new ResponseEntity<>(responseObject, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/list/{childId}/badges", method = RequestMethod.GET)

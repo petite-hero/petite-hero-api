@@ -20,8 +20,6 @@ public class TaskCreateResponseDTO implements Serializable {
     private String toTime;
     private String status;
     private String type;
-    private String isRepeatOn;
     private Assignee assignee;
     private Assigner assigner;
-    private Boolean isDisable;
 }

@@ -110,9 +110,8 @@ public class AccountService {
                     result.add(resultData);
                 }
             }
-            return result;
         }
-        return null;
+        return result;
     }
 
     public ParentDetailResponseDTO getDetailOfParentAccount(String username) {

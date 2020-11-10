@@ -2,7 +2,7 @@ package capstone.petitehero.controllers;
 
 import capstone.petitehero.config.common.Constants;
 import capstone.petitehero.dtos.ResponseObject;
-import capstone.petitehero.dtos.request.child.UpdateChildProfileRequestDTO;
+import capstone.petitehero.dtos.request.child.AddChildRequestDTO;
 import capstone.petitehero.dtos.request.child.VerifyParentRequestDTO;
 import capstone.petitehero.dtos.request.quest.QuestCreateRequestDTO;
 import capstone.petitehero.dtos.request.task.TaskCreateRequestDTO;
@@ -121,7 +121,7 @@ public class ChildController {
     @RequestMapping(value = "/{childId}", method = RequestMethod.PUT)
     @ResponseBody
     public ResponseEntity<Object> updateChildProfileById(@PathVariable("childId") Long childId,
-                                                         @ModelAttribute UpdateChildProfileRequestDTO updateChildProfileRequestDTO,
+                                                         @ModelAttribute AddChildRequestDTO updateChildProfileRequestDTO,
                                                          @RequestParam(value = "childPhoto", required = false) MultipartFile childPhoto) {
         ResponseObject responseObject;
         Child child = childService.findChildByChildId(childId, Boolean.FALSE);
@@ -143,8 +143,8 @@ public class ChildController {
 //            }
             child.setLastName(updateChildProfileRequestDTO.getLastName());
         }
-        if (updateChildProfileRequestDTO.getAge() != null && !updateChildProfileRequestDTO.getAge().toString().isEmpty()) {
-            child.setYob(updateChildProfileRequestDTO.getAge());
+        if (updateChildProfileRequestDTO.getYob() != null && !updateChildProfileRequestDTO.getYob().toString().isEmpty()) {
+            child.setYob(updateChildProfileRequestDTO.getYob());
         }
         if (updateChildProfileRequestDTO.getNickName() != null && !updateChildProfileRequestDTO.getNickName().isEmpty()) {
             child.setNickName(updateChildProfileRequestDTO.getNickName());
@@ -219,7 +219,6 @@ public class ChildController {
             responseObject = new ResponseObject(Constants.CODE_400, "Task's type can only housework, education and skills");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
-        //TODO validate assigned date list
         if (taskCreateRequestDTO.getAssignDateList() == null || taskCreateRequestDTO.getAssignDateList().isEmpty()) {
             responseObject = new ResponseObject(Constants.CODE_400, "Task's assign date cannot be missing or empty");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
@@ -290,10 +289,10 @@ public class ChildController {
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
 
-        if (questCreateRequestDTO.getRewardDetail() == null || questCreateRequestDTO.getRewardDetail().isEmpty()) {
-            responseObject = new ResponseObject(Constants.CODE_400, "Quest's reward detail cannot be missing or empty");
-            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
-        }
+//        if (questCreateRequestDTO.getRewardDetail() == null || questCreateRequestDTO.getRewardDetail().isEmpty()) {
+//            responseObject = new ResponseObject(Constants.CODE_400, "Quest's reward detail cannot be missing or empty");
+//            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+//        }
         //end validate mandatory fields
         Child child = childService.findChildByChildId(questCreateRequestDTO.getChildId(), Boolean.FALSE);
 
@@ -308,7 +307,7 @@ public class ChildController {
 
             quest.setName(questCreateRequestDTO.getName());
             quest.setDescription(questCreateRequestDTO.getDescription());
-            quest.setRewardDetail(questCreateRequestDTO.getRewardDetail());
+//            quest.setRewardDetail(questCreateRequestDTO.getRewardDetail());
             quest.setReward(questCreateRequestDTO.getReward());
             quest.setIsDeleted(Boolean.FALSE);
             quest.setCreatedDate(new Date().getTime());

@@ -25,8 +25,8 @@ public class Quest implements Serializable {
     @Column(length = Integer.MAX_VALUE)
     private String description;
 
-    @Column(length = Integer.MAX_VALUE)
-    private String rewardDetail;
+//    @Column(length = Integer.MAX_VALUE)
+//    private String rewardDetail;
 
     @Column
     private Integer reward;

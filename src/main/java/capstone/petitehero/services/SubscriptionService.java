@@ -44,8 +44,8 @@ public class SubscriptionService {
                 .sorted(Comparator.comparing(SubscriptionType::getPrice))
                 .collect(Collectors.toList());
 
+        List<ListSubscriptionTypeResponseDTO> result = new ArrayList<>();
         if (listSubscriptionTypeResult != null) {
-            List<ListSubscriptionTypeResponseDTO> result = new ArrayList<>();
             for (SubscriptionType subscriptionType : listSubscriptionTypeResult) {
                 ListSubscriptionTypeResponseDTO dataResult = new ListSubscriptionTypeResponseDTO();
 
@@ -58,10 +58,8 @@ public class SubscriptionService {
 
                 result.add(dataResult);
             }
-            return result;
         }
-
-        return null;
+        return result;
     }
 
     public SubscriptionTypeDetailResponseDTO getSubscriptionTypeDetail(Long subscriptionTypeId) {

@@ -199,7 +199,7 @@ public class AccountController {
     @RequestMapping(value = "/{username}/password", method = RequestMethod.PUT)
     @ResponseBody
     public ResponseEntity<Object> changePasswordForAccount(@PathVariable("username") String username,
-                                                          @RequestBody AccountChangePasswordRequestDTO accountChangePasswordRequestDTO) {
+                                                           @RequestBody AccountChangePasswordRequestDTO accountChangePasswordRequestDTO) {
         ResponseObject responseObject;
         if (accountChangePasswordRequestDTO.getPassword() == null || accountChangePasswordRequestDTO.getPassword().isEmpty()) {
             responseObject = new ResponseObject(Constants.CODE_400, "New password cannot be null");
@@ -243,18 +243,18 @@ public class AccountController {
         ResponseObject responseObject;
 
         List<ListParentAccountResponseDTO> result = accountService.listAllParentAccountForAdmin();
-        if (result != null) {
-            if (!result.isEmpty()) {
-                responseObject = new ResponseObject(Constants.CODE_200, "OK");
-            } else {
-                responseObject = new ResponseObject(Constants.CODE_200, "List active parent account is empty in the system");
-            }
-            responseObject.setData(result);
-            return new ResponseEntity<>(responseObject, HttpStatus.OK);
+//        if (result != null) {
+        if (!result.isEmpty()) {
+            responseObject = new ResponseObject(Constants.CODE_200, "OK");
+        } else {
+            responseObject = new ResponseObject(Constants.CODE_200, "List active parent account is empty in the system");
         }
+        responseObject.setData(result);
+        return new ResponseEntity<>(responseObject, HttpStatus.OK);
+//        }
 
-        responseObject = new ResponseObject(Constants.CODE_500, "Cannot get all active parent account in the system");
-        return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+//        responseObject = new ResponseObject(Constants.CODE_500, "Cannot get all active parent account in the system");
+//        return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @RequestMapping(value = "/{username}", method = RequestMethod.GET)

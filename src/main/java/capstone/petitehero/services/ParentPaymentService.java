@@ -117,9 +117,8 @@ public class ParentPaymentService {
 
                 result.add(dataResult);
             }
-            return result;
         }
-        return null;
+        return result;
     }
 
     public List<ListPaymentTransactionResponseDTO> getListParentPaymentForAdmin() {

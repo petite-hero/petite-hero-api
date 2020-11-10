@@ -14,6 +14,5 @@ public class QuestCreateRequestDTO implements Serializable {
     private String creatorPhoneNumber;
     private String name;
     private String description;
-    private String rewardDetail;
     private Integer reward;
 }

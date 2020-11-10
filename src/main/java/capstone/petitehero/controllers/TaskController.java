@@ -70,23 +70,19 @@ public class TaskController {
 //                responseObject = new ResponseObject(Constants.CODE_400, "Not a right timestamp format");
 //                return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
 //            } else {
-                result = taskService.getChildOfTaskAtAssignedDate(childId, dateTimestamp, provider);
+            result = taskService.getChildOfTaskAtAssignedDate(childId, dateTimestamp, provider);
 //            }
         } else {
             result = taskService.getChildOfTaskAtAssignedDate(childId, null, provider);
         }
-        if (result != null) {
-            if (!result.isEmpty()) {
-                responseObject = new ResponseObject(Constants.CODE_200, "OK");
-            } else {
-                responseObject = new ResponseObject(Constants.CODE_200, "List task of child today is empty");
-            }
-            responseObject.setData(result);
-            return new ResponseEntity<>(responseObject, HttpStatus.OK);
-        }
 
-        responseObject = new ResponseObject(Constants.CODE_500, "Server is down cannot get children list of task");
-        return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+        if (!result.isEmpty()) {
+            responseObject = new ResponseObject(Constants.CODE_200, "OK");
+        } else {
+            responseObject = new ResponseObject(Constants.CODE_200, "List task of child today is empty");
+        }
+        responseObject.setData(result);
+        return new ResponseEntity<>(responseObject, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/{taskId}/submit", method = RequestMethod.PUT)
@@ -120,7 +116,7 @@ public class TaskController {
     @RequestMapping(value = "/{taskId}/approve", method = RequestMethod.PUT)
     @ResponseBody
     public ResponseEntity<Object> approveTaskFromChild(@PathVariable("taskId") Long taskId,
-                                                      @RequestParam("success") Boolean isSuccess) {
+                                                       @RequestParam("success") Boolean isSuccess) {
         ResponseObject responseObject;
 
         Task taskResult = taskService.findTaskByTaskId(taskId);

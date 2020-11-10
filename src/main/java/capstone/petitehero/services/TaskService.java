@@ -42,7 +42,6 @@ public class TaskService {
                 resultData.setFromTime(Util.formatTimestampToTime(taskResult.getFromTime().getTime()));
                 resultData.setToTime(Util.formatTimestampToTime(taskResult.getToTime().getTime()));
 
-//                resultData.setIsRepeatOn(Util.fromRepeatOnStringToDayInWeek(taskResult.getRepeatOn()));
                 resultData.setType(taskResult.getType());
                 resultData.setStatus(Constants.status.ASSIGNED.toString());
 
@@ -74,14 +73,18 @@ public class TaskService {
                 if (Util.getStartDay(task.getAssignDate()).longValue()
                         == Util.getStartDay(new Date().getTime()).longValue()) {
                     NotificationDTO notificationDTO = new NotificationDTO();
-                    notificationDTO.setAssigner(assigner);
-                    notificationDTO.setAssignee(assignee);
+                    notificationDTO.setData(taskResult);
                     ArrayList<String> pushTokenList = new ArrayList<>();
                     pushTokenList.add(taskResult.getParent().getPushToken());
-
-                    notiService.pushNotificationMobile(
-                            assigner.getFirstName() + assigner.getLastName() + " assigned new task for you" + assignee.getFirstName() + assignee.getLastName()
-                            , notificationDTO, pushTokenList);
+                    if (!taskResult.getChild().getChild_parentCollection()
+                            .stream()
+                            .anyMatch(pc ->
+                                    pc.getParent().getId().longValue() ==
+                                            taskResult.getParent().getId().longValue())) {
+                        notiService.pushNotificationMobile(
+                                assigner.getFirstName() + assigner.getLastName() + " assigned new task for " + assignee.getFirstName() + assignee.getLastName()
+                                , notificationDTO, pushTokenList);
+                    }
                 }
 
                 result.add(resultData);
@@ -172,10 +175,9 @@ public class TaskService {
             listTaskResult = taskRepository.findTasksByChildChildIdAndIsDeleted(childId, Boolean.FALSE);
         }
 
+        List<ListTaskResponseDTO> result = new ArrayList<>();
         if (listTaskResult != null) {
             if (!listTaskResult.isEmpty()) {
-                List<ListTaskResponseDTO> result = new ArrayList<>();
-
                 for (Task taskResult : listTaskResult) {
                     ListTaskResponseDTO resultData = new ListTaskResponseDTO();
 
@@ -202,7 +204,7 @@ public class TaskService {
                         .collect(Collectors.toList());
             }
         }
-        return null;
+        return result;
     }
 
     public Task findTaskByTaskId(Long taskId) {

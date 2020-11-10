@@ -424,7 +424,7 @@ public class ParentController {
 
     @RequestMapping(value = "/token", method = RequestMethod.PUT)
     @ResponseBody
-    public ResponseObject updateAccountPushToken (@RequestBody UpdatePushTokenRequestDTO data) {
+    public ResponseObject updateAccountPushToken(@RequestBody UpdatePushTokenRequestDTO data) {
         return parentService.updateAccountPushToken(data);
     }
 
@@ -440,18 +440,18 @@ public class ParentController {
         }
 
         List<ListCollaboratorResponseDTO> result = parentChildService.getParentCollaborator(phoneNumber);
-        if (result != null) {
-            if (result.isEmpty()) {
-                responseObject = new ResponseObject(Constants.CODE_200, "Your collaborator list is empty");
-            } else {
-                responseObject = new ResponseObject(Constants.CODE_200, "OK");
-            }
-            responseObject.setData(result);
-            return new ResponseEntity<>(responseObject,HttpStatus.OK);
+//        if (result != null) {
+        if (result.isEmpty()) {
+            responseObject = new ResponseObject(Constants.CODE_200, "Your collaborator list is empty");
+        } else {
+            responseObject = new ResponseObject(Constants.CODE_200, "OK");
         }
+        responseObject.setData(result);
+        return new ResponseEntity<>(responseObject, HttpStatus.OK);
+//        }
 
-        responseObject = new ResponseObject(Constants.CODE_500, "Cannot get your collaborator in the system");
-        return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+//        responseObject = new ResponseObject(Constants.CODE_500, "Cannot get your collaborator in the system");
+//        return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @RequestMapping(value = "/{phone}/children", method = RequestMethod.GET)
@@ -466,24 +466,24 @@ public class ParentController {
         }
 
         List<ChildInformation> result = parentChildService.getListChildOfParent(phoneNumber);
-        if (result != null) {
-            if (result.isEmpty()) {
-                responseObject = new ResponseObject(Constants.CODE_200, "Your children list is empty");
-            } else {
-                responseObject = new ResponseObject(Constants.CODE_200, "OK");
-            }
-            responseObject.setData(result);
-            return new ResponseEntity<>(responseObject, HttpStatus.OK);
+//        if (result != null) {
+        if (result.isEmpty()) {
+            responseObject = new ResponseObject(Constants.CODE_200, "Your children list is empty");
+        } else {
+            responseObject = new ResponseObject(Constants.CODE_200, "OK");
         }
-        responseObject = new ResponseObject(Constants.CODE_500, "Cannot get your children in the system");
-        return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+        responseObject.setData(result);
+        return new ResponseEntity<>(responseObject, HttpStatus.OK);
+//        }
+//        responseObject = new ResponseObject(Constants.CODE_500, "Cannot get your children in the system");
+//        return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @RequestMapping(value = "/{phone}/payment", method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<Object> createParentPayment(HttpServletRequest request,
-                                             @PathVariable("phone") String phoneNumber,
-                                             @RequestBody ParentPaymentCreateRequestDTO parentPaymentCreateRequestDTO) {
+                                                      @PathVariable("phone") String phoneNumber,
+                                                      @RequestBody ParentPaymentCreateRequestDTO parentPaymentCreateRequestDTO) {
         ResponseObject responseObject;
         Long currentTimeStamp = new Date().getTime();
         // url when parent cancel payment (paypal api redirect back)
@@ -518,9 +518,9 @@ public class ParentController {
                     parentPaymentCreateRequestDTO.getDescription(),
                     cancelUrl,
                     successUrl);
-            for(Links links : payment.getLinks()){
+            for (Links links : payment.getLinks()) {
                 // paypal catch the approval of parent
-                if(links.getRel().equals("approval_url")){
+                if (links.getRel().equals("approval_url")) {
                     ParentPayment parentPayment = new ParentPayment();
                     parentPayment.setContent(parentPaymentCreateRequestDTO.getDescription());
                     parentPayment.setAmount(subscriptionType.getPrice());
@@ -558,7 +558,7 @@ public class ParentController {
     @RequestMapping(value = "/{phone}/payment/cancel", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<Object> cancelParentPayment(@PathVariable("phone") String parentPhoneNumber,
-                            @RequestParam(value = "createdDate") Long createdDateTimeStamp){
+                                                      @RequestParam(value = "createdDate") Long createdDateTimeStamp) {
         ResponseObject responseObject;
         ParentPayment recentParentPayment = parentPaymentService.findParentPaymentToCompletePayment(parentPhoneNumber, createdDateTimeStamp);
 
@@ -581,14 +581,14 @@ public class ParentController {
 
     @RequestMapping(value = "/{phone}/payment/success", method = RequestMethod.GET)
     public ResponseEntity<Object> successParentPayment(@PathVariable("phone") String parentPhoneNumber,
-                             @RequestParam(value = "subscriptionTypeId") Long subscriptionTypeId,
-                             @RequestParam(value = "createdDate") Long createdDateTimeStamp,
-                             @RequestParam(value = "paymentId") String paymentId,
-                             @RequestParam(value = "PayerID") String payerId){
+                                                       @RequestParam(value = "subscriptionTypeId") Long subscriptionTypeId,
+                                                       @RequestParam(value = "createdDate") Long createdDateTimeStamp,
+                                                       @RequestParam(value = "paymentId") String paymentId,
+                                                       @RequestParam(value = "PayerID") String payerId) {
         ResponseObject responseObject;
         try {
             Payment payment = parentPaymentService.executePayment(paymentId, payerId);
-            if(payment.getState().equals("approved")){
+            if (payment.getState().equals("approved")) {
                 SubscriptionType subscriptionType = subscriptionService.findSubscriptionTypeById(subscriptionTypeId);
 
                 if (subscriptionType == null) {
@@ -664,18 +664,18 @@ public class ParentController {
             result = parentPaymentService.getParentTransaction(phoneNumber, null);
         }
 
-        if (result != null) {
-            if (result.isEmpty()) {
-                responseObject = new ResponseObject(Constants.CODE_200, "Didn't have any payment yet");
-            } else {
-                responseObject = new ResponseObject(Constants.CODE_200, "OK");
-            }
-            responseObject.setData(result);
-            return new ResponseEntity<>(responseObject, HttpStatus.OK);
+//        if (result != null) {
+        if (result.isEmpty()) {
+            responseObject = new ResponseObject(Constants.CODE_200, "Didn't have any payment yet");
+        } else {
+            responseObject = new ResponseObject(Constants.CODE_200, "OK");
         }
+        responseObject.setData(result);
+        return new ResponseEntity<>(responseObject, HttpStatus.OK);
+//        }
 
-        responseObject = new ResponseObject(Constants.CODE_500, "Server is down cannot get list transation for parent");
-        return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+//        responseObject = new ResponseObject(Constants.CODE_500, "Server is down cannot get list transation for parent");
+//        return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @RequestMapping(value = "/{phone}", method = RequestMethod.DELETE)

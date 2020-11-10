@@ -54,10 +54,10 @@ public class SubscriptionController {
                 return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
             }
         }
-        if (createSubscriptionTypeRequestDTO.getPrice() == null || createSubscriptionTypeRequestDTO.getPrice().toString().isEmpty()){
+        if (createSubscriptionTypeRequestDTO.getPrice() == null || createSubscriptionTypeRequestDTO.getPrice().toString().isEmpty()) {
             responseObject = new ResponseObject(Constants.CODE_400, "Subscription type price cannot be missing or be empty");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
-        } else  {
+        } else {
             if (!Util.validateFloatNumber(createSubscriptionTypeRequestDTO.getPrice().toString())) {
                 responseObject = new ResponseObject(Constants.CODE_400, "Subscription type price cannot be a negative number or a characters");
                 return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
@@ -155,17 +155,17 @@ public class SubscriptionController {
         ResponseObject responseObject;
 
         List<ListSubscriptionTypeResponseDTO> result = subscriptionService.getListSubscriptionType();
-        if (result != null) {
-            if (result.isEmpty()) {
-                responseObject = new ResponseObject(Constants.CODE_200, "List subscription type is empty");
-            } else {
-                responseObject = new ResponseObject(Constants.CODE_200, "OK");
-            }
-            responseObject.setData(result);
-            return new ResponseEntity<>(responseObject, HttpStatus.OK);
+//        if (result != null) {
+        if (result.isEmpty()) {
+            responseObject = new ResponseObject(Constants.CODE_200, "List subscription type is empty");
+        } else {
+            responseObject = new ResponseObject(Constants.CODE_200, "OK");
         }
-
-        responseObject = new ResponseObject(Constants.CODE_500, "Server is down cannot get list subscription type in the system");
-        return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+        responseObject.setData(result);
+        return new ResponseEntity<>(responseObject, HttpStatus.OK);
+//        }
+//
+//        responseObject = new ResponseObject(Constants.CODE_500, "Server is down cannot get list subscription type in the system");
+//        return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
