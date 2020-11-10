@@ -63,6 +63,9 @@ public class ParentChildService {
                     if (data.getChild().getTrackingActive() != null) {
                         childInformation.setIsTrackingActive(data.getChild().getTrackingActive());
                     }
+                    if (data.getChild().getPhoto() != null && !data.getChild().getPhoto().isEmpty()) {
+                        childInformation.setPhoto(Util.fromImageFileToBase64String(data.getChild().getPhoto()));
+                    }
                     childInformation.setIsCollaboratorChild(Boolean.FALSE);
                     result.add(childInformation);
                 }
@@ -92,6 +95,9 @@ public class ParentChildService {
                     childInformation.setAge(year - data.getChild().getYob());
                     if (data.getChild().getTrackingActive() != null) {
                         childInformation.setIsTrackingActive(data.getChild().getTrackingActive());
+                    }
+                    if (data.getChild().getPhoto() != null && !data.getChild().getPhoto().isEmpty()) {
+                        childInformation.setPhoto(Util.fromImageFileToBase64String(data.getChild().getPhoto()));
                     }
                     childInformation.setIsCollaboratorChild(Boolean.TRUE);
                     result.add(childInformation);
