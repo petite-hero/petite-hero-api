@@ -189,6 +189,7 @@ public class QuestService {
                     resultData.setQuestId(questResult.getQuestId());
                     resultData.setName(questResult.getName());
                     resultData.setStatus(questResult.getStatus());
+                    resultData.setDescription(questResult.getDescription());
 
                     if (questResult.getReward() != null) {
                         resultData.setReward(questResult.getReward());

@@ -1,5 +1,6 @@
 package capstone.petitehero.services;
 
+import capstone.petitehero.config.common.Constants;
 import capstone.petitehero.dtos.response.parent.payment.ListPaymentTransactionResponseDTO;
 import capstone.petitehero.dtos.response.parent.payment.ParentPaymentCompledResponseDTO;
 import capstone.petitehero.dtos.response.parent.payment.ParentPaymentDetailResponseDTO;
@@ -143,7 +144,7 @@ public class ParentPaymentService {
         return null;
     }
 
-    public ParentPaymentDetailResponseDTO getDetailParentPayment(Long transactionId) {
+    public ParentPaymentDetailResponseDTO getDetailParentPayment(Long transactionId, String role) {
         ParentPayment paymentResult = parentPaymentRepository.findParentPaymentByTransactionId(transactionId);
 
         if (paymentResult != null) {
@@ -154,6 +155,10 @@ public class ParentPaymentService {
             result.setAmount(paymentResult.getAmount());
             result.setStatus(paymentResult.getStatus());
             result.setPaymentId(paymentResult.getPaymentId());
+            if (role.equalsIgnoreCase(Constants.PARENT) &&
+                    paymentResult.getStatus().equalsIgnoreCase(Constants.status.PENDING.toString())) {
+                result.setLink(paymentResult.getLink());
+            }
 
             result.setDate(Util.formatTimestampToDateTime(paymentResult.getDate()));
 

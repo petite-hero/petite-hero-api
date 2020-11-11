@@ -14,5 +14,6 @@ public class ParentPaymentDetailResponseDTO implements Serializable {
     private String date;
     private String status;
     private String phoneNumber;
+    private String link;
     private String paymentId;
 }

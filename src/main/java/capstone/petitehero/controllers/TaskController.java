@@ -182,14 +182,15 @@ public class TaskController {
     @RequestMapping(value = "/{childId}/summary-hour", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<Object> summaryHourChildrenTaskForParent(@PathVariable("childId") Long childId,
-                                                                   @RequestParam("date") Long dateTimeStamp) {
+                                                                   @RequestParam("date") Long dateTimeStamp,
+                                                                   @RequestParam("type") String taskType) {
         ResponseObject responseObject;
 //        if (!Util.validateTimestamp(dateTimeStamp.toString())) {
 //            responseObject = new ResponseObject(Constants.CODE_400, "Not a right time stamp (should only contains number)");
 //            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
 //        }
 
-        Boolean result = taskService.summaryHourOfChildrenTaskList(childId, dateTimeStamp);
+        Boolean result = taskService.summaryHourOfChildrenTaskList(childId, dateTimeStamp, taskType);
         if (result != null) {
             responseObject = new ResponseObject(Constants.CODE_200, "OK");
             responseObject.setData(result);

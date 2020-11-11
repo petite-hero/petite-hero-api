@@ -443,7 +443,7 @@ public class TaskService {
         return null;
     }
 
-    public Boolean summaryHourOfChildrenTaskList(Long childId, Long dateTimeStamp) {
+    public Boolean summaryHourOfChildrenTaskList(Long childId, Long dateTimeStamp, String taskType) {
         Long startDateTimeStamp = Util.getStartDay(dateTimeStamp);
         Long endDateTimeStamp = Util.getEndDay(dateTimeStamp);
 
@@ -460,9 +460,19 @@ public class TaskService {
                     totalHourTaskHasAssigned += t.getToTime().getTime() - t.getFromTime().getTime();
                 }
                 if (licenseDTO != null) {
-//                    if (totalHourTaskHasAssigned / (60 * 60 * 1000) >= licenseDTO.getTotal_hour_task_education().longValue()) {
-//                        isWarning = Boolean.TRUE;
-//                    }
+                    if (taskType.equalsIgnoreCase(Constants.taskType.SKILLS.toString())) {
+                        if (totalHourTaskHasAssigned / (60 * 60 * 1000) >= licenseDTO.getTotal_hour_task_skills().longValue()) {
+                            isWarning = Boolean.TRUE;
+                        }
+                    } else if (taskType.equalsIgnoreCase(Constants.taskType.EDUCATION.toString())) {
+                        if (totalHourTaskHasAssigned / (60 * 60 * 1000) >= licenseDTO.getTotal_hour_task_education().longValue()) {
+                            isWarning = Boolean.TRUE;
+                        }
+                    } else if (taskType.equalsIgnoreCase(Constants.taskType.HOUSEWORK.toString())) {
+                        if (totalHourTaskHasAssigned / (60 * 60 * 1000) >= licenseDTO.getTotal_hour_task_housework().longValue()) {
+                            isWarning = Boolean.TRUE;
+                        }
+                    }
                 } else {
                     return null;
                 }

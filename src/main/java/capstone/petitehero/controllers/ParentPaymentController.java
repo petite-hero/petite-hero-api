@@ -42,10 +42,11 @@ public class ParentPaymentController {
 
     @RequestMapping(value = "/{transactionId}", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<Object> getPaymentDetails(@PathVariable("transactionId") Long transactionId) {
+    public ResponseEntity<Object> getPaymentDetails(@PathVariable("transactionId") Long transactionId,
+                                                    @RequestParam(value = "role", required = false, defaultValue = Constants.ADMIN) String role) {
         ResponseObject responseObject;
 
-        ParentPaymentDetailResponseDTO result = parentPaymentService.getDetailParentPayment(transactionId);
+        ParentPaymentDetailResponseDTO result = parentPaymentService.getDetailParentPayment(transactionId, role);
 
         if (result != null) {
             responseObject = new ResponseObject(Constants.CODE_200, "OK");
