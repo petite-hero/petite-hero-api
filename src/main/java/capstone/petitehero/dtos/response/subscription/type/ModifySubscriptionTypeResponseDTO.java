@@ -7,13 +7,7 @@ import java.io.Serializable;
 
 @Setter
 @Getter
-public class ModifySubscriptionTypeResponseDTO implements Serializable {
+public class ModifySubscriptionTypeResponseDTO extends SubscriptionTypeDetailResponseDTO implements Serializable {
 
-    private Long subscriptionTypeId;
-    private String name;
-    private String description;
-    private Double price;
-    private Integer maxChildren;
-    private Integer maxCollaborator;
     private String status;
 }

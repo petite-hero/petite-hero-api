@@ -4,6 +4,7 @@ import capstone.petitehero.config.common.Constants;
 import capstone.petitehero.dtos.common.Assignee;
 import capstone.petitehero.dtos.common.Assigner;
 import capstone.petitehero.dtos.common.NotificationDTO;
+import capstone.petitehero.dtos.request.location.PushNotiSWDTO;
 import capstone.petitehero.dtos.response.quest.*;
 import capstone.petitehero.dtos.response.quest.badge.QuestBadgeResponseDTO;
 import capstone.petitehero.entities.Parent_Child;
@@ -16,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -69,19 +71,35 @@ public class QuestService {
             }
             result.setAssignee(assignee);
 
-            NotificationDTO notificationDTO = new NotificationDTO();
-            notificationDTO.setData(questResult);
-            ArrayList<String> pushTokenList = new ArrayList<>();
-            pushTokenList.add(questResult.getParent().getPushToken());
+//            // send notification when a quest is created to parent's mobile
+//            // and child' smart watch
+//            if (!questResult.getChild().getChild_parentCollection()
+//                    .stream()
+//                    .anyMatch(pc ->
+//                            pc.getParent().getId().longValue() ==
+//                                    questResult.getParent().getId().longValue())) {
+//
+//                // send noti to parent's mobile when a collaborator create task to their children.
+//                NotificationDTO notificationDTO = new NotificationDTO();
+//                notificationDTO.setData(questResult);
+//                ArrayList<String> pushTokenList = new ArrayList<>();
+//                pushTokenList.add(questResult.getChild().getChild_parentCollection()
+//                        .stream()
+//                        .findFirst().orElse(null)
+//                        .getParent().getPushToken());
+//
+//                notiService.pushNotificationMobile(
+//                        assigner.getFirstName() + " " + assigner.getLastName() +
+//                                " assigned new quest to "
+//                                + assignee.getFirstName() + " " + assignee.getLastName()
+//                        , notificationDTO, pushTokenList);
+//
+//            }
 
-            if (!questResult.getChild().getChild_parentCollection()
-                    .stream()
-                    .anyMatch(pc ->
-                            pc.getParent().getId().longValue() ==
-                                    questResult.getParent().getId().longValue())) {
-                notiService.pushNotificationMobile(assigner.getFirstName() + assigner.getLastName() + " assigned new quest to " + assignee.getFirstName() + assignee.getLastName()
-                        , notificationDTO, pushTokenList);
-
+            // send silent noty to children's smart watch
+            if (questResult.getChild().getPushToken() != null && !questResult.getChild().getPushToken().isEmpty()) {
+                PushNotiSWDTO noty = new PushNotiSWDTO(Constants.SILENT_NOTI, Constants.UPDATED_QUEST, result);
+                notiService.pushNotificationSW(noty, questResult.getChild().getPushToken());
             }
 
             return result;
@@ -143,6 +161,10 @@ public class QuestService {
                 result.setQuestId(questResult.getQuestId());
                 result.setStatus(Constants.status.DELETED.toString());
 
+                if (questResult.getChild().getPushToken() != null && !questResult.getChild().getPushToken().isEmpty()) {
+                    PushNotiSWDTO noty = new PushNotiSWDTO(Constants.SILENT_NOTI, Constants.UPDATED_QUEST, result);
+                    notiService.pushNotificationSW(noty, questResult.getChild().getPushToken());
+                }
                 return result;
             }
         }
@@ -185,9 +207,9 @@ public class QuestService {
                 questRepository.findQuestsByChildChildIdAndIsDeletedAndStatus(
                         childId, Boolean.FALSE, Constants.status.DONE.toString());
 
-        if (listQuestResult != null) {
-            List<QuestBadgeResponseDTO> result = new ArrayList<>();
+        List<QuestBadgeResponseDTO> result = new ArrayList<>();
 
+        if (listQuestResult != null) {
             List<Quest> filterQuestBadgeList = listQuestResult.stream()
                     .filter(Util.distinctByKey(Quest::getReward)).collect(Collectors.toList());
 
@@ -208,9 +230,32 @@ public class QuestService {
 
             result.sort(Comparator.comparing(QuestBadgeResponseDTO::getQuestCompletedNumber).reversed());
 
-            return result;
         }
-        return null;
+        return result;
+    }
+
+    public List<ListQuestResponseDTO> getListBadgesChildArchivedSmartWatch(Long childId, Integer maxBadges) {
+        List<ListQuestResponseDTO> result = new ArrayList<>();
+        List<Quest> listQuestResult = questRepository.findTopQuestsByChild_ChildIdAndIsDeletedAndStatus(
+                childId, Constants.status.DONE.toString(), Boolean.FALSE, maxBadges
+        );
+
+        if (listQuestResult != null) {
+            if (!listQuestResult.isEmpty()) {
+                for (Quest quest : listQuestResult) {
+                    ListQuestResponseDTO resultData = new ListQuestResponseDTO();
+
+                    resultData.setQuestId(quest.getQuestId());
+                    resultData.setName(quest.getName());
+                    resultData.setDescription(quest.getDescription());
+                    resultData.setReward(quest.getReward());
+                    resultData.setStatus(quest.getStatus());
+
+                    result.add(resultData);
+                }
+            }
+        }
+        return result;
     }
 
     public Quest findQuestById(Long questId) {
@@ -223,12 +268,18 @@ public class QuestService {
         } else {
             quest.setStatus(Constants.status.FAILED.toString());
         }
+        quest.setSubmitDate(new Date().getTime());
 
         Quest questResult = questRepository.save(quest);
         if (questResult != null) {
             QuestStatusResponseDTO result = new QuestStatusResponseDTO();
             result.setQuestId(questResult.getQuestId());
             result.setStatus(questResult.getStatus());
+
+            if (questResult.getChild().getPushToken() != null && !questResult.getChild().getPushToken().isEmpty()) {
+                PushNotiSWDTO noty = new PushNotiSWDTO(Constants.SILENT_NOTI, Constants.UPDATED_QUEST, result);
+                notiService.pushNotificationSW(noty, questResult.getChild().getPushToken());
+            }
             return result;
         }
         return null;

@@ -23,7 +23,7 @@ public class NotificationService {
         Integer result;
         try {
             HttpPost request = new HttpPost(Constants.FCM_PUSH_NOTI_URL);
-            HashMap<String, Object> body = new HashMap<String, Object>();
+            HashMap<String, Object> body = new HashMap<>();
             body.put("data", data);
             body.put("to", pushToken);
             StringEntity bodyJson = new StringEntity(new Gson().toJson(body));
@@ -54,16 +54,19 @@ public class NotificationService {
         Integer result;
         try {
             HttpPost request = new HttpPost(Constants.EXPO_PUSH_NOTI_URL);
-            HashMap<String, Object> body = new HashMap<String, Object>();
-            body.put("title", Constants.SILENT_NOTI);
-            body.put("data", new Gson().toJson(data));
-            body.put("to", pushTokens);
-            StringEntity bodyJson = new StringEntity(new Gson().toJson(body));
-
+            HashMap<String, Object> body = new HashMap<>();
             if (msg != null && !msg.isEmpty()) {
                 body.put("title", Constants.PETITE_HERO);
                 body.put("body", msg);
+            } else {
+                body.put("title", Constants.SILENT_NOTI);
             }
+            body.put("data", new Gson().toJson(data));
+            body.put("to", pushTokens);
+
+            StringEntity bodyJson = new StringEntity(new Gson().toJson(body));
+
+            System.out.println("===> Body sent: " + new Gson().toJson(body));
 
             // headers specified by Expo to request push notifications
             request.setHeader(HttpHeaders.HOST, "exp.host");

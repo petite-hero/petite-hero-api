@@ -34,6 +34,9 @@ public class SubscriptionType implements Serializable {
     @Column
     private Integer maxCollaborator;
 
+    @Column
+    private Integer durationDay;
+
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "subscriptionType")
     @EqualsAndHashCode.Exclude // không sử dụng trường này trong equals và hashcode
     @ToString.Exclude // Không sử dụng trong toString()

@@ -50,7 +50,7 @@ public class TaskController {
 
         TaskDeleteResponseDTO result = taskService.deleteTask(taskResult);
         if (result != null) {
-            responseObject = new ResponseObject(Constants.CODE_200, "Task and all duplicated task from this is all deleted");
+            responseObject = new ResponseObject(Constants.CODE_200, "OK");
             return new ResponseEntity<>(responseObject, HttpStatus.OK);
         }
 

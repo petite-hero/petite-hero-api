@@ -54,13 +54,6 @@
             <version>2.9.2</version>
         </dependency>
 
-        <!--		config swagger resource-->
-        <!--		<dependency>-->
-        <!--			<groupId>io.springfox</groupId>-->
-        <!--			<artifactId>springfox-boot-starter</artifactId>-->
-        <!--			<version>3.0.0</version>-->
-        <!--		</dependency>-->
-
         <!--		swagger ui-->
         <dependency>
             <groupId>io.springfox</groupId>

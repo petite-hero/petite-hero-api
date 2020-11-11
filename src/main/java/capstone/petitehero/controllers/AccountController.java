@@ -16,7 +16,10 @@ import capstone.petitehero.services.AccountService;
 import capstone.petitehero.services.ParentService;
 import capstone.petitehero.services.SubscriptionService;
 import capstone.petitehero.utilities.Util;
+import com.twilio.Twilio;
+import com.twilio.rest.verify.v2.service.Verification;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -130,7 +133,8 @@ public class AccountController {
                 subscription.setSubscriptionType(subscriptionType);
 
                 Calendar calendar = Calendar.getInstance();
-                calendar.set(Calendar.MONTH, 30);
+                calendar.setTime(new Date());
+                calendar.add(Calendar.DATE, subscriptionType.getDurationDay());
                 subscription.setExpiredDate(calendar.getTime().getTime());
 
                 Subscription subscriptionResult = subscriptionService.createFreeTrialSubscriptionForParentAccount(subscription);
@@ -281,6 +285,10 @@ public class AccountController {
         if (parent == null) {
             responseObject = new ResponseObject(Constants.CODE_404, "Cannot found your account in the systen");
             return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
+        }
+        if (!username.matches("(\\d{3}(\\s|-)?\\d{3,4}(\\s|-)?\\d{3,4})")) {
+            responseObject = new ResponseObject(Constants.CODE_400, "Reset password for parent account only");
+            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
 
         responseObject = new ResponseObject(Constants.CODE_500, "Cannot not reset password for your account");

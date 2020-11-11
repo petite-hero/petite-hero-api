@@ -40,6 +40,9 @@ public class Quest implements Serializable {
     @Column
     private Boolean isDeleted;
 
+    @Column
+    private Long submitDate;
+
     @ManyToOne
     @JoinColumn(name = "assignee_id")
     @EqualsAndHashCode.Exclude

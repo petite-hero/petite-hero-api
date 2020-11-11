@@ -14,4 +14,5 @@ public class CreateSubscriptionTypeRequestDTO implements Serializable {
     private Double price;
     private Integer maxChildren;
     private Integer maxCollaborator;
+    private Integer durationDay;
 }

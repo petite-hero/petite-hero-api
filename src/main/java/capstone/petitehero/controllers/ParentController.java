@@ -612,9 +612,10 @@ public class ParentController {
 
                     ParentPaymentCompledResponseDTO result = parentPaymentService.completedSuccessParentPayment(recentParentPayment);
                     if (result != null) {
-                        // refresh 30 day when parent buy a subscription
+                        // refresh day when parent buy a subscription
                         Calendar calendar = Calendar.getInstance();
-                        calendar.set(Calendar.MONTH, 30);
+                        calendar.setTime(new Date());
+                        calendar.add(Calendar.DATE, subscriptionType.getDurationDay());
                         parent.getSubscription().setExpiredDate(calendar.getTime().getTime());
                         // update subscription type
                         parent.getSubscription().setSubscriptionType(subscriptionType);

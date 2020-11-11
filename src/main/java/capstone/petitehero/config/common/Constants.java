@@ -29,7 +29,6 @@ public class Constants {
     public static final boolean SAFE = true;
     public static final boolean NOT_SAFE = false;
     public static final String UPLOAD_FOLDER = "images/";
-    public static final String BADGE_FOLDER = "images/badges/";
     public static final Long FREE_TRAIL_TYPE = 1L;
     public enum status {
         DONE, FAILED, HANDED,
@@ -81,11 +80,10 @@ public class Constants {
     public static final String UPDATED_SAFEZONES = "updated-safezones";
     public static final String NEW_TASKS = "new-tasks";
     public static final String UPDATED_TASKS = "updated-tasks";
+    public static final String UPDATED_QUEST = "updated-quests";
     public static final String CHILD_SAFE = "Child is currently safe";
     public static final String CHILD_NOT_SAFE = "Child is currently not safe";
     public static final String DONE_SETTING_UP_DEVICE = "Done setting up child's device";
-
-    public static final Long ONE_HOUR_IN_MILLISECOND = 3600000L;
 
 //    // push notification message
 //    public static final int CHILD_STATUS_CHANGED = 1;

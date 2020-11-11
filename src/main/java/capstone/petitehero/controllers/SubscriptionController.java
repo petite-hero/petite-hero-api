@@ -4,7 +4,6 @@ import capstone.petitehero.config.common.Constants;
 import capstone.petitehero.dtos.ResponseObject;
 import capstone.petitehero.dtos.request.subscription.type.CreateSubscriptionTypeRequestDTO;
 import capstone.petitehero.dtos.response.subscription.type.CreateSubscriptionTypeResponseDTO;
-import capstone.petitehero.dtos.response.subscription.type.ListSubscriptionTypeResponseDTO;
 import capstone.petitehero.dtos.response.subscription.type.ModifySubscriptionTypeResponseDTO;
 import capstone.petitehero.dtos.response.subscription.type.SubscriptionTypeDetailResponseDTO;
 import capstone.petitehero.entities.SubscriptionType;
@@ -63,6 +62,15 @@ public class SubscriptionController {
                 return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
             }
         }
+        if (createSubscriptionTypeRequestDTO.getDurationDay() == null || createSubscriptionTypeRequestDTO.getDurationDay().toString().isEmpty()) {
+            responseObject = new ResponseObject(Constants.CODE_400, "Subscription type duration day cannot be empty or missing");
+            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+        } else {
+            if (!Util.validateLongNumber(createSubscriptionTypeRequestDTO.getDurationDay().toString())) {
+                responseObject = new ResponseObject(Constants.CODE_400, "Subscription type duration day value cannot be a negative number or a characters");
+                return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+            }
+        }
 
         SubscriptionType subscriptionType = new SubscriptionType();
         subscriptionType.setName(createSubscriptionTypeRequestDTO.getName());
@@ -70,6 +78,7 @@ public class SubscriptionController {
         subscriptionType.setMaxChildren(createSubscriptionTypeRequestDTO.getMaxChildren());
         subscriptionType.setMaxCollaborator(createSubscriptionTypeRequestDTO.getMaxCollaborator());
         subscriptionType.setPrice(createSubscriptionTypeRequestDTO.getPrice());
+        subscriptionType.setDurationDay(createSubscriptionTypeRequestDTO.getDurationDay());
 
         CreateSubscriptionTypeResponseDTO result = subscriptionService.createNewSubscriptionType(subscriptionType);
         if (result != null) {
@@ -122,6 +131,14 @@ public class SubscriptionController {
             subscriptionType.setPrice(modifySubscriptionTypeRequestDTO.getPrice());
         }
 
+        if (modifySubscriptionTypeRequestDTO.getDurationDay() != null || !modifySubscriptionTypeRequestDTO.getDurationDay().toString().isEmpty()) {
+            if (!Util.validateLongNumber(modifySubscriptionTypeRequestDTO.getDurationDay().toString())) {
+                responseObject = new ResponseObject(Constants.CODE_400, "Subscription type duration day value cannot be a negative number or a characters");
+                return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+            }
+            subscriptionType.setDurationDay(modifySubscriptionTypeRequestDTO.getDurationDay());
+        }
+
         ModifySubscriptionTypeResponseDTO result = subscriptionService.modifySubscriptionType(subscriptionType);
         if (result != null) {
             responseObject = new ResponseObject(Constants.CODE_200, "OK");
@@ -154,7 +171,7 @@ public class SubscriptionController {
     public ResponseEntity<Object> getListSubscriptionType() {
         ResponseObject responseObject;
 
-        List<ListSubscriptionTypeResponseDTO> result = subscriptionService.getListSubscriptionType();
+        List<SubscriptionTypeDetailResponseDTO> result = subscriptionService.getListSubscriptionType();
 //        if (result != null) {
         if (result.isEmpty()) {
             responseObject = new ResponseObject(Constants.CODE_200, "List subscription type is empty");

@@ -15,4 +15,5 @@ public class ListQuestResponseDTO implements Serializable {
     private String name;
     private String status;
     private Integer reward;
+    private String description;
 }

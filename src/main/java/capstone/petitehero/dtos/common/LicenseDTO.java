@@ -10,6 +10,8 @@ public class LicenseDTO implements Serializable {
     private Integer outer_radius;
     private Integer report_delay;
     private String safezone_cron_time;
+    private String task_cron_time;
+    private Integer total_hour_task;
     private String license_EN;
     private String license_VN;
 
@@ -56,5 +58,23 @@ public class LicenseDTO implements Serializable {
 
     public void setLicense_VN(String license_VN) {
         this.license_VN = license_VN;
+    }
+
+    @XmlElement
+    public String getTask_cron_time() {
+        return task_cron_time;
+    }
+
+    public void setTask_cron_time(String task_cron_time) {
+        this.task_cron_time = task_cron_time;
+    }
+
+    @XmlElement
+    public Integer getTotal_hour_task() {
+        return total_hour_task;
+    }
+
+    public void setTotal_hour_task(Integer total_hour_task) {
+        this.total_hour_task = total_hour_task;
     }
 }

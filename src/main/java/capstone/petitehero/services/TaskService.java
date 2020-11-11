@@ -3,12 +3,14 @@ package capstone.petitehero.services;
 import capstone.petitehero.config.common.Constants;
 import capstone.petitehero.dtos.ResponseObject;
 import capstone.petitehero.dtos.common.*;
+import capstone.petitehero.dtos.request.location.PushNotiSWDTO;
 import capstone.petitehero.dtos.response.task.*;
 import capstone.petitehero.entities.Child;
 import capstone.petitehero.entities.Task;
 import capstone.petitehero.repositories.TaskRepository;
 import capstone.petitehero.utilities.Util;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -24,6 +26,9 @@ public class TaskService {
 
     @Autowired
     private NotificationService notiService;
+
+    @Autowired
+    private ConfigService configService;
 
     @Transactional
     public List<TaskCreateResponseDTO> addTaskByParent(List<Task> listTask) {
@@ -70,20 +75,38 @@ public class TaskService {
                 }
                 resultData.setAssignee(assignee);
 
+                // send notification when a task is created in current day to parent's mobile
+                // and child' smart watch
                 if (Util.getStartDay(task.getAssignDate()).longValue()
                         == Util.getStartDay(new Date().getTime()).longValue()) {
-                    NotificationDTO notificationDTO = new NotificationDTO();
-                    notificationDTO.setData(taskResult);
-                    ArrayList<String> pushTokenList = new ArrayList<>();
-                    pushTokenList.add(taskResult.getParent().getPushToken());
-                    if (!taskResult.getChild().getChild_parentCollection()
-                            .stream()
-                            .anyMatch(pc ->
-                                    pc.getParent().getId().longValue() ==
-                                            taskResult.getParent().getId().longValue())) {
-                        notiService.pushNotificationMobile(
-                                assigner.getFirstName() + assigner.getLastName() + " assigned new task for " + assignee.getFirstName() + assignee.getLastName()
-                                , notificationDTO, pushTokenList);
+
+                    // send noti to parent's mobile when a collaborator create task to their children.
+//                    if (!taskResult.getChild().getChild_parentCollection()
+//                            .stream()
+//                            .anyMatch(pc ->
+//                                    pc.getParent().getId().longValue() ==
+//                                            taskResult.getParent().getId().longValue())) {
+//
+//                        NotificationDTO notificationDTO = new NotificationDTO();
+//                        notificationDTO.setData(resultData);
+//                        ArrayList<String> pushTokenList = new ArrayList<>();
+//
+//                        pushTokenList.add(taskResult.getChild().getChild_parentCollection()
+//                                .stream()
+//                                .findFirst().orElse(null)
+//                                .getParent().getPushToken());
+//
+//                        notiService.pushNotificationMobile(
+//                                assigner.getFirstName() + " "+ assigner.getLastName() + " assigned new task for "
+//                                        + assignee.getFirstName() + " " + assignee.getLastName()
+//                                , notificationDTO, pushTokenList);
+//                    }
+
+                    // send silent noty when a task is created in current day to child's smartwatch
+                    // send silent noty to children's smart watch
+                    if (taskResult.getChild().getPushToken() != null && !taskResult.getChild().getPushToken().isEmpty()) {
+                        PushNotiSWDTO noti = new PushNotiSWDTO(Constants.SILENT_NOTI, Constants.UPDATED_TASKS, resultData);
+                        notiService.pushNotificationSW(noti, taskResult.getChild().getPushToken());
                     }
                 }
 
@@ -158,6 +181,29 @@ public class TaskService {
                 TaskDeleteResponseDTO result = new TaskDeleteResponseDTO();
                 result.setTaskId(taskDeleted.getTaskId());
                 result.setStatus(Constants.status.DELETED.toString());
+
+
+//                // noti to parent's mobile when collaborator deleted task;
+//                if (taskDeleted.getParent().getPushToken() != null && !taskDeleted.getParent().getPushToken().isEmpty()) {
+//                    NotificationDTO notificationDTO = new NotificationDTO();
+//                    notificationDTO.setData(result);
+//                    ArrayList<String> pushTokenList = new ArrayList<>();
+//                    pushTokenList.add(taskDeleted.getParent().getPushToken());
+//
+//                    notiService.pushNotificationMobile(
+//                            taskDeleted.getParent().getFirstName() + " " + taskDeleted.getParent().getLastName()
+//                                    + " has deleted " + task.getName() + " of child " +
+//                                    taskDeleted.getChild().getFirstName() + " " + taskDeleted.getChild().getLastName()
+//                            , notificationDTO, pushTokenList);
+//                }
+
+                // silent noty to smart watch when collaborator or parent task in current day
+                if (Util.getStartDay(taskDeleted.getAssignDate()) == Util.getStartDay(new Date().getTime())) {
+                    if (taskDeleted.getChild().getPushToken() != null && !taskDeleted.getChild().getPushToken().isEmpty()) {
+                        PushNotiSWDTO noty = new PushNotiSWDTO(Constants.SILENT_NOTI, Constants.UPDATED_TASKS, result);
+                        notiService.pushNotificationSW(noty, taskDeleted.getChild().getPushToken());
+                    }
+                }
                 return result;
             }
         }
@@ -215,6 +261,7 @@ public class TaskService {
         task.setProofPhoto(Util.saveImageToSystem(
                 task.getTaskId().toString(), "Child_Submitted", proofPhoto));
         task.setStatus(Constants.status.HANDED.toString());
+        task.setSubmitDate(new Date().getTime());
 
         Task taskResult = taskRepository.save(task);
         if (taskResult != null) {
@@ -226,6 +273,58 @@ public class TaskService {
             result.setName(taskResult.getName());
 
             result.setStatus(Constants.status.HANDED.toString());
+            result.setFromTime(Util.formatTimestampToTime(taskResult.getFromTime().getTime()));
+            result.setToTime(Util.formatTimestampToTime(taskResult.getToTime().getTime()));
+            result.setType(taskResult.getType());
+
+            if (taskResult.getParent().getPushToken() != null && !taskResult.getParent().getPushToken().isEmpty()) {
+                NotificationDTO notificationDTO = new NotificationDTO();
+                notificationDTO.setData(result);
+                ArrayList<String> pushTokenList = new ArrayList<>();
+                pushTokenList.add(taskResult.getParent().getPushToken());
+
+                if (!taskResult.getChild().getChild_parentCollection()
+                        .stream()
+                        .anyMatch(pc ->
+                                pc.getParent().getId().longValue() ==
+                                        taskResult.getParent().getId().longValue())) {
+//                    // send noti to collaborator's mobile (creator of the task)
+//                    notiService.pushNotificationMobile(
+//                            taskResult.getChild().getFirstName() + " " + taskResult.getChild().getLastName() +
+//                                    " has submitted task " + taskResult.getName()
+//                            , notificationDTO, pushTokenList);
+//
+//                    // send noti to parent's mobile to noty that child has submitted collaborator's task
+//                    pushTokenList = new ArrayList<>();
+//                    pushTokenList.add(taskResult.getChild().getChild_parentCollection()
+//                            .stream()
+//                            .findFirst().orElse(null)
+//                            .getParent().getPushToken());
+//
+//                    String msg;
+//                    if (task.getToTime().getTime() < new Date().getTime()) {
+//                        msg = taskResult.getChild().getFirstName() + " " + taskResult.getChild().getLastName() +
+//                            " has submitted " + taskResult.getName() + " of collaborator " +
+//                            taskResult.getParent().getFirstName() + " " + taskResult.getParent().getLastName() + "LATE";
+//                    } else {
+//                        msg = taskResult.getChild().getFirstName() + " " + taskResult.getChild().getLastName() +
+//                                " has submitted " + taskResult.getName() + " of collaborator " +
+//                                taskResult.getParent().getFirstName() + " " + taskResult.getParent().getLastName();
+//                    }
+//                    notiService.pushNotificationMobile(msg, notificationDTO, pushTokenList);
+                } else {
+                    // send noti to parent's mobile (creator of the task)
+                    String msg;
+                    if (task.getToTime().getTime() < new Date().getTime()) {
+                        msg = taskResult.getChild().getFirstName() + " " + taskResult.getChild().getLastName() +
+                                " has submitted " + taskResult.getName() + "LATE";
+                    } else {
+                        msg = taskResult.getChild().getFirstName() + " " + taskResult.getChild().getLastName() +
+                                " has submitted " + taskResult.getName();
+                    }
+                    notiService.pushNotificationMobile(msg, notificationDTO, pushTokenList);
+                }
+            }
             return result;
         }
 
@@ -253,6 +352,9 @@ public class TaskService {
             } else {
                 result.setStatus(Constants.status.FAILED.toString());
             }
+            result.setFromTime(Util.formatTimestampToTime(taskResult.getFromTime().getTime()));
+            result.setToTime(Util.formatTimestampToTime(taskResult.getToTime().getTime()));
+            result.setType(taskResult.getType());
             return result;
         }
 
@@ -340,11 +442,17 @@ public class TaskService {
             if (!taskListResult.isEmpty()) {
                 Boolean isWarning = Boolean.FALSE;
                 Long totalHourTaskHasAssigned = 0L;
+                LicenseDTO licenseDTO = configService.getLicenseForAdmin();
+
                 for (Task t : taskListResult) {
                     totalHourTaskHasAssigned += t.getToTime().getTime() - t.getFromTime().getTime();
                 }
-                if (totalHourTaskHasAssigned / (60 * 60 * 1000) >= 3) {
-                    isWarning = Boolean.TRUE;
+                if (licenseDTO != null) {
+                    if (totalHourTaskHasAssigned / (60 * 60 * 1000) >= licenseDTO.getTotal_hour_task().longValue()) {
+                        isWarning = Boolean.TRUE;
+                    }
+                } else {
+                    return null;
                 }
                 return isWarning;
             }

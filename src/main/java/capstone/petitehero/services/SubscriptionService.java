@@ -2,7 +2,6 @@ package capstone.petitehero.services;
 
 import capstone.petitehero.config.common.Constants;
 import capstone.petitehero.dtos.response.subscription.type.CreateSubscriptionTypeResponseDTO;
-import capstone.petitehero.dtos.response.subscription.type.ListSubscriptionTypeResponseDTO;
 import capstone.petitehero.dtos.response.subscription.type.ModifySubscriptionTypeResponseDTO;
 import capstone.petitehero.dtos.response.subscription.type.SubscriptionTypeDetailResponseDTO;
 import capstone.petitehero.entities.Subscription;
@@ -39,15 +38,15 @@ public class SubscriptionService {
         return null;
     }
 
-    public List<ListSubscriptionTypeResponseDTO> getListSubscriptionType() {
+    public List<SubscriptionTypeDetailResponseDTO> getListSubscriptionType() {
         List<SubscriptionType> listSubscriptionTypeResult = subscriptionTypeRepository.findAll().stream()
                 .sorted(Comparator.comparing(SubscriptionType::getPrice))
                 .collect(Collectors.toList());
 
-        List<ListSubscriptionTypeResponseDTO> result = new ArrayList<>();
+        List<SubscriptionTypeDetailResponseDTO> result = new ArrayList<>();
         if (listSubscriptionTypeResult != null) {
             for (SubscriptionType subscriptionType : listSubscriptionTypeResult) {
-                ListSubscriptionTypeResponseDTO dataResult = new ListSubscriptionTypeResponseDTO();
+                SubscriptionTypeDetailResponseDTO dataResult = new SubscriptionTypeDetailResponseDTO();
 
                 dataResult.setSubscriptionTypeId(subscriptionType.getSubscriptionTypeId());
                 dataResult.setDescription(subscriptionType.getDescription());
@@ -55,6 +54,7 @@ public class SubscriptionService {
                 dataResult.setMaxChildren(subscriptionType.getMaxChildren());
                 dataResult.setMaxCollaborator(subscriptionType.getMaxCollaborator());
                 dataResult.setPrice(subscriptionType.getPrice());
+                dataResult.setDurationDay(subscriptionType.getDurationDay());
 
                 result.add(dataResult);
             }
@@ -73,6 +73,7 @@ public class SubscriptionService {
             result.setMaxChildren(subscriptionTypeResult.getMaxChildren());
             result.setMaxCollaborator(subscriptionTypeResult.getMaxCollaborator());
             result.setPrice(subscriptionTypeResult.getPrice());
+            result.setDurationDay(subscriptionTypeResult.getDurationDay());
 
             return result;
         }
@@ -91,6 +92,7 @@ public class SubscriptionService {
             result.setMaxChildren(subscriptionType.getMaxChildren());
             result.setMaxCollaborator(subscriptionType.getMaxCollaborator());
             result.setPrice(subscriptionType.getPrice());
+            result.setDurationDay(subscriptionType.getDurationDay());
             result.setStatus(Constants.status.UPDATED.toString());
 
             return result;

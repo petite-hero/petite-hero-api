@@ -93,19 +93,37 @@ public class QuestController {
 
     @RequestMapping(value = "/list/{childId}/badges", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<Object> getListBadgeChildArchived(@PathVariable("childId") Long childId) {
+    public ResponseEntity<Object> getListBadgeChildArchived(@PathVariable("childId") Long childId,
+                                                            @RequestParam(value = "provider", required = false, defaultValue = Constants.MOBILE) String provider,
+                                                            @RequestParam(value = "max-badges", required = false) Integer maxBadges) {
         ResponseObject responseObject;
 
-        List<QuestBadgeResponseDTO> listQuestBadgeChildArchived = questService.getBadgeListChildArchived(childId);
+        if (provider.equalsIgnoreCase(Constants.SMART_WATCH)) {
+            if (!maxBadges.toString().matches("\\d+")) {
+                responseObject = new ResponseObject(Constants.CODE_400, "Max badges should only positive number");
+                return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+            }
 
-        if (listQuestBadgeChildArchived != null) {
-            responseObject = new ResponseObject(Constants.CODE_200, "OK");
+            List<ListQuestResponseDTO> result = questService.getListBadgesChildArchivedSmartWatch(childId, maxBadges);
+
+            if (!result.isEmpty()) {
+                responseObject = new ResponseObject(Constants.CODE_200, "OK");
+            } else {
+                responseObject = new ResponseObject(Constants.CODE_200, "List badges is empty");
+            }
+            responseObject.setData(result);
+            return new ResponseEntity<>(responseObject, HttpStatus.OK);
+        } else {
+            List<QuestBadgeResponseDTO> listQuestBadgeChildArchived = questService.getBadgeListChildArchived(childId);
+
+            if (!listQuestBadgeChildArchived.isEmpty()) {
+                responseObject = new ResponseObject(Constants.CODE_200, "OK");
+            } else {
+                responseObject = new ResponseObject(Constants.CODE_200, "List badges child archived is empty");
+            }
             responseObject.setData(listQuestBadgeChildArchived);
             return new ResponseEntity<>(responseObject, HttpStatus.OK);
         }
-
-        responseObject = new ResponseObject(Constants.CODE_500, "Server is down pls come back again");
-        return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @RequestMapping(value = "/{questId}", method = RequestMethod.PUT)
