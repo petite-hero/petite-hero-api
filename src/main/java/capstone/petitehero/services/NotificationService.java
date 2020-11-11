@@ -26,7 +26,7 @@ public class NotificationService {
             HashMap<String, Object> body = new HashMap<>();
             body.put("data", data);
             body.put("to", pushToken);
-            StringEntity bodyJson = new StringEntity(new Gson().toJson(body));
+            StringEntity bodyJson = new StringEntity(new Gson().toJson(body), "UTF-8");
 
             System.out.println("===> Body sent: " + new Gson().toJson(body));
 
@@ -64,7 +64,7 @@ public class NotificationService {
             body.put("data", new Gson().toJson(data));
             body.put("to", pushTokens);
 
-            StringEntity bodyJson = new StringEntity(new Gson().toJson(body));
+            StringEntity bodyJson = new StringEntity(new Gson().toJson(body), "UTF-8");
 
             System.out.println("===> Body sent: " + new Gson().toJson(body));
 

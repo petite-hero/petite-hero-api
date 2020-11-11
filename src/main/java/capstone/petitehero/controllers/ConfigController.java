@@ -52,12 +52,26 @@ public class ConfigController {
             }
             licenseDTO.setReport_delay(modifyLicenseDTO.getReport_delay());
         }
-        if (modifyLicenseDTO.getTotal_hour_task() != null && !modifyLicenseDTO.getTotal_hour_task().toString().isEmpty()) {
-            if (!Util.validateLongNumber(modifyLicenseDTO.getTotal_hour_task().toString())) {
-                responseObject = new ResponseObject(Constants.CODE_400, "Report delay should only contain number");
+        if (modifyLicenseDTO.getTotal_hour_task_education() != null && !modifyLicenseDTO.getTotal_hour_task_education().toString().isEmpty()) {
+            if (!Util.validateLongNumber(modifyLicenseDTO.getTotal_hour_task_education().toString())) {
+                responseObject = new ResponseObject(Constants.CODE_400, "Total hour task education should only contain number");
                 return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
             }
-            licenseDTO.setTotal_hour_task(modifyLicenseDTO.getTotal_hour_task());
+            licenseDTO.setTotal_hour_task_education(modifyLicenseDTO.getTotal_hour_task_education());
+        }
+        if (modifyLicenseDTO.getTotal_hour_task_housework() != null && !modifyLicenseDTO.getTotal_hour_task_housework().toString().isEmpty()) {
+            if (!Util.validateLongNumber(modifyLicenseDTO.getTotal_hour_task_housework().toString())) {
+                responseObject = new ResponseObject(Constants.CODE_400, "Total hour task housework should only contain number");
+                return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+            }
+            licenseDTO.setTotal_hour_task_housework(modifyLicenseDTO.getTotal_hour_task_housework());
+        }
+        if (modifyLicenseDTO.getTotal_hour_task_skills() != null && !modifyLicenseDTO.getTotal_hour_task_skills().toString().isEmpty()) {
+            if (!Util.validateLongNumber(modifyLicenseDTO.getTotal_hour_task_skills().toString())) {
+                responseObject = new ResponseObject(Constants.CODE_400, "Total hour task skills should only contain number");
+                return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+            }
+            licenseDTO.setTotal_hour_task_skills(modifyLicenseDTO.getTotal_hour_task_skills());
         }
         if (modifyLicenseDTO.getSafezone_cron_time() != null && !modifyLicenseDTO.getSafezone_cron_time().isEmpty()) {
             if (modifyLicenseDTO.getSafezone_cron_time().matches("^(?:(?:([01]?\\d|2[0-3]):)?([0-5]?\\d):)?([0-5]?\\d)$")) {

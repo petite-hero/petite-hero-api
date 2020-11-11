@@ -1,20 +1,22 @@
 package capstone.petitehero.services;
 
 import capstone.petitehero.config.common.Constants;
-import capstone.petitehero.dtos.ResponseObject;
 import capstone.petitehero.dtos.common.*;
 import capstone.petitehero.dtos.request.location.PushNotiSWDTO;
 import capstone.petitehero.dtos.response.task.*;
-import capstone.petitehero.entities.Child;
 import capstone.petitehero.entities.Task;
 import capstone.petitehero.repositories.TaskRepository;
 import capstone.petitehero.utilities.Util;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -29,6 +31,15 @@ public class TaskService {
 
     @Autowired
     private ConfigService configService;
+
+    private String decodeText (String input, String encoding) {
+        try {
+            return new BufferedReader(new InputStreamReader(new ByteArrayInputStream(
+                    input.getBytes()), Charset.forName(encoding))).readLine();
+        } catch (Exception e) {
+            return null;
+        }
+    }
 
     @Transactional
     public List<TaskCreateResponseDTO> addTaskByParent(List<Task> listTask) {
@@ -97,8 +108,9 @@ public class TaskService {
 //                                .getParent().getPushToken());
 //
 //                        notiService.pushNotificationMobile(
-//                                assigner.getFirstName() + " "+ assigner.getLastName() + " assigned new task for "
-//                                        + assignee.getFirstName() + " " + assignee.getLastName()
+//                                assigner.getFirstName() + " " + assigner.getLastName() +
+//                                " assigned new task to "
+//                                + assignee.getFirstName() + " " + assignee.getLastName()
 //                                , notificationDTO, pushTokenList);
 //                    }
 
@@ -317,7 +329,7 @@ public class TaskService {
                     String msg;
                     if (task.getToTime().getTime() < new Date().getTime()) {
                         msg = taskResult.getChild().getFirstName() + " " + taskResult.getChild().getLastName() +
-                                " has submitted " + taskResult.getName() + "LATE";
+                                " has submitted " + taskResult.getName() + " LATE";
                     } else {
                         msg = taskResult.getChild().getFirstName() + " " + taskResult.getChild().getLastName() +
                                 " has submitted " + taskResult.getName();
@@ -448,9 +460,9 @@ public class TaskService {
                     totalHourTaskHasAssigned += t.getToTime().getTime() - t.getFromTime().getTime();
                 }
                 if (licenseDTO != null) {
-                    if (totalHourTaskHasAssigned / (60 * 60 * 1000) >= licenseDTO.getTotal_hour_task().longValue()) {
-                        isWarning = Boolean.TRUE;
-                    }
+//                    if (totalHourTaskHasAssigned / (60 * 60 * 1000) >= licenseDTO.getTotal_hour_task_education().longValue()) {
+//                        isWarning = Boolean.TRUE;
+//                    }
                 } else {
                     return null;
                 }

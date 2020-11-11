@@ -11,7 +11,9 @@ public class LicenseDTO implements Serializable {
     private Integer report_delay;
     private String safezone_cron_time;
     private String task_cron_time;
-    private Integer total_hour_task;
+    private Integer total_hour_task_education;
+    private Integer total_hour_task_skills;
+    private Integer total_hour_task_housework;
     private String license_EN;
     private String license_VN;
 
@@ -70,11 +72,29 @@ public class LicenseDTO implements Serializable {
     }
 
     @XmlElement
-    public Integer getTotal_hour_task() {
-        return total_hour_task;
+    public Integer getTotal_hour_task_education() {
+        return total_hour_task_education;
     }
 
-    public void setTotal_hour_task(Integer total_hour_task) {
-        this.total_hour_task = total_hour_task;
+    public void setTotal_hour_task_education(Integer total_hour_task_education) {
+        this.total_hour_task_education = total_hour_task_education;
+    }
+
+    @XmlElement
+    public Integer getTotal_hour_task_skills() {
+        return total_hour_task_skills;
+    }
+
+    public void setTotal_hour_task_skills(Integer total_hour_task_skills) {
+        this.total_hour_task_skills = total_hour_task_skills;
+    }
+
+    @XmlElement
+    public Integer getTotal_hour_task_housework() {
+        return total_hour_task_housework;
+    }
+
+    public void setTotal_hour_task_housework(Integer total_hour_task_housework) {
+        this.total_hour_task_housework = total_hour_task_housework;
     }
 }

@@ -1,1 +1,12 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?><config><license_EN>This is sample data EN</license_EN><license_VN>Đây là dữ liệu mẫu VN</license_VN><outer_radius>100</outer_radius><report_delay>40000</report_delay><safezone_cron_time>00:05:00</safezone_cron_time><task_cron_time>00:05:00</task_cron_time><total_hour_task>3</total_hour_task></config>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<config>
+    <license_EN>This is sample data EN</license_EN>
+    <license_VN>Đây là dữ liệu mẫu VN</license_VN>
+    <outer_radius>100</outer_radius>
+    <report_delay>40000</report_delay>
+    <safezone_cron_time>00:05:00</safezone_cron_time>
+    <task_cron_time>00:05:00</task_cron_time>
+    <total_hour_task_education>2</total_hour_task_education>
+    <total_hour_task_skills>3</total_hour_task_skills>
+    <total_hour_task_housework>2</total_hour_task_housework>
+</config>
