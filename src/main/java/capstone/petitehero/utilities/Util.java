@@ -422,6 +422,8 @@ public class Util {
                     resultData.setFromTime(Util.formatTimestampToTime(task.getFromTime().getTime()));
                     resultData.setToTime(Util.formatTimestampToTime(task.getToTime().getTime()));
                     resultData.setType(task.getType());
+
+                    result.add(resultData);
                 }
             }
         }

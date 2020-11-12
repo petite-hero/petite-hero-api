@@ -223,8 +223,7 @@ public class TaskController {
     }
 
     @RequestMapping(value = "/test/cronjob", method = RequestMethod.GET)
-    public void testCronjob() {
-        ScheduledDuplicatedTasks scheduledDuplicatedTasks = new ScheduledDuplicatedTasks();
-        scheduledDuplicatedTasks.cronJobTasks();
+    public void testCronjob(@RequestParam("childId") Long childId) {
+        taskService.cronJobTasksTest(childId);
     }
 }

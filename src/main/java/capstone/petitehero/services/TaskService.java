@@ -4,6 +4,7 @@ import capstone.petitehero.config.common.Constants;
 import capstone.petitehero.dtos.common.*;
 import capstone.petitehero.dtos.request.location.PushNotiSWDTO;
 import capstone.petitehero.dtos.response.task.*;
+import capstone.petitehero.entities.Child;
 import capstone.petitehero.entities.Task;
 import capstone.petitehero.repositories.TaskRepository;
 import capstone.petitehero.utilities.Util;
@@ -482,5 +483,45 @@ public class TaskService {
             }
         }
         return null;
+    }
+
+    public void cronJobTasksTest(Long childId) {
+        List<Task> taskList = taskRepository.findTasksByIsDeletedAndAssignDateIsBetween(
+                Boolean.FALSE, Util.getStartDay(new Date().getTime()), Util.getEndDay(new Date().getTime()));
+
+        List<Task> distinctChildList = taskList
+                .stream()
+                .filter(Util.distinctByKey(Task::getChild))
+                .collect(Collectors.toList());
+
+        Child child = distinctChildList.stream()
+                .filter(t -> t.getChild().getChildId().longValue() == childId.longValue())
+                .findAny().orElse(null).getChild();
+
+        PushNotiSWDTO noti = new PushNotiSWDTO(Constants.SILENT_NOTI, Constants.NEW_TASKS, null);
+
+        if (child != null) {
+            if (child.getPushToken() != null
+                    && !child.getPushToken().isEmpty()) {
+                String pushToken = child.getPushToken();
+
+                List<ListTaskResponseDTO> listTask = Util.notiTasksAtCurrentDateForChild(taskList.stream()
+                        .filter(task ->
+                                task.getChild().getChildId().longValue()
+                                        == child.getChildId().longValue())
+                        .collect(Collectors.toList()));
+
+                System.out.println("SIZE: " + listTask.size());
+                if (!listTask.isEmpty()) {
+                    for (ListTaskResponseDTO t : listTask) {
+                        System.out.println("ID: " + t.getTaskId().longValue());
+                    }
+                }
+                if (!listTask.isEmpty()) {
+                    noti.setData(listTask);
+                    notiService.pushNotificationSW(noti, pushToken);
+                }
+            }
+        }
     }
 }
