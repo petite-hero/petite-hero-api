@@ -1,5 +1,6 @@
 package capstone.petitehero.dtos.response.parent.payment;
 
+import capstone.petitehero.dtos.common.ParentInformation;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,7 +12,12 @@ public class ListPaymentTransactionResponseDTO implements Serializable {
 
     private Long transactionId;
     private String phoneNumber;
-    private String date;
+    private Long date;
     private Double amount;
+    private String content;
+    private String link;
     private String status;
+    private String payerId;
+    private String paymentID;
+    private ParentInformation parentInformation;
 }

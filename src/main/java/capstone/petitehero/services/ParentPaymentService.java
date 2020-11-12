@@ -1,6 +1,7 @@
 package capstone.petitehero.services;
 
 import capstone.petitehero.config.common.Constants;
+import capstone.petitehero.dtos.common.ParentInformation;
 import capstone.petitehero.dtos.response.parent.payment.ListPaymentTransactionResponseDTO;
 import capstone.petitehero.dtos.response.parent.payment.ParentPaymentCompledResponseDTO;
 import capstone.petitehero.dtos.response.parent.payment.ParentPaymentDetailResponseDTO;
@@ -112,9 +113,10 @@ public class ParentPaymentService {
                 dataResult.setTransactionId(payment.getTransactionId());
                 dataResult.setPhoneNumber(payment.getParent().getAccount().getUsername());
                 dataResult.setStatus(payment.getStatus());
+                dataResult.setLink(payment.getLink());
                 dataResult.setAmount(payment.getAmount());
 
-                dataResult.setDate(Util.formatTimestampToDateTime(payment.getDate()));
+                dataResult.setDate(payment.getDate());
 
                 result.add(dataResult);
             }
@@ -131,11 +133,21 @@ public class ParentPaymentService {
                     ListPaymentTransactionResponseDTO dataResult = new ListPaymentTransactionResponseDTO();
 
                     dataResult.setTransactionId(payment.getTransactionId());
-                    dataResult.setPhoneNumber(payment.getParent().getAccount().getUsername());
                     dataResult.setStatus(payment.getStatus());
                     dataResult.setAmount(payment.getAmount());
+                    dataResult.setPayerId(payment.getPayerId());
+                    dataResult.setPaymentID(payment.getPaymentId());
+                    dataResult.setContent(payment.getContent());
+                    dataResult.setDate(payment.getDate());
+                    dataResult.setLink(payment.getLink());
 
-                    dataResult.setDate(Util.formatTimestampToDateTime(payment.getDate()));
+                    ParentInformation parentInformation = new ParentInformation();
+                    parentInformation.setPhoneNumber(payment.getParent().getAccount().getUsername());
+                    parentInformation.setLastName(payment.getParent().getLastName());
+                    parentInformation.setFirstName(payment.getParent().getFirstName());
+                    parentInformation.setEmail(payment.getParent().getEmail());
+
+                    dataResult.setParentInformation(parentInformation);
 
                     result.add(dataResult);
                 }

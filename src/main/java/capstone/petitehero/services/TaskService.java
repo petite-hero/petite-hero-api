@@ -329,12 +329,15 @@ public class TaskService {
                 } else {
                     // send noti to parent's mobile (creator of the task)
                     String msg;
-                    if (task.getToTime().getTime() < new Date().getTime()) {
+                    if (Util.setTimeForAssignDate
+                            (taskResult.getAssignDate(),
+                                    new Date(taskResult.getToTime().getTime()).getTime())
+                            < new Date().getTime()) {
                         msg = taskResult.getChild().getFirstName() + " " + taskResult.getChild().getLastName() +
-                                " has submitted " + taskResult.getName() + " LATE";
+                                " has submitted task " + taskResult.getName() + " LATE";
                     } else {
                         msg = taskResult.getChild().getFirstName() + " " + taskResult.getChild().getLastName() +
-                                " has submitted " + taskResult.getName();
+                                " has submitted task " + taskResult.getName();
                     }
                     notiService.pushNotificationMobile(msg, notificationDTO, pushTokenList);
                 }
