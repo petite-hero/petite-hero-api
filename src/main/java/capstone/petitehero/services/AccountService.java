@@ -63,6 +63,18 @@ public class AccountService {
         }
     }
 
+    public Account findAccountByUsername(String username) {
+        return accountRepository.findAccountByUsername(username);
+    }
+
+    public String changeAccountPassword(Account account) {
+        Account accountResult = accountRepository.save(account);
+        if (accountResult != null) {
+            return "Password of account has been updated";
+        }
+        return null;
+    }
+
     public LoginResponseDTO loginAccount(AccountLoginDTO accountLoginDTO) {
         Account account = accountRepository.findAdminByUsernameEqualsAndPasswordEquals(accountLoginDTO.getUsername(), accountLoginDTO.getPassword());
         if (account != null) {

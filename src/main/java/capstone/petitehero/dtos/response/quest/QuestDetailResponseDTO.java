@@ -17,7 +17,6 @@ public class QuestDetailResponseDTO implements Serializable {
     private Long createdDate;
     private String description;
     private Integer reward;
-    private String rewardDetail;
     private Assignee assignee;
     private Assigner assigner;
 }

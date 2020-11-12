@@ -7,7 +7,9 @@ import capstone.petitehero.dtos.response.parent.DisableParentResponseDTO;
 import capstone.petitehero.dtos.response.parent.ParentProfileRegisterResponseDTO;
 import capstone.petitehero.dtos.response.parent.ParentRegisterResponseDTO;
 import capstone.petitehero.dtos.response.parent.ParentUpdateProfileResponseDTO;
+import capstone.petitehero.entities.Account;
 import capstone.petitehero.entities.Parent;
+import capstone.petitehero.repositories.AccountRepository;
 import capstone.petitehero.repositories.ParentRepository;
 import capstone.petitehero.utilities.Util;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +20,9 @@ public class ParentService {
 
     @Autowired
     private ParentRepository parentRepository;
+
+    @Autowired
+    private AccountRepository accountRepository;
 
     public ParentRegisterResponseDTO registerByParent(Parent parentHaveOnlyPhoneNumber) {
         Parent parentResult = parentRepository.save(parentHaveOnlyPhoneNumber);
@@ -71,7 +76,6 @@ public class ParentService {
         return parentRepository.findParentByAccount_UsernameAndIsDisabled(phoneNumber, Boolean.FALSE);
     }
 
-
     public ResponseObject updateAccountPushToken(UpdatePushTokenRequestDTO data) {
         ResponseObject result = Util.createResponse();
         try {
@@ -120,14 +124,6 @@ public class ParentService {
             result.setStatus(Constants.status.UPDATED.toString());
 
             return result;
-        }
-        return null;
-    }
-
-    public String changeParentAccountPassword(Parent parent){
-        Parent result = parentRepository.save(parent);
-        if (result != null) {
-            return "New password has updated";
         }
         return null;
     }

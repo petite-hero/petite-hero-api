@@ -10,7 +10,11 @@ import capstone.petitehero.entities.Parent_Child;
 import capstone.petitehero.entities.Safezone;
 import capstone.petitehero.dtos.common.SummaryTaskDetail;
 import capstone.petitehero.entities.Task;
+import com.twilio.Twilio;
+import com.twilio.rest.verify.v2.service.Verification;
+import com.twilio.rest.verify.v2.service.VerificationCheck;
 import org.apache.commons.io.FileUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
@@ -129,7 +133,7 @@ public class Util {
         return t -> seen.add(keyExtractor.apply(t));
     }
 
-    public static Long getStartDay(Long timeStampDate){
+    public static Long getStartDay(Long timeStampDate) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date(timeStampDate));
         calendar.set(Calendar.AM_PM, Calendar.AM);
@@ -143,7 +147,7 @@ public class Util {
         return calendar.getTimeInMillis();
     }
 
-    public static Long getEndDay(Long timeStampDate){
+    public static Long getEndDay(Long timeStampDate) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date(timeStampDate));
         calendar.set(Calendar.AM_PM, Calendar.PM);
@@ -159,7 +163,7 @@ public class Util {
 
     public static String fromRepeatOnStringToDayInWeek(String repeatOnString) {
         String daysInWeek = "";
-        if (repeatOnString.matches("[0]{7}")){
+        if (repeatOnString.matches("[0]{7}")) {
             daysInWeek = "No repeat day";
             return daysInWeek;
         }
@@ -230,19 +234,27 @@ public class Util {
         Calendar calendar = Calendar.getInstance();
         int day = calendar.get(Calendar.DAY_OF_WEEK);
         HashMap<Integer, String> map = new HashMap<>();
-        map.put(Calendar.SUNDAY, "sun"); map.put(Calendar.MONDAY, "mon");
-        map.put(Calendar.TUESDAY, "tue"); map.put(Calendar.WEDNESDAY, "wed");
-        map.put(Calendar.THURSDAY, "thu"); map.put(Calendar.FRIDAY, "fri"); map.put(Calendar.SATURDAY, "sat");
-        return  map.get(day);
+        map.put(Calendar.SUNDAY, "sun");
+        map.put(Calendar.MONDAY, "mon");
+        map.put(Calendar.TUESDAY, "tue");
+        map.put(Calendar.WEDNESDAY, "wed");
+        map.put(Calendar.THURSDAY, "thu");
+        map.put(Calendar.FRIDAY, "fri");
+        map.put(Calendar.SATURDAY, "sat");
+        return map.get(day);
     }
 
     public static String getCurrentWeekdayRegex() {
         String weekday = getCurrentWeekday();
         HashMap<String, String> map = new HashMap<>();
-        map.put("sun", Constants.SUN_REGEX); map.put("mon", Constants.MON_REGEX);
-        map.put("tue", Constants.TUE_REGEX); map.put("wed", Constants.WED_REGEX);
-        map.put("thu", Constants.THU_REGEX); map.put("fri", Constants.FRI_REGEX); map.put("sat", Constants.SAT_REGEX);
-        return  map.get(weekday);
+        map.put("sun", Constants.SUN_REGEX);
+        map.put("mon", Constants.MON_REGEX);
+        map.put("tue", Constants.TUE_REGEX);
+        map.put("wed", Constants.WED_REGEX);
+        map.put("thu", Constants.THU_REGEX);
+        map.put("fri", Constants.FRI_REGEX);
+        map.put("sat", Constants.SAT_REGEX);
+        return map.get(weekday);
     }
 
     public static Boolean checkSubscriptionWhenParentAddChild(Parent parentAccount) {
@@ -317,8 +329,8 @@ public class Util {
         List<CRONJobChildDTO> result = new ArrayList<>();
 
         Iterator it = input.iterator();
-        while(it.hasNext()){
-            Object[] line = (Object[])it.next();
+        while (it.hasNext()) {
+            Object[] line = (Object[]) it.next();
             CRONJobChildDTO cronJobChildDTO = new CRONJobChildDTO();
             cronJobChildDTO.setChildId(Long.parseLong(line[0].toString()));
             cronJobChildDTO.setPushToken(line[1].toString());
@@ -385,19 +397,19 @@ public class Util {
         String serverName = request.getServerName();
         int serverPort = request.getServerPort();
         String contextPath = request.getContextPath();
-        StringBuffer url =  new StringBuffer();
+        StringBuffer url = new StringBuffer();
         url.append(scheme).append("://").append(serverName);
         if ((serverPort != 80) && (serverPort != 443)) {
             url.append(":").append(serverPort);
         }
         url.append(contextPath);
-        if(url.toString().endsWith("/")){
+        if (url.toString().endsWith("/")) {
             url.append("/");
         }
         return url.toString();
     }
 
-    public static List<ListTaskResponseDTO> notiTasksAtCurrentDateForChild(List<Task> taskList){
+    public static List<ListTaskResponseDTO> notiTasksAtCurrentDateForChild(List<Task> taskList) {
         List<ListTaskResponseDTO> result = new ArrayList<>();
         if (taskList != null) {
             if (!taskList.isEmpty()) {
@@ -414,5 +426,25 @@ public class Util {
             }
         }
         return result;
+    }
+
+    public static String getTwilioOTPToken(String code, String number) {
+        Twilio.init(Constants.ACCOUNT_SID, Constants.AUTH_TOKEN);
+        Verification verification = Verification.creator(
+                Constants.SERVICE_SID, number,
+                "sms")
+                .create();
+        return verification.getSid();
+    }
+
+    public static Boolean checkTwilioVerificationCode(String code, String sid) {
+        Twilio.init(Constants.ACCOUNT_SID, Constants.AUTH_TOKEN);
+        VerificationCheck verificationCheck = VerificationCheck.creator(
+                Constants.SERVICE_SID,
+                code).setVerificationSid(sid).create();
+        if (verificationCheck.getStatus().equalsIgnoreCase("approved")) {
+            return Boolean.TRUE;
+        }
+        return Boolean.FALSE;
     }
 }

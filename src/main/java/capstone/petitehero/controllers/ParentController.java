@@ -27,8 +27,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Calendar;
@@ -556,36 +559,46 @@ public class ParentController {
     }
 
     @RequestMapping(value = "/{phone}/payment/cancel", method = RequestMethod.GET)
-    @ResponseBody
-    public ResponseEntity<Object> cancelParentPayment(@PathVariable("phone") String parentPhoneNumber,
-                                                      @RequestParam(value = "createdDate") Long createdDateTimeStamp) {
+    public ModelAndView cancelParentPayment(@PathVariable("phone") String parentPhoneNumber,
+                                            @RequestParam(value = "createdDate") Long createdDateTimeStamp) {
         ResponseObject responseObject;
+        ModelAndView mav = new ModelAndView("status");
         ParentPayment recentParentPayment = parentPaymentService.findParentPaymentToCompletePayment(parentPhoneNumber, createdDateTimeStamp);
 
         if (recentParentPayment != null) {
-            recentParentPayment.setStatus(Constants.status.CANCELLED.toString());
+            if (recentParentPayment.getStatus().equalsIgnoreCase(Constants.status.PENDING.toString())) {
+                recentParentPayment.setStatus(Constants.status.CANCELLED.toString());
 
-            ParentPayment result = parentPaymentService.insertParentPaymentToSystem(recentParentPayment);
-            if (result != null) {
-                responseObject = new ResponseObject(Constants.CODE_200, "OK");
-                responseObject.setData(result.getStatus());
-                return new ResponseEntity<>(responseObject, HttpStatus.OK);
+                ParentPayment result = parentPaymentService.insertParentPaymentToSystem(recentParentPayment);
+                if (result != null) {
+                    responseObject = new ResponseObject(Constants.CODE_200, "OK");
+                    responseObject.setData(result.getStatus());
+                    mav.addObject("response", responseObject);
+                    return mav;
+                } else {
+                    responseObject = new ResponseObject(Constants.CODE_500, "Cannot connect to server pls come back again");
+                    mav.addObject("response", responseObject);
+                    return mav;
+                }
             } else {
-                responseObject = new ResponseObject(Constants.CODE_500, "Cannot connect to server pls come back again");
-                return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+                responseObject = new ResponseObject(Constants.CODE_200, "Payment has completed");
+                mav.addObject("response", responseObject);
+                return mav;
             }
         }
         responseObject = new ResponseObject(Constants.CODE_404, "Cannot found your current payment.");
-        return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
+        mav.addObject("response", responseObject);
+        return mav;
     }
 
     @RequestMapping(value = "/{phone}/payment/success", method = RequestMethod.GET)
-    public ResponseEntity<Object> successParentPayment(@PathVariable("phone") String parentPhoneNumber,
+    public ModelAndView successParentPayment(@PathVariable("phone") String parentPhoneNumber,
                                                        @RequestParam(value = "subscriptionTypeId") Long subscriptionTypeId,
                                                        @RequestParam(value = "createdDate") Long createdDateTimeStamp,
                                                        @RequestParam(value = "paymentId") String paymentId,
                                                        @RequestParam(value = "PayerID") String payerId) {
         ResponseObject responseObject;
+        ModelAndView mav = new ModelAndView("status");
         try {
             Payment payment = parentPaymentService.executePayment(paymentId, payerId);
             if (payment.getState().equals("approved")) {
@@ -593,14 +606,16 @@ public class ParentController {
 
                 if (subscriptionType == null) {
                     responseObject = new ResponseObject(Constants.CODE_404, "Cannot found that subscription type in the system");
-                    return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
+                    mav.addObject("response", responseObject);
+                    return mav;
                 }
 
                 Parent parent = parentService.findParentByPhoneNumber(parentPhoneNumber);
 
                 if (parent == null) {
                     responseObject = new ResponseObject(Constants.CODE_404, "Cannot found your account in the system");
-                    return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
+                    mav.addObject("response", responseObject);
+                    return mav;
                 }
 
                 ParentPayment recentParentPayment = parentPaymentService.findParentPaymentToCompletePayment(parentPhoneNumber, createdDateTimeStamp);
@@ -623,27 +638,32 @@ public class ParentController {
                         // update parent subscription in the system
                         if (parentService.saveParentInformationToSystem(parent) == null) {
                             responseObject = new ResponseObject(Constants.CODE_500, "Cannot updated your account in the system. Please come back later");
-                            return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+                            mav.addObject("response", responseObject);
+                            return mav;
                         }
 
                         responseObject = new ResponseObject(Constants.CODE_200, "OK");
-                        responseObject.setData(result);
-                        return new ResponseEntity<>(responseObject, HttpStatus.OK);
+                        mav.addObject("response", responseObject);
+                        return mav;
                     } else {
                         responseObject = new ResponseObject(Constants.CODE_500, "Cannot connect to server pls come back again");
-                        return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+                        mav.addObject("response", responseObject);
+                        return mav;
                     }
                 } else {
                     responseObject = new ResponseObject(Constants.CODE_404, "Cannot found your current payment.");
-                    return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
+                    mav.addObject("response", responseObject);
+                    return mav;
                 }
             } else {
                 responseObject = new ResponseObject(Constants.CODE_500, "Cannot completed your payment because of some reason");
-                return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+                mav.addObject("response", responseObject);
+                return mav;
             }
         } catch (PayPalRESTException e) {
             responseObject = new ResponseObject(Constants.CODE_500, "Cannot connect to paypal");
-            return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+            mav.addObject("response", responseObject);
+            return mav;
         }
     }
 

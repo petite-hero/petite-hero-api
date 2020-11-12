@@ -24,7 +24,7 @@ public class ScheduledDuplicatedTasks {
     @Autowired
     private NotificationService notiService;
 
-    @Scheduled(cron = Constants.CRON_SCHEDULED, zone = Constants.TIME_ZONE)
+//    @Scheduled(cron = Constants.CRON_SCHEDULED, zone = Constants.TIME_ZONE)
     public void cronJobTasks() {
         List<Task> taskList = taskRepository.findTasksByIsDeletedAndAssignDateBetween(
                 Boolean.FALSE, Util.getStartDay(new Date().getTime()), Util.getEndDay(new Date().getTime()));
@@ -36,21 +36,39 @@ public class ScheduledDuplicatedTasks {
 
         PushNotiSWDTO noti = new PushNotiSWDTO(Constants.SILENT_NOTI, Constants.NEW_TASKS, null);
 
-        for (Task childHasTaskAtCurrentDay : distinctChildList) {
-            if (childHasTaskAtCurrentDay.getChild().getPushToken() != null
-                    && !childHasTaskAtCurrentDay.getChild().getPushToken().isEmpty()) {
-                String pushToken = childHasTaskAtCurrentDay.getChild().getPushToken();
+        //cron job for all children
+//        for (Task childHasTaskAtCurrentDay : distinctChildList) {
+//            if (childHasTaskAtCurrentDay.getChild().getPushToken() != null
+//                    && !childHasTaskAtCurrentDay.getChild().getPushToken().isEmpty()) {
+//                String pushToken = childHasTaskAtCurrentDay.getChild().getPushToken();
+//
+//                List<ListTaskResponseDTO> listTask = Util.notiTasksAtCurrentDateForChild(taskList.stream()
+//                        .filter(task ->
+//                                task.getChild().getChildId().longValue()
+//                                        == childHasTaskAtCurrentDay.getChild().getChildId().longValue())
+//                        .collect(Collectors.toList()));
+//
+//                if (!listTask.isEmpty()) {
+//                    noti.setData(listTask);
+//                    notiService.pushNotificationSW(noti, pushToken);
+//                }
+//            }
+//        }
 
-                List<ListTaskResponseDTO> listTask = Util.notiTasksAtCurrentDateForChild(taskList.stream()
-                        .filter(task ->
-                                task.getChild().getChildId().longValue()
-                                        == childHasTaskAtCurrentDay.getChild().getChildId().longValue())
-                        .collect(Collectors.toList()));
+        // cronjob for one child for testing
+        if (distinctChildList.get(0).getChild().getPushToken() != null
+                && !distinctChildList.get(0).getChild().getPushToken().isEmpty()) {
+            String pushToken = distinctChildList.get(0).getChild().getPushToken();
 
-                if (!listTask.isEmpty()) {
-                    noti.setData(listTask);
-                    notiService.pushNotificationSW(noti, pushToken);
-                }
+            List<ListTaskResponseDTO> listTask = Util.notiTasksAtCurrentDateForChild(taskList.stream()
+                    .filter(task ->
+                            task.getChild().getChildId().longValue()
+                                    == distinctChildList.get(0).getChild().getChildId().longValue())
+                    .collect(Collectors.toList()));
+
+            if (!listTask.isEmpty()) {
+                noti.setData(listTask);
+                notiService.pushNotificationSW(noti, pushToken);
             }
         }
     }

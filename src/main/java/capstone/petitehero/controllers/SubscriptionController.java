@@ -88,7 +88,7 @@ public class SubscriptionController {
             return new ResponseEntity<>(responseObject, HttpStatus.OK);
         }
 
-        responseObject = new ResponseObject(Constants.CODE_500, "Server is down cannot create new subscription type");
+        responseObject = new ResponseObject(Constants.CODE_500, "Cannot create new subscription type");
         return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
@@ -162,7 +162,7 @@ public class SubscriptionController {
             return new ResponseEntity<>(responseObject, HttpStatus.OK);
         }
 
-        responseObject = new ResponseObject(Constants.CODE_404, "Cannot get your subscription type");
+        responseObject = new ResponseObject(Constants.CODE_404, "Cannot get subscription type");
         return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
     }
 
@@ -172,17 +172,17 @@ public class SubscriptionController {
         ResponseObject responseObject;
 
         List<SubscriptionTypeDetailResponseDTO> result = subscriptionService.getListSubscriptionType();
-//        if (result != null) {
-        if (result.isEmpty()) {
-            responseObject = new ResponseObject(Constants.CODE_200, "List subscription type is empty");
-        } else {
-            responseObject = new ResponseObject(Constants.CODE_200, "OK");
+        if (result != null) {
+            if (result.isEmpty()) {
+                responseObject = new ResponseObject(Constants.CODE_200, "List subscription type is empty");
+            } else {
+                responseObject = new ResponseObject(Constants.CODE_200, "OK");
+            }
+            responseObject.setData(result);
+            return new ResponseEntity<>(responseObject, HttpStatus.OK);
         }
-        responseObject.setData(result);
-        return new ResponseEntity<>(responseObject, HttpStatus.OK);
-//        }
-//
-//        responseObject = new ResponseObject(Constants.CODE_500, "Server is down cannot get list subscription type in the system");
-//        return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+
+        responseObject = new ResponseObject(Constants.CODE_500, "Server is down cannot get list subscription type in the system");
+        return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

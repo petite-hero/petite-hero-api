@@ -16,10 +16,7 @@ import capstone.petitehero.services.AccountService;
 import capstone.petitehero.services.ParentService;
 import capstone.petitehero.services.SubscriptionService;
 import capstone.petitehero.utilities.Util;
-import com.twilio.Twilio;
-import com.twilio.rest.verify.v2.service.Verification;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -61,14 +58,6 @@ public class AccountController {
             responseObject = new ResponseObject(Constants.CODE_400, "Password cannot be empty");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
-//        if (!Util.validateLengthOfString(accountLoginDTO.getUsername(), 6, 30)) {
-//            responseObject = new ResponseObject(Constants.CODE_400, "Username should between 6 characters to 30 characters");
-//            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
-//        }
-//        if (!Util.validateLengthOfString(accountLoginDTO.getPassword(), 6, 30)) {
-//            responseObject = new ResponseObject(Constants.CODE_400, "Password should between 6 characters to 30 characters");
-//            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
-//        }
         Account account = new Account();
         account.setUsername(accountLoginDTO.getUsername());
         account.setPassword(accountLoginDTO.getPassword());
@@ -108,7 +97,6 @@ public class AccountController {
         // end validate phone number of parent
 
         // TODO verify phone number of parent using OTP
-        // code here
 
         SubscriptionType subscriptionType = subscriptionService.findSubscriptionTypeById(Constants.FREE_TRAIL_TYPE);
         if (subscriptionType == null) {
@@ -149,17 +137,17 @@ public class AccountController {
                         responseObject.setData(parentResult);
                         return new ResponseEntity<>(responseObject, HttpStatus.OK);
                     }
-                    responseObject = new ResponseObject(Constants.CODE_500, "Server is down cannot save your account to the system");
+                    responseObject = new ResponseObject(Constants.CODE_500, "Cannot save your account to the system");
                     return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
                 }
-                responseObject = new ResponseObject(Constants.CODE_500, "Server is down cannot save your account to the system");
+                responseObject = new ResponseObject(Constants.CODE_500, "Cannot save your account to the system");
                 return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
             }
         } catch (DuplicateKeyException duplicateKeyException) {
             responseObject = new ResponseObject(Constants.CODE_400, duplicateKeyException.getMessage());
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
-        responseObject = new ResponseObject(Constants.CODE_500, "Server is down cannot save your account to the system");
+        responseObject = new ResponseObject(Constants.CODE_500, "Cannot save your account to the system");
         return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
@@ -184,10 +172,6 @@ public class AccountController {
             responseObject = new ResponseObject(Constants.CODE_400, "Password cannot be empty");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
-//        if (!Util.validateLengthOfString(accountLoginDTO.getPassword(), 6, 30)) {
-//            responseObject = new ResponseObject(Constants.CODE_400, "Password should between 6 characters to 30 characters");
-//            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
-//        }
         // end validate mandatory fields
 
         LoginResponseDTO result = accountService.loginAccount(accountLoginDTO);
@@ -196,7 +180,7 @@ public class AccountController {
             responseObject.setData(result);
             return new ResponseEntity<>(responseObject, HttpStatus.OK);
         }
-        responseObject = new ResponseObject(Constants.CODE_404, "Wrong username or password. Pls try again");
+        responseObject = new ResponseObject(Constants.CODE_404, "Wrong username or password. Please try again");
         return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
     }
 
@@ -209,10 +193,6 @@ public class AccountController {
             responseObject = new ResponseObject(Constants.CODE_400, "New password cannot be null");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
-//        if (Util.validateLengthOfString(accountChangePasswordRequestDTO.getPassword(), 6, 30)) {
-//            responseObject = new ResponseObject(Constants.CODE_400, "Password should between 6 characters to 30 characters");
-//            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
-//        }
         if (accountChangePasswordRequestDTO.getConfirmPassword() == null || accountChangePasswordRequestDTO.getConfirmPassword().isEmpty()) {
             responseObject = new ResponseObject(Constants.CODE_400, "Confirm password cannot be null");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
@@ -223,21 +203,21 @@ public class AccountController {
             }
         }
 
-        Parent parent = parentService.findParentByPhoneNumber(username);
-        if (parent != null) {
-            parent.getAccount().setPassword(accountChangePasswordRequestDTO.getPassword());
+        Account account = accountService.findAccountByUsername(username);
+        if (account != null) {
+            account.setPassword(accountChangePasswordRequestDTO.getPassword());
 
-            String result = parentService.changeParentAccountPassword(parent);
+            String result = accountService.changeAccountPassword(account);
             if (result != null) {
                 responseObject = new ResponseObject(Constants.CODE_200, "OK");
                 responseObject.setData(result);
                 return new ResponseEntity<>(responseObject, HttpStatus.OK);
             }
         } else {
-            responseObject = new ResponseObject(Constants.CODE_404, "Cannot found your parent account in the system");
+            responseObject = new ResponseObject(Constants.CODE_404, "Cannot found your account in the system");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
-        responseObject = new ResponseObject(Constants.CODE_500, "Server is down cannot change password");
+        responseObject = new ResponseObject(Constants.CODE_500, "Cannot change password for your account");
         return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
@@ -245,20 +225,16 @@ public class AccountController {
     @ResponseBody
     public ResponseEntity<Object> getListActiveParentAccountForAdmin() {
         ResponseObject responseObject;
-
         List<ListParentAccountResponseDTO> result = accountService.listAllParentAccountForAdmin();
-//        if (result != null) {
+
         if (!result.isEmpty()) {
             responseObject = new ResponseObject(Constants.CODE_200, "OK");
         } else {
             responseObject = new ResponseObject(Constants.CODE_200, "List active parent account is empty in the system");
         }
+
         responseObject.setData(result);
         return new ResponseEntity<>(responseObject, HttpStatus.OK);
-//        }
-
-//        responseObject = new ResponseObject(Constants.CODE_500, "Cannot get all active parent account in the system");
-//        return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @RequestMapping(value = "/{username}", method = RequestMethod.GET)
@@ -290,6 +266,7 @@ public class AccountController {
             responseObject = new ResponseObject(Constants.CODE_400, "Reset password for parent account only");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
+
 
         responseObject = new ResponseObject(Constants.CODE_500, "Cannot not reset password for your account");
         return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);

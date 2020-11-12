@@ -32,7 +32,7 @@ public class TaskService {
     @Autowired
     private ConfigService configService;
 
-    private String decodeText (String input, String encoding) {
+    private String decodeText(String input, String encoding) {
         try {
             return new BufferedReader(new InputStreamReader(new ByteArrayInputStream(
                     input.getBytes()), Charset.forName(encoding))).readLine();
@@ -210,7 +210,7 @@ public class TaskService {
 //                }
 
                 // silent noty to smart watch when collaborator or parent task in current day
-                if (Util.getStartDay(taskDeleted.getAssignDate()) == Util.getStartDay(new Date().getTime())) {
+                if (Util.getStartDay(taskDeleted.getAssignDate()).longValue() == Util.getStartDay(new Date().getTime()).longValue()) {
                     if (taskDeleted.getChild().getPushToken() != null && !taskDeleted.getChild().getPushToken().isEmpty()) {
                         PushNotiSWDTO noty = new PushNotiSWDTO(Constants.SILENT_NOTI, Constants.UPDATED_TASKS, result);
                         notiService.pushNotificationSW(noty, taskDeleted.getChild().getPushToken());
@@ -233,8 +233,8 @@ public class TaskService {
             listTaskResult = taskRepository.findTasksByChildChildIdAndIsDeleted(childId, Boolean.FALSE);
         }
 
-        List<ListTaskResponseDTO> result = new ArrayList<>();
         if (listTaskResult != null) {
+            List<ListTaskResponseDTO> result = new ArrayList<>();
             if (!listTaskResult.isEmpty()) {
                 for (Task taskResult : listTaskResult) {
                     ListTaskResponseDTO resultData = new ListTaskResponseDTO();
@@ -260,9 +260,11 @@ public class TaskService {
                 return result.stream()
                         .sorted(Comparator.comparing(ListTaskResponseDTO::getFromTime))
                         .collect(Collectors.toList());
+            } else {
+                return result;
             }
         }
-        return result;
+        return null;
     }
 
     public Task findTaskByTaskId(Long taskId) {
@@ -409,8 +411,9 @@ public class TaskService {
         List<Task> listTaskResult = taskRepository.findTasksByChildChildIdAndIsDeleted(childId, Boolean.FALSE);
 
         if (listTaskResult != null) {
+            SummaryListTaskResponseDTO result = null;
             if (!listTaskResult.isEmpty()) {
-                SummaryListTaskResponseDTO result = new SummaryListTaskResponseDTO();
+                result = new SummaryListTaskResponseDTO();
                 // get all tasks has type is housework
                 List<Task> taskHouseworkAssigned = listTaskResult.stream()
                         .filter(task -> task.getType().equalsIgnoreCase(Constants.taskType.HOUSEWORK.toString()))
@@ -435,11 +438,9 @@ public class TaskService {
                 result.setEducationTasks(educationTaskType);
                 result.setHouseworkTasks(houseworkTaskType);
                 result.setSkillsTasks(skillsTaskType);
-
-                return result;
             }
+            return result;
         }
-
         return null;
     }
 
@@ -473,10 +474,8 @@ public class TaskService {
                             isWarning = Boolean.TRUE;
                         }
                     }
-                } else {
-                    return null;
+                    return isWarning;
                 }
-                return isWarning;
             }
         }
         return null;

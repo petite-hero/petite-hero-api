@@ -39,7 +39,6 @@ public class QuestService {
             result.setQuestId(questResult.getQuestId());
             result.setName(questResult.getName());
             result.setDescription(questResult.getDescription());
-//            result.setRewardDetail(questResult.getRewardDetail());
             result.setReward(questResult.getReward());
 
             result.setCreatedDate(Util.formatTimestampToDateTime(questResult.getCreatedDate()));
@@ -98,7 +97,10 @@ public class QuestService {
 
             // send silent noty to children's smart watch
             if (questResult.getChild().getPushToken() != null && !questResult.getChild().getPushToken().isEmpty()) {
-                PushNotiSWDTO noty = new PushNotiSWDTO(Constants.SILENT_NOTI, Constants.UPDATED_QUEST, result);
+                PushNotiSWDTO noty = new PushNotiSWDTO(Constants.PETITE_HERO,
+                        questResult.getParent().getFirstName() + " " + questResult.getParent().getLastName() +
+                                " đã tạo nhiệm vụ mới cho con"
+                        , result);
                 notiService.pushNotificationSW(noty, questResult.getChild().getPushToken());
             }
 
@@ -108,14 +110,13 @@ public class QuestService {
     }
 
 
-    public QuestDetailResponseDTO getDetailOfQuest(Long questId, String role) {
+    public QuestDetailResponseDTO getDetailOfQuest(Long questId) {
         Quest questResult = questRepository.findQuestByQuestIdAndAndIsDeleted(questId, Boolean.FALSE);
 
         if (questResult != null) {
             QuestDetailResponseDTO result = new QuestDetailResponseDTO();
             result.setQuestId(questResult.getQuestId());
             result.setName(questResult.getName());
-//            result.setRewardDetail(questResult.getRewardDetail());
             result.setCreatedDate(questResult.getCreatedDate());
             result.setStatus(questResult.getStatus());
             result.setReward(questResult.getReward());
@@ -179,9 +180,9 @@ public class QuestService {
         } else {
             listQuestResult = questRepository.findQuestsByChildChildIdAndIsDeletedOrderByCreatedDateDesc(childId, Boolean.FALSE);
         }
-        List<ListQuestResponseDTO> result = new ArrayList<>();
 
         if (listQuestResult != null) {
+            List<ListQuestResponseDTO> result = new ArrayList<>();
             if (!listQuestResult.isEmpty()) {
                 for (Quest questResult : listQuestResult) {
                     ListQuestResponseDTO resultData = new ListQuestResponseDTO();
@@ -198,8 +199,9 @@ public class QuestService {
                     result.add(resultData);
                 }
             }
+            return result;
         }
-        return result;
+        return null;
     }
 
 
@@ -208,40 +210,41 @@ public class QuestService {
                 questRepository.findQuestsByChildChildIdAndIsDeletedAndStatus(
                         childId, Boolean.FALSE, Constants.status.DONE.toString());
 
-        List<QuestBadgeResponseDTO> result = new ArrayList<>();
-
         if (listQuestResult != null) {
-            List<Quest> filterQuestBadgeList = listQuestResult.stream()
-                    .filter(Util.distinctByKey(Quest::getReward)).collect(Collectors.toList());
+            List<QuestBadgeResponseDTO> result = new ArrayList<>();
+            if (!listQuestResult.isEmpty()) {
+                List<Quest> filterQuestBadgeList = listQuestResult.stream()
+                        .filter(Util.distinctByKey(Quest::getReward)).collect(Collectors.toList());
 
-            for (Quest questBadgeDistinct : filterQuestBadgeList) {
-                QuestBadgeResponseDTO dataResult = new QuestBadgeResponseDTO();
-                dataResult.setQuestBadgeId(questBadgeDistinct.getReward());
+                for (Quest questBadgeDistinct : filterQuestBadgeList) {
+                    QuestBadgeResponseDTO dataResult = new QuestBadgeResponseDTO();
+                    dataResult.setQuestBadgeId(questBadgeDistinct.getReward());
 
-                result.add(dataResult);
+                    result.add(dataResult);
+                }
+
+                for (QuestBadgeResponseDTO questBadgeDistinct : result) {
+                    Long questCompleted = listQuestResult.stream()
+                            .filter(quest -> quest.getReward().equals(questBadgeDistinct.getQuestBadgeId()))
+                            .count();
+                    questBadgeDistinct.setQuestCompletedNumber(questCompleted.intValue());
+                    questBadgeDistinct.setQuestBadgeId(questBadgeDistinct.getQuestBadgeId());
+                }
+
+                result.sort(Comparator.comparing(QuestBadgeResponseDTO::getQuestCompletedNumber).reversed());
             }
-
-            for (QuestBadgeResponseDTO questBadgeDistinct : result) {
-                Long questCompleted = listQuestResult.stream()
-                        .filter(quest -> quest.getReward().equals(questBadgeDistinct.getQuestBadgeId()))
-                        .count();
-                questBadgeDistinct.setQuestCompletedNumber(questCompleted.intValue());
-                questBadgeDistinct.setQuestBadgeId(questBadgeDistinct.getQuestBadgeId());
-            }
-
-            result.sort(Comparator.comparing(QuestBadgeResponseDTO::getQuestCompletedNumber).reversed());
-
+            return result;
         }
-        return result;
+        return null;
     }
 
     public List<ListQuestResponseDTO> getListBadgesChildArchivedSmartWatch(Long childId, Integer maxBadges) {
-        List<ListQuestResponseDTO> result = new ArrayList<>();
         List<Quest> listQuestResult = questRepository.findTopQuestsByChild_ChildIdAndIsDeletedAndStatus(
                 childId, Constants.status.DONE.toString(), Boolean.FALSE, maxBadges
         );
 
         if (listQuestResult != null) {
+            List<ListQuestResponseDTO> result = new ArrayList<>();
             if (!listQuestResult.isEmpty()) {
                 for (Quest quest : listQuestResult) {
                     ListQuestResponseDTO resultData = new ListQuestResponseDTO();
@@ -255,8 +258,9 @@ public class QuestService {
                     result.add(resultData);
                 }
             }
+            return result;
         }
-        return result;
+        return null;
     }
 
     public Quest findQuestById(Long questId) {
@@ -278,7 +282,11 @@ public class QuestService {
             result.setStatus(questResult.getStatus());
 
             if (questResult.getChild().getPushToken() != null && !questResult.getChild().getPushToken().isEmpty()) {
-                PushNotiSWDTO noty = new PushNotiSWDTO(Constants.SILENT_NOTI, Constants.UPDATED_QUEST, result);
+                String msg = "";
+                if (questResult.getStatus().equalsIgnoreCase(Constants.status.DONE.toString())) {
+                    msg = questResult.getName() + " đã thành công";
+                }
+                PushNotiSWDTO noty = new PushNotiSWDTO(Constants.PETITE_HERO, msg, result);
                 notiService.pushNotificationSW(noty, questResult.getChild().getPushToken());
             }
             return result;

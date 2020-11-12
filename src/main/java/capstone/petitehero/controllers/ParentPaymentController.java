@@ -36,7 +36,7 @@ public class ParentPaymentController {
             return new ResponseEntity<>(responseObject, HttpStatus.OK);
         }
 
-        responseObject = new ResponseObject(Constants.CODE_500, "Server is down cannot get payment list in the system");
+        responseObject = new ResponseObject(Constants.CODE_500, "Cannot get payment list in the system");
         return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
@@ -54,7 +54,7 @@ public class ParentPaymentController {
             return new ResponseEntity<>(responseObject, HttpStatus.OK);
         }
 
-        responseObject = new ResponseObject(Constants.CODE_404, "Server cannot get detail of payment");
+        responseObject = new ResponseObject(Constants.CODE_404, "Cannot get detail of payment");
         return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
     }
 }

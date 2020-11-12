@@ -43,23 +43,26 @@ public class SubscriptionService {
                 .sorted(Comparator.comparing(SubscriptionType::getPrice))
                 .collect(Collectors.toList());
 
-        List<SubscriptionTypeDetailResponseDTO> result = new ArrayList<>();
         if (listSubscriptionTypeResult != null) {
-            for (SubscriptionType subscriptionType : listSubscriptionTypeResult) {
-                SubscriptionTypeDetailResponseDTO dataResult = new SubscriptionTypeDetailResponseDTO();
+            List<SubscriptionTypeDetailResponseDTO> result = new ArrayList<>();
+            if (!listSubscriptionTypeResult.isEmpty()) {
+                for (SubscriptionType subscriptionType : listSubscriptionTypeResult) {
+                    SubscriptionTypeDetailResponseDTO dataResult = new SubscriptionTypeDetailResponseDTO();
 
-                dataResult.setSubscriptionTypeId(subscriptionType.getSubscriptionTypeId());
-                dataResult.setDescription(subscriptionType.getDescription());
-                dataResult.setName(subscriptionType.getName());
-                dataResult.setMaxChildren(subscriptionType.getMaxChildren());
-                dataResult.setMaxCollaborator(subscriptionType.getMaxCollaborator());
-                dataResult.setPrice(subscriptionType.getPrice());
-                dataResult.setDurationDay(subscriptionType.getDurationDay());
+                    dataResult.setSubscriptionTypeId(subscriptionType.getSubscriptionTypeId());
+                    dataResult.setDescription(subscriptionType.getDescription());
+                    dataResult.setName(subscriptionType.getName());
+                    dataResult.setMaxChildren(subscriptionType.getMaxChildren());
+                    dataResult.setMaxCollaborator(subscriptionType.getMaxCollaborator());
+                    dataResult.setPrice(subscriptionType.getPrice());
+                    dataResult.setDurationDay(subscriptionType.getDurationDay());
 
-                result.add(dataResult);
+                    result.add(dataResult);
+                }
             }
+            return result;
         }
-        return result;
+        return null;
     }
 
     public SubscriptionTypeDetailResponseDTO getSubscriptionTypeDetail(Long subscriptionTypeId) {

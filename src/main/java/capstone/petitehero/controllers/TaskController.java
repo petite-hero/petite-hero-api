@@ -1,9 +1,12 @@
 package capstone.petitehero.controllers;
 
 import capstone.petitehero.config.common.Constants;
+import capstone.petitehero.config.cronjob.ScheduledDuplicatedTasks;
 import capstone.petitehero.dtos.ResponseObject;
 import capstone.petitehero.dtos.response.task.*;
+import capstone.petitehero.entities.Child;
 import capstone.petitehero.entities.Task;
+import capstone.petitehero.services.ChildService;
 import capstone.petitehero.services.TaskService;
 import capstone.petitehero.utilities.Util;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +23,9 @@ public class TaskController {
 
     @Autowired
     private TaskService taskService;
+
+    @Autowired
+    private ChildService childService;
 
     @RequestMapping(value = "/{taskId}", method = RequestMethod.GET)
     @ResponseBody
@@ -54,7 +60,7 @@ public class TaskController {
             return new ResponseEntity<>(responseObject, HttpStatus.OK);
         }
 
-        responseObject = new ResponseObject(Constants.CODE_500, "Server cannot delete task for child");
+        responseObject = new ResponseObject(Constants.CODE_500, "Cannot delete task for child");
         return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
@@ -65,24 +71,30 @@ public class TaskController {
                                                               @RequestParam(value = "provider", required = false, defaultValue = Constants.MOBILE) String provider) {
         ResponseObject responseObject;
         List<ListTaskResponseDTO> result;
+
+        Child child = childService.findChildByChildId(childId, Boolean.FALSE);
+        if (child == null) {
+            responseObject = new ResponseObject(Constants.CODE_404, "Cannot found that child in the system");
+            return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
+        }
+
         if (dateTimestamp != null && !dateTimestamp.toString().isEmpty()) {
-//            if (!Util.validateTimestamp(dateTimestamp.toString())) {
-//                responseObject = new ResponseObject(Constants.CODE_400, "Not a right timestamp format");
-//                return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
-//            } else {
             result = taskService.getChildOfTaskAtAssignedDate(childId, dateTimestamp, provider);
-//            }
         } else {
             result = taskService.getChildOfTaskAtAssignedDate(childId, null, provider);
         }
 
-        if (!result.isEmpty()) {
-            responseObject = new ResponseObject(Constants.CODE_200, "OK");
-        } else {
-            responseObject = new ResponseObject(Constants.CODE_200, "List task of child today is empty");
+        if (result != null) {
+            if (!result.isEmpty()) {
+                responseObject = new ResponseObject(Constants.CODE_200, "OK");
+            } else {
+                responseObject = new ResponseObject(Constants.CODE_200, "List task of child today is empty");
+            }
+            responseObject.setData(result);
+            return new ResponseEntity<>(responseObject, HttpStatus.OK);
         }
-        responseObject.setData(result);
-        return new ResponseEntity<>(responseObject, HttpStatus.OK);
+        responseObject = new ResponseObject(Constants.CODE_500, "Cannot get list task of child in the system");
+        return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @RequestMapping(value = "/{taskId}/submit", method = RequestMethod.PUT)
@@ -109,7 +121,7 @@ public class TaskController {
             return new ResponseEntity<>(responseObject, HttpStatus.OK);
         }
 
-        responseObject = new ResponseObject(Constants.CODE_500, "Server cannot update task for child");
+        responseObject = new ResponseObject(Constants.CODE_500, "Cannot submit task for child");
         return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
@@ -141,25 +153,26 @@ public class TaskController {
     public ResponseEntity<Object> getTaskHandedByChildForParent(@PathVariable("childId") Long childId,
                                                                 @RequestParam("date") Long dateTimeStamp) {
         ResponseObject responseObject;
-//        if (!Util.validateTimestamp(dateTimeStamp.toString())) {
-//            responseObject = new ResponseObject(Constants.CODE_400, "Not a right time stamp (should only contains number)");
-//            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
-//        }
+
+        Child child = childService.findChildByChildId(childId, Boolean.FALSE);
+        if (child == null) {
+            responseObject = new ResponseObject(Constants.CODE_404, "Cannot found that child in the system");
+            return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
+        }
 
         List<ListTaskHandedResponseDTO> result = taskService.getTaskHandedByChildForParent(childId, dateTimeStamp);
 
         if (result != null) {
             if (result.isEmpty()) {
                 responseObject = new ResponseObject(Constants.CODE_200, "Not missing any task handed by child");
-                responseObject.setData(result);
                 return new ResponseEntity<>(responseObject, HttpStatus.OK);
+            } else {
+                responseObject = new ResponseObject(Constants.CODE_200, "OK");
             }
-            responseObject = new ResponseObject(Constants.CODE_200, "OK");
             responseObject.setData(result);
             return new ResponseEntity<>(responseObject, HttpStatus.OK);
         }
-
-        responseObject = new ResponseObject(Constants.CODE_500, "Server is down cannot get children list of task");
+        responseObject = new ResponseObject(Constants.CODE_500, "Server cannot get task handed by child");
         return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
@@ -168,6 +181,12 @@ public class TaskController {
     public ResponseEntity<Object> summaryChildrenListTaskForParent(@PathVariable("childId") Long childId) {
         ResponseObject responseObject;
 
+        Child child = childService.findChildByChildId(childId, Boolean.FALSE);
+        if (child == null) {
+            responseObject = new ResponseObject(Constants.CODE_404, "Cannot found that child in the system");
+            return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
+        }
+
         SummaryListTaskResponseDTO result = taskService.summaryChildrenListTask(childId);
         if (result != null) {
             responseObject = new ResponseObject(Constants.CODE_200, "OK");
@@ -175,7 +194,7 @@ public class TaskController {
             return new ResponseEntity<>(responseObject, HttpStatus.OK);
         }
 
-        responseObject = new ResponseObject(Constants.CODE_500, "Server is down cannot summary children list of task");
+        responseObject = new ResponseObject(Constants.CODE_200, "Child don't have any task to summarize");
         return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
@@ -185,10 +204,12 @@ public class TaskController {
                                                                    @RequestParam("date") Long dateTimeStamp,
                                                                    @RequestParam("type") String taskType) {
         ResponseObject responseObject;
-//        if (!Util.validateTimestamp(dateTimeStamp.toString())) {
-//            responseObject = new ResponseObject(Constants.CODE_400, "Not a right time stamp (should only contains number)");
-//            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
-//        }
+
+        Child child = childService.findChildByChildId(childId, Boolean.FALSE);
+        if (child == null) {
+            responseObject = new ResponseObject(Constants.CODE_404, "Cannot found that child in the system");
+            return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
+        }
 
         Boolean result = taskService.summaryHourOfChildrenTaskList(childId, dateTimeStamp, taskType);
         if (result != null) {
@@ -197,7 +218,13 @@ public class TaskController {
             return new ResponseEntity<>(responseObject, HttpStatus.OK);
         }
 
-        responseObject = new ResponseObject(Constants.CODE_500, "Server is down cannot summary children list of task");
+        responseObject = new ResponseObject(Constants.CODE_500, "Cannot summary children list of task");
         return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @RequestMapping(value = "/test/cronjob", method = RequestMethod.GET)
+    public void testCronjob() {
+        ScheduledDuplicatedTasks scheduledDuplicatedTasks = new ScheduledDuplicatedTasks();
+        scheduledDuplicatedTasks.cronJobTasks();
     }
 }

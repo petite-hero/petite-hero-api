@@ -6,7 +6,9 @@ import capstone.petitehero.dtos.response.quest.ListQuestResponseDTO;
 import capstone.petitehero.dtos.response.quest.QuestStatusResponseDTO;
 import capstone.petitehero.dtos.response.quest.QuestDetailResponseDTO;
 import capstone.petitehero.dtos.response.quest.badge.QuestBadgeResponseDTO;
+import capstone.petitehero.entities.Child;
 import capstone.petitehero.entities.Quest;
+import capstone.petitehero.services.ChildService;
 import capstone.petitehero.services.QuestService;
 import capstone.petitehero.utilities.Util;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,13 +25,15 @@ public class QuestController {
     @Autowired
     private QuestService questService;
 
+    @Autowired
+    private ChildService childService;
+
     @RequestMapping(value = "/{questId}", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<Object> getDetailOfQuestById(@PathVariable("questId") Long questId,
-                                                       @RequestParam(value = "role", required = false, defaultValue = Constants.PARENT) String role) {
+    public ResponseEntity<Object> getDetailOfQuestById(@PathVariable("questId") Long questId) {
         ResponseObject responseObject;
 
-        QuestDetailResponseDTO result = questService.getDetailOfQuest(questId, role);
+        QuestDetailResponseDTO result = questService.getDetailOfQuest(questId);
 
         if (result != null) {
             responseObject = new ResponseObject(Constants.CODE_200, "OK");
@@ -71,6 +75,12 @@ public class QuestController {
         ResponseObject responseObject;
         List<ListQuestResponseDTO> result;
 
+        Child child = childService.findChildByChildId(childId, Boolean.FALSE);
+        if (child == null) {
+            responseObject = new ResponseObject(Constants.CODE_404, "Cannot found that child in the system");
+            return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
+        }
+
         if (status != null) {
             if (!Util.validateQuestStatus(status)) {
                 responseObject = new ResponseObject(Constants.CODE_400, "Quest status contains only ASSIGNED, DONE, FAILED");
@@ -81,14 +91,18 @@ public class QuestController {
             result = questService.getChildListOfQuest(childId, null);
         }
 
-        if (result.isEmpty()) {
-            responseObject = new ResponseObject(Constants.CODE_200, "Child's list of quest is empty");
-        } else {
-            responseObject = new ResponseObject(Constants.CODE_200, "OK");
-        }
+        if (result != null) {
+            if (result.isEmpty()) {
+                responseObject = new ResponseObject(Constants.CODE_200, "Child's list of quest is empty");
+            } else {
+                responseObject = new ResponseObject(Constants.CODE_200, "OK");
+            }
 
-        responseObject.setData(result);
-        return new ResponseEntity<>(responseObject, HttpStatus.OK);
+            responseObject.setData(result);
+            return new ResponseEntity<>(responseObject, HttpStatus.OK);
+        }
+        responseObject = new ResponseObject(Constants.CODE_500, "Cannot get list quest of child in the system");
+        return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @RequestMapping(value = "/list/{childId}/badges", method = RequestMethod.GET)
@@ -106,23 +120,32 @@ public class QuestController {
 
             List<ListQuestResponseDTO> result = questService.getListBadgesChildArchivedSmartWatch(childId, maxBadges);
 
-            if (!result.isEmpty()) {
-                responseObject = new ResponseObject(Constants.CODE_200, "OK");
-            } else {
-                responseObject = new ResponseObject(Constants.CODE_200, "List badges is empty");
+            if (result != null) {
+                if (!result.isEmpty()) {
+                    responseObject = new ResponseObject(Constants.CODE_200, "OK");
+                } else {
+                    responseObject = new ResponseObject(Constants.CODE_200, "List badges is empty");
+                }
+                responseObject.setData(result);
+                return new ResponseEntity<>(responseObject, HttpStatus.OK);
             }
-            responseObject.setData(result);
-            return new ResponseEntity<>(responseObject, HttpStatus.OK);
+
+            responseObject = new ResponseObject(Constants.CODE_500, "Cannot get list quest's badge of child archived in the system");
+            return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
         } else {
             List<QuestBadgeResponseDTO> listQuestBadgeChildArchived = questService.getBadgeListChildArchived(childId);
 
-            if (!listQuestBadgeChildArchived.isEmpty()) {
-                responseObject = new ResponseObject(Constants.CODE_200, "OK");
-            } else {
-                responseObject = new ResponseObject(Constants.CODE_200, "List badges child archived is empty");
+            if (listQuestBadgeChildArchived != null) {
+                if (!listQuestBadgeChildArchived.isEmpty()) {
+                    responseObject = new ResponseObject(Constants.CODE_200, "OK");
+                } else {
+                    responseObject = new ResponseObject(Constants.CODE_200, "List badges child archived is empty");
+                }
+                responseObject.setData(listQuestBadgeChildArchived);
+                return new ResponseEntity<>(responseObject, HttpStatus.OK);
             }
-            responseObject.setData(listQuestBadgeChildArchived);
-            return new ResponseEntity<>(responseObject, HttpStatus.OK);
+            responseObject = new ResponseObject(Constants.CODE_500, "Cannot get list quest's badge of child archived in the system");
+            return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

@@ -126,18 +126,19 @@ public class ParentPaymentService {
         List<ParentPayment> listParentPaymentResult = parentPaymentRepository.findAllByOrderByDateDesc();
         if (listParentPaymentResult != null) {
             List<ListPaymentTransactionResponseDTO> result = new ArrayList<>();
+            if (!listParentPaymentResult.isEmpty()) {
+                for (ParentPayment payment : listParentPaymentResult) {
+                    ListPaymentTransactionResponseDTO dataResult = new ListPaymentTransactionResponseDTO();
 
-            for (ParentPayment payment : listParentPaymentResult) {
-                ListPaymentTransactionResponseDTO dataResult = new ListPaymentTransactionResponseDTO();
+                    dataResult.setTransactionId(payment.getTransactionId());
+                    dataResult.setPhoneNumber(payment.getParent().getAccount().getUsername());
+                    dataResult.setStatus(payment.getStatus());
+                    dataResult.setAmount(payment.getAmount());
 
-                dataResult.setTransactionId(payment.getTransactionId());
-                dataResult.setPhoneNumber(payment.getParent().getAccount().getUsername());
-                dataResult.setStatus(payment.getStatus());
-                dataResult.setAmount(payment.getAmount());
+                    dataResult.setDate(Util.formatTimestampToDateTime(payment.getDate()));
 
-                dataResult.setDate(Util.formatTimestampToDateTime(payment.getDate()));
-
-                result.add(dataResult);
+                    result.add(dataResult);
+                }
             }
             return result;
         }
