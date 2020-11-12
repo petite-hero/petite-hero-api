@@ -234,8 +234,8 @@ public class ParentChildService {
                         .filter(Util.distinctByKey(Parent_Child::getCollaborator))
                         .collect(Collectors.toList());
 
-        List<ListCollaboratorResponseDTO> result = new ArrayList<>();
         if (parentChildListResult != null) {
+            List<ListCollaboratorResponseDTO> result = new ArrayList<>();
             if (!parentChildListResult.isEmpty()) {
                 for (Parent_Child collaborator : parentChildListResult) {
                     ListCollaboratorResponseDTO collaboratorData = new ListCollaboratorResponseDTO();
@@ -252,8 +252,9 @@ public class ParentChildService {
                     result.add(collaboratorData);
                 }
             }
+            return result;
         }
 
-        return result;
+        return null;
     }
 }

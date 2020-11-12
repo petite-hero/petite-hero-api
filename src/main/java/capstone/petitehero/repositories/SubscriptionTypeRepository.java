@@ -10,4 +10,8 @@ import java.util.List;
 public interface SubscriptionTypeRepository extends JpaRepository<SubscriptionType, Long> {
 
     SubscriptionType findSubscriptionTypeBySubscriptionTypeId(Long subscriptionTypeId);
+
+    SubscriptionType findSubscriptionTypeBySubscriptionTypeIdAndIsDeleted(Long subscriptionTypeId, Boolean isDeleted);
+
+    List<SubscriptionType> findSubscriptionTypesByIsDeleted(Boolean isDeleted);
 }

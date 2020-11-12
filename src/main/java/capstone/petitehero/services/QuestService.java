@@ -184,6 +184,7 @@ public class QuestService {
         if (listQuestResult != null) {
             List<ListQuestResponseDTO> result = new ArrayList<>();
             if (!listQuestResult.isEmpty()) {
+                listQuestResult.sort(Comparator.comparing(Quest::getCreatedDate).reversed());
                 for (Quest questResult : listQuestResult) {
                     ListQuestResponseDTO resultData = new ListQuestResponseDTO();
 
@@ -191,6 +192,7 @@ public class QuestService {
                     resultData.setName(questResult.getName());
                     resultData.setStatus(questResult.getStatus());
                     resultData.setDescription(questResult.getDescription());
+                    System.out.println("DATE: " + Util.formatTimestampToDateTime(questResult.getCreatedDate()));
 
                     if (questResult.getReward() != null) {
                         resultData.setReward(questResult.getReward());

@@ -1,7 +1,7 @@
 package capstone.petitehero.services;
 
 import capstone.petitehero.config.common.Constants;
-import capstone.petitehero.dtos.response.subscription.type.CreateSubscriptionTypeResponseDTO;
+import capstone.petitehero.dtos.response.subscription.type.SubscriptionTypeStatusResponseDTO;
 import capstone.petitehero.dtos.response.subscription.type.ModifySubscriptionTypeResponseDTO;
 import capstone.petitehero.dtos.response.subscription.type.SubscriptionTypeDetailResponseDTO;
 import capstone.petitehero.entities.Subscription;
@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class SubscriptionService {
@@ -25,12 +24,12 @@ public class SubscriptionService {
     @Autowired
     private SubscriptionRepository subscriptionRepository;
 
-    public CreateSubscriptionTypeResponseDTO createNewSubscriptionType(SubscriptionType subscriptionType) {
+    public SubscriptionTypeStatusResponseDTO createNewSubscriptionType(SubscriptionType subscriptionType) {
         SubscriptionType subscriptionTypeResult = subscriptionTypeRepository.save(subscriptionType);
 
         if (subscriptionTypeResult != null) {
-            CreateSubscriptionTypeResponseDTO result = new CreateSubscriptionTypeResponseDTO();
-            result.setNewSubscriptionTypeId(subscriptionTypeResult.getSubscriptionTypeId());
+            SubscriptionTypeStatusResponseDTO result = new SubscriptionTypeStatusResponseDTO();
+            result.setSubscriptionTypeId(subscriptionTypeResult.getSubscriptionTypeId());
             result.setStatus(Constants.status.CREATED.toString());
             return result;
         }
@@ -39,13 +38,13 @@ public class SubscriptionService {
     }
 
     public List<SubscriptionTypeDetailResponseDTO> getListSubscriptionType() {
-        List<SubscriptionType> listSubscriptionTypeResult = subscriptionTypeRepository.findAll().stream()
-                .sorted(Comparator.comparing(SubscriptionType::getPrice))
-                .collect(Collectors.toList());
+        List<SubscriptionType> listSubscriptionTypeResult =
+                subscriptionTypeRepository.findSubscriptionTypesByIsDeleted(Boolean.FALSE);
 
         if (listSubscriptionTypeResult != null) {
             List<SubscriptionTypeDetailResponseDTO> result = new ArrayList<>();
             if (!listSubscriptionTypeResult.isEmpty()) {
+                listSubscriptionTypeResult.sort(Comparator.comparing(SubscriptionType::getPrice));
                 for (SubscriptionType subscriptionType : listSubscriptionTypeResult) {
                     SubscriptionTypeDetailResponseDTO dataResult = new SubscriptionTypeDetailResponseDTO();
 
@@ -66,7 +65,8 @@ public class SubscriptionService {
     }
 
     public SubscriptionTypeDetailResponseDTO getSubscriptionTypeDetail(Long subscriptionTypeId) {
-        SubscriptionType subscriptionTypeResult = subscriptionTypeRepository.findSubscriptionTypeBySubscriptionTypeId(subscriptionTypeId);
+        SubscriptionType subscriptionTypeResult =
+                subscriptionTypeRepository.findSubscriptionTypeBySubscriptionTypeIdAndIsDeleted(subscriptionTypeId, Boolean.FALSE);
         if (subscriptionTypeResult != null) {
             SubscriptionTypeDetailResponseDTO result = new SubscriptionTypeDetailResponseDTO();
 
@@ -110,5 +110,21 @@ public class SubscriptionService {
 
     public Subscription createFreeTrialSubscriptionForParentAccount(Subscription subscription) {
         return subscriptionRepository.save(subscription);
+    }
+
+    public SubscriptionTypeStatusResponseDTO deleteSubscriptionType(SubscriptionType subscriptionType) {
+        subscriptionType.setIsDeleted(Boolean.TRUE);
+
+        SubscriptionType subscriptionTypeResult = subscriptionTypeRepository.save(subscriptionType);
+        if (subscriptionTypeResult != null) {
+            SubscriptionTypeStatusResponseDTO result = new SubscriptionTypeStatusResponseDTO();
+
+            result.setSubscriptionTypeId(subscriptionTypeResult.getSubscriptionTypeId());
+            result.setStatus(Constants.status.DELETED.toString());
+
+            return result;
+        }
+
+        return null;
     }
 }

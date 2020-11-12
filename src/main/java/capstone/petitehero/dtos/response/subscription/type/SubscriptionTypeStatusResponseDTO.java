@@ -7,8 +7,8 @@ import java.io.Serializable;
 
 @Setter
 @Getter
-public class CreateSubscriptionTypeResponseDTO implements Serializable {
+public class SubscriptionTypeStatusResponseDTO implements Serializable {
 
-    private Long newSubscriptionTypeId;
+    private Long subscriptionTypeId;
     private String status;
 }

@@ -3,8 +3,7 @@ package capstone.petitehero.controllers;
 import capstone.petitehero.config.common.Constants;
 import capstone.petitehero.dtos.ResponseObject;
 import capstone.petitehero.dtos.request.subscription.type.CreateSubscriptionTypeRequestDTO;
-import capstone.petitehero.dtos.response.subscription.type.CreateSubscriptionTypeResponseDTO;
-import capstone.petitehero.dtos.response.subscription.type.ModifySubscriptionTypeResponseDTO;
+import capstone.petitehero.dtos.response.subscription.type.SubscriptionTypeStatusResponseDTO;
 import capstone.petitehero.dtos.response.subscription.type.SubscriptionTypeDetailResponseDTO;
 import capstone.petitehero.entities.SubscriptionType;
 import capstone.petitehero.services.SubscriptionService;
@@ -78,9 +77,10 @@ public class SubscriptionController {
         subscriptionType.setMaxChildren(createSubscriptionTypeRequestDTO.getMaxChildren());
         subscriptionType.setMaxCollaborator(createSubscriptionTypeRequestDTO.getMaxCollaborator());
         subscriptionType.setPrice(createSubscriptionTypeRequestDTO.getPrice());
+        subscriptionType.setIsDeleted(Boolean.FALSE);
         subscriptionType.setDurationDay(createSubscriptionTypeRequestDTO.getDurationDay());
 
-        CreateSubscriptionTypeResponseDTO result = subscriptionService.createNewSubscriptionType(subscriptionType);
+        SubscriptionTypeStatusResponseDTO result = subscriptionService.createNewSubscriptionType(subscriptionType);
         if (result != null) {
 
             responseObject = new ResponseObject(Constants.CODE_200, "OK");
@@ -92,63 +92,63 @@ public class SubscriptionController {
         return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @RequestMapping(value = "/type/{subscriptionTypeId}", method = RequestMethod.PUT)
-    @ResponseBody
-    public ResponseEntity<Object> modifySubscriptionType(@PathVariable("subscriptionTypeId") Long subscriptionTypeId,
-                                                         @RequestBody CreateSubscriptionTypeRequestDTO modifySubscriptionTypeRequestDTO) {
-        ResponseObject responseObject;
-        SubscriptionType subscriptionType = subscriptionService.findSubscriptionTypeById(subscriptionTypeId);
-
-        if (subscriptionType != null) {
-            responseObject = new ResponseObject(Constants.CODE_404, "Cannot found that subscription type in the system");
-            return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
-        }
-        if (modifySubscriptionTypeRequestDTO.getName() != null && !modifySubscriptionTypeRequestDTO.getName().isEmpty()) {
-            subscriptionType.setName(modifySubscriptionTypeRequestDTO.getName());
-        }
-        if (modifySubscriptionTypeRequestDTO.getDescription() != null && !modifySubscriptionTypeRequestDTO.getDescription().isEmpty()) {
-            subscriptionType.setDescription(modifySubscriptionTypeRequestDTO.getDescription());
-        }
-        if (modifySubscriptionTypeRequestDTO.getMaxCollaborator() != null && !modifySubscriptionTypeRequestDTO.getMaxCollaborator().toString().isEmpty()) {
-            if (!Util.validateLongNumber(modifySubscriptionTypeRequestDTO.getMaxCollaborator().toString())) {
-                responseObject = new ResponseObject(Constants.CODE_400, "Subscription type max collaborator cannot be a negative number or a characters");
-                return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
-            }
-            subscriptionType.setMaxCollaborator(modifySubscriptionTypeRequestDTO.getMaxCollaborator());
-        }
-        if (modifySubscriptionTypeRequestDTO.getMaxChildren() != null && !modifySubscriptionTypeRequestDTO.getMaxChildren().toString().isEmpty()) {
-            if (!Util.validateLongNumber(modifySubscriptionTypeRequestDTO.getMaxChildren().toString())) {
-                responseObject = new ResponseObject(Constants.CODE_400, "Subscription type max children cannot be a negative number or a characters");
-                return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
-            }
-            subscriptionType.setMaxChildren(modifySubscriptionTypeRequestDTO.getMaxChildren());
-        }
-        if (modifySubscriptionTypeRequestDTO.getPrice() != null && !modifySubscriptionTypeRequestDTO.getPrice().toString().isEmpty()) {
-            if (!Util.validateFloatNumber(modifySubscriptionTypeRequestDTO.getPrice().toString())) {
-                responseObject = new ResponseObject(Constants.CODE_400, "Subscription type price cannot be a negative number or a characters");
-                return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
-            }
-            subscriptionType.setPrice(modifySubscriptionTypeRequestDTO.getPrice());
-        }
-
-        if (modifySubscriptionTypeRequestDTO.getDurationDay() != null || !modifySubscriptionTypeRequestDTO.getDurationDay().toString().isEmpty()) {
-            if (!Util.validateLongNumber(modifySubscriptionTypeRequestDTO.getDurationDay().toString())) {
-                responseObject = new ResponseObject(Constants.CODE_400, "Subscription type duration day value cannot be a negative number or a characters");
-                return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
-            }
-            subscriptionType.setDurationDay(modifySubscriptionTypeRequestDTO.getDurationDay());
-        }
-
-        ModifySubscriptionTypeResponseDTO result = subscriptionService.modifySubscriptionType(subscriptionType);
-        if (result != null) {
-            responseObject = new ResponseObject(Constants.CODE_200, "OK");
-            responseObject.setData(result);
-            return new ResponseEntity<>(responseObject, HttpStatus.OK);
-        }
-
-        responseObject = new ResponseObject(Constants.CODE_500, "Cannot update subscription type ");
-        return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+//    @RequestMapping(value = "/type/{subscriptionTypeId}", method = RequestMethod.PUT)
+//    @ResponseBody
+//    public ResponseEntity<Object> modifySubscriptionType(@PathVariable("subscriptionTypeId") Long subscriptionTypeId,
+//                                                         @RequestBody CreateSubscriptionTypeRequestDTO modifySubscriptionTypeRequestDTO) {
+//        ResponseObject responseObject;
+//        SubscriptionType subscriptionType = subscriptionService.findSubscriptionTypeById(subscriptionTypeId);
+//
+//        if (subscriptionType != null) {
+//            responseObject = new ResponseObject(Constants.CODE_404, "Cannot found that subscription type in the system");
+//            return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
+//        }
+//        if (modifySubscriptionTypeRequestDTO.getName() != null && !modifySubscriptionTypeRequestDTO.getName().isEmpty()) {
+//            subscriptionType.setName(modifySubscriptionTypeRequestDTO.getName());
+//        }
+//        if (modifySubscriptionTypeRequestDTO.getDescription() != null && !modifySubscriptionTypeRequestDTO.getDescription().isEmpty()) {
+//            subscriptionType.setDescription(modifySubscriptionTypeRequestDTO.getDescription());
+//        }
+//        if (modifySubscriptionTypeRequestDTO.getMaxCollaborator() != null && !modifySubscriptionTypeRequestDTO.getMaxCollaborator().toString().isEmpty()) {
+//            if (!Util.validateLongNumber(modifySubscriptionTypeRequestDTO.getMaxCollaborator().toString())) {
+//                responseObject = new ResponseObject(Constants.CODE_400, "Subscription type max collaborator cannot be a negative number or a characters");
+//                return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+//            }
+//            subscriptionType.setMaxCollaborator(modifySubscriptionTypeRequestDTO.getMaxCollaborator());
+//        }
+//        if (modifySubscriptionTypeRequestDTO.getMaxChildren() != null && !modifySubscriptionTypeRequestDTO.getMaxChildren().toString().isEmpty()) {
+//            if (!Util.validateLongNumber(modifySubscriptionTypeRequestDTO.getMaxChildren().toString())) {
+//                responseObject = new ResponseObject(Constants.CODE_400, "Subscription type max children cannot be a negative number or a characters");
+//                return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+//            }
+//            subscriptionType.setMaxChildren(modifySubscriptionTypeRequestDTO.getMaxChildren());
+//        }
+//        if (modifySubscriptionTypeRequestDTO.getPrice() != null && !modifySubscriptionTypeRequestDTO.getPrice().toString().isEmpty()) {
+//            if (!Util.validateFloatNumber(modifySubscriptionTypeRequestDTO.getPrice().toString())) {
+//                responseObject = new ResponseObject(Constants.CODE_400, "Subscription type price cannot be a negative number or a characters");
+//                return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+//            }
+//            subscriptionType.setPrice(modifySubscriptionTypeRequestDTO.getPrice());
+//        }
+//
+//        if (modifySubscriptionTypeRequestDTO.getDurationDay() != null || !modifySubscriptionTypeRequestDTO.getDurationDay().toString().isEmpty()) {
+//            if (!Util.validateLongNumber(modifySubscriptionTypeRequestDTO.getDurationDay().toString())) {
+//                responseObject = new ResponseObject(Constants.CODE_400, "Subscription type duration day value cannot be a negative number or a characters");
+//                return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+//            }
+//            subscriptionType.setDurationDay(modifySubscriptionTypeRequestDTO.getDurationDay());
+//        }
+//
+//        ModifySubscriptionTypeResponseDTO result = subscriptionService.modifySubscriptionType(subscriptionType);
+//        if (result != null) {
+//            responseObject = new ResponseObject(Constants.CODE_200, "OK");
+//            responseObject.setData(result);
+//            return new ResponseEntity<>(responseObject, HttpStatus.OK);
+//        }
+//
+//        responseObject = new ResponseObject(Constants.CODE_500, "Cannot update subscription type ");
+//        return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+//    }
 
     @RequestMapping(value = "/type/{subscriptionTypeId}", method = RequestMethod.GET)
     @ResponseBody
@@ -162,7 +162,7 @@ public class SubscriptionController {
             return new ResponseEntity<>(responseObject, HttpStatus.OK);
         }
 
-        responseObject = new ResponseObject(Constants.CODE_404, "Cannot get subscription type");
+        responseObject = new ResponseObject(Constants.CODE_404, "Cannot found that subscription type in the system");
         return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
     }
 
@@ -182,7 +182,29 @@ public class SubscriptionController {
             return new ResponseEntity<>(responseObject, HttpStatus.OK);
         }
 
-        responseObject = new ResponseObject(Constants.CODE_500, "Server is down cannot get list subscription type in the system");
+        responseObject = new ResponseObject(Constants.CODE_500, "Cannot get list subscription type in the system");
+        return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @RequestMapping(value = "/type/{subscriptionTypeId}", method = RequestMethod.DELETE)
+    @ResponseBody
+    public ResponseEntity<Object> deleteSubscriptionType(@PathVariable("subscriptionTypeId") Long subscriptionTypeId) {
+        ResponseObject responseObject;
+
+        SubscriptionType subscriptionType = subscriptionService.findSubscriptionTypeById(subscriptionTypeId);
+        if (subscriptionType == null) {
+            responseObject = new ResponseObject(Constants.CODE_404, "Cannot found that subscription type in the system");
+            return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
+        }
+
+        SubscriptionTypeStatusResponseDTO result = subscriptionService.deleteSubscriptionType(subscriptionType);
+        if (result != null) {
+            responseObject = new ResponseObject(Constants.CODE_200, "OK");
+            responseObject.setData(result);
+            return new ResponseEntity<>(responseObject, HttpStatus.OK);
+        }
+
+        responseObject = new ResponseObject(Constants.CODE_500, "Cannot delete subscription type in the system");
         return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

@@ -97,7 +97,6 @@ public class ParentPaymentService {
     }
 
     public List<ListPaymentTransactionResponseDTO> getParentTransaction(String phoneNumber, String status) {
-        List<ListPaymentTransactionResponseDTO> result = new ArrayList<>();
         List<ParentPayment> listParentPaymentResult;
 
         if (status != null) {
@@ -107,6 +106,7 @@ public class ParentPaymentService {
         }
 
         if (listParentPaymentResult != null) {
+            List<ListPaymentTransactionResponseDTO> result = new ArrayList<>();
             for (ParentPayment payment : listParentPaymentResult) {
                 ListPaymentTransactionResponseDTO dataResult = new ListPaymentTransactionResponseDTO();
 
@@ -120,8 +120,9 @@ public class ParentPaymentService {
 
                 result.add(dataResult);
             }
+            return result;
         }
-        return result;
+        return null;
     }
 
     public List<ListPaymentTransactionResponseDTO> getListParentPaymentForAdmin() {
