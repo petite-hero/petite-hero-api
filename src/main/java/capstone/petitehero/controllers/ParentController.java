@@ -43,6 +43,7 @@ import static org.springframework.http.MediaType.*;
 
 @RestController
 @RequestMapping(value = "/parent")
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class ParentController {
 
     @Autowired
