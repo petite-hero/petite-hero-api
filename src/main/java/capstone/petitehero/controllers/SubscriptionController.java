@@ -17,6 +17,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping(value = "/subscription")
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class SubscriptionController {
 
     @Autowired

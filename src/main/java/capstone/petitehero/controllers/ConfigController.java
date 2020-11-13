@@ -75,14 +75,14 @@ public class ConfigController {
             licenseDTO.setTotal_hour_task_skills(modifyLicenseDTO.getTotal_hour_task_skills());
         }
         if (modifyLicenseDTO.getSafezone_cron_time() != null && !modifyLicenseDTO.getSafezone_cron_time().isEmpty()) {
-            if (modifyLicenseDTO.getSafezone_cron_time().matches("^(?:(?:([01]?\\d|2[0-3]):)?([0-5]?\\d):)?([0-5]?\\d)$")) {
+            if (!modifyLicenseDTO.getSafezone_cron_time().matches("^(?:(?:([01]?\\d|2[0-3]):)?([0-5]?\\d):)?([0-5]?\\d)$")) {
                 responseObject = new ResponseObject(Constants.CODE_400, "Safezone cron time should in format HH:MM:ss");
                 return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
             }
             licenseDTO.setSafezone_cron_time(modifyLicenseDTO.getSafezone_cron_time());
         }
         if (modifyLicenseDTO.getTask_cron_time() != null && !modifyLicenseDTO.getTask_cron_time().isEmpty()) {
-            if (modifyLicenseDTO.getTask_cron_time().matches("^(?:(?:([01]?\\d|2[0-3]):)?([0-5]?\\d):)?([0-5]?\\d)$")) {
+            if (!modifyLicenseDTO.getTask_cron_time().matches("^(?:(?:([01]?\\d|2[0-3]):)?([0-5]?\\d):)?([0-5]?\\d)$")) {
                 responseObject = new ResponseObject(Constants.CODE_400, "Task cron time should in format HH:MM:ss");
                 return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
             }

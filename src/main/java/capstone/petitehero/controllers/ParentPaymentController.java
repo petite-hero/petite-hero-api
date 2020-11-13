@@ -14,6 +14,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/payment")
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class ParentPaymentController {
 
     @Autowired
