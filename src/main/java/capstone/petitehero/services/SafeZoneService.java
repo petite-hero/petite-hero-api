@@ -2,7 +2,6 @@ package capstone.petitehero.services;
 
 import capstone.petitehero.config.common.Constants;
 import capstone.petitehero.dtos.ResponseObject;
-import capstone.petitehero.dtos.common.CRONJobChildDTO;
 import capstone.petitehero.dtos.request.location.AddNewSafeZoneRequestDTO;
 import capstone.petitehero.dtos.request.location.PushNotiSWDTO;
 import capstone.petitehero.dtos.request.location.UpdateSafeZoneRequestDTO;
@@ -16,10 +15,8 @@ import capstone.petitehero.repositories.ParentRepository;
 import capstone.petitehero.repositories.SafeZoneRepository;
 import capstone.petitehero.utilities.Util;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -241,29 +238,4 @@ public class SafeZoneService {
         }
         return result;
     }
-
-//     @Scheduled(cron = "0 05 00 * * ?")
-//     public void cronJobSafeZone () {
-//         try {
-//             Long currentDateMilli = Util.getCurrentDateMilliValue();
-//             String currentWeekdayRegex = Util.getCurrentWeekdayRegex();
-//             PushNotiSWDTO noti = new PushNotiSWDTO(Constants.SILENT_NOTI, Constants.NEW_SAFEZONES, null);
-//
-//             List<Object[]> rawList = childRepository.getChildListBySafeZones(Util.getCurrentDateMilliValue());
-//             List<CRONJobChildDTO> childList =  Util.castToCronObject(rawList);
-//             for (CRONJobChildDTO currentChild : childList) {
-//                 String pushToken = currentChild.getPushToken();
-//                 List<Safezone> rawSafeZoneList = safeZoneRepository.getListSafeZone(currentChild.getChildId(), currentDateMilli, currentWeekdayRegex);
-//                 List<GetListSafeZoneByDateResponseDTO> safezoneList = Util.castToSafeZoneResponse(rawSafeZoneList);
-//
-//                 if (safezoneList.size() != 0 && pushToken != null) {
-//                     noti.setData(safezoneList);
-//                     notiService.pushNotificationSW(noti, pushToken);
-//                 }
-//             }
-//         } catch (Exception e) {
-//             System.out.println("===> Error at CRON job SafeZone: " + e.toString());
-//             e.printStackTrace();
-//         }
-//     }
 }
