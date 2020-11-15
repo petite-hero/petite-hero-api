@@ -9,8 +9,7 @@ import java.io.Serializable;
 @Getter
 public class ParentUpdateProfileResponseDTO implements Serializable {
 
-    private String firstName;
-    private String lastName;
+    private String name;
     private String gender;
     private String language;
     private String email;

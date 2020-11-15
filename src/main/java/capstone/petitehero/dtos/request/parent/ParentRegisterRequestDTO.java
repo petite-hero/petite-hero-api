@@ -13,8 +13,7 @@ public class ParentRegisterRequestDTO implements Serializable {
     private String phoneNumber;
     private String password;
     private String confirmPassword;
-    private String firstName;
-    private String lastName;
+    private String name;
     private String gender;
     private String language;
     private String email;

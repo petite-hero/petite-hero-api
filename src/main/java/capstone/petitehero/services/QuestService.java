@@ -3,11 +3,9 @@ package capstone.petitehero.services;
 import capstone.petitehero.config.common.Constants;
 import capstone.petitehero.dtos.common.Assignee;
 import capstone.petitehero.dtos.common.Assigner;
-import capstone.petitehero.dtos.common.NotificationDTO;
 import capstone.petitehero.dtos.request.location.PushNotiSWDTO;
 import capstone.petitehero.dtos.response.quest.*;
 import capstone.petitehero.dtos.response.quest.badge.QuestBadgeResponseDTO;
-import capstone.petitehero.entities.Parent_Child;
 import capstone.petitehero.entities.Quest;
 import capstone.petitehero.repositories.QuestRepository;
 import capstone.petitehero.utilities.Util;
@@ -48,8 +46,7 @@ public class QuestService {
             // information of assigner (colaborator or parent)
             Assigner assigner = new Assigner();
             assigner.setPhoneNumber(questResult.getParent().getAccount().getUsername());
-            assigner.setFirstName(questResult.getParent().getFirstName());
-            assigner.setLastName(questResult.getParent().getLastName());
+            assigner.setName(questResult.getParent().getName());
             if (questResult.getParent().getGender().booleanValue()) {
                 assigner.setGender("Male");
             } else {
@@ -60,8 +57,7 @@ public class QuestService {
             // information of assignee (child)
             Assignee assignee = new Assignee();
             assignee.setChildId(questResult.getChild().getChildId());
-            assignee.setLastName(questResult.getChild().getLastName());
-            assignee.setFirstName(questResult.getChild().getFirstName());
+            assignee.setName(questResult.getChild().getName());
             assignee.setNickName(questResult.getChild().getNickName());
             if (questResult.getChild().getGender().booleanValue()) {
                 assignee.setGender("Male");
@@ -98,8 +94,7 @@ public class QuestService {
             // send silent noty to children's smart watch
             if (questResult.getChild().getPushToken() != null && !questResult.getChild().getPushToken().isEmpty()) {
                 PushNotiSWDTO noty = new PushNotiSWDTO(Constants.PETITE_HERO,
-                        questResult.getParent().getFirstName() + " " + questResult.getParent().getLastName() +
-                                " đã tạo nhiệm vụ mới cho con"
+                         questResult.getParent().getName() + " đã tạo nhiệm vụ mới cho con"
                         , result);
                 notiService.pushNotificationSW(noty, questResult.getChild().getPushToken());
             }
@@ -125,8 +120,7 @@ public class QuestService {
             // information of assigner (colaborator or parent)
             Assigner assigner = new Assigner();
             assigner.setPhoneNumber(questResult.getParent().getAccount().getUsername());
-            assigner.setFirstName(questResult.getParent().getFirstName());
-            assigner.setLastName(questResult.getParent().getLastName());
+            assigner.setName(questResult.getParent().getName());
             if (questResult.getParent().getGender().booleanValue()) {
                 assigner.setGender("Male");
             } else {
@@ -137,8 +131,7 @@ public class QuestService {
             // information of assignee (child)
             Assignee assignee = new Assignee();
             assignee.setChildId(questResult.getChild().getChildId());
-            assignee.setLastName(questResult.getChild().getLastName());
-            assignee.setFirstName(questResult.getChild().getFirstName());
+            assignee.setName(questResult.getChild().getName());
             assignee.setNickName(questResult.getChild().getNickName());
             if (questResult.getChild().getGender().booleanValue()) {
                 assignee.setGender("Male");

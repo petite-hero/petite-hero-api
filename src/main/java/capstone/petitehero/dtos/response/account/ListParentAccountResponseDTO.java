@@ -9,8 +9,7 @@ import java.io.Serializable;
 @Getter
 public class ListParentAccountResponseDTO implements Serializable {
 
-    private String firstName;
-    private String lastName;
+    private String name;
     private String email;
     private String phoneNumber;
     private Long expiredDate;

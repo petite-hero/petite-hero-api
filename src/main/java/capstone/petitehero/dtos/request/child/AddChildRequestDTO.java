@@ -9,9 +9,8 @@ import java.io.Serializable;
 @Getter
 public class AddChildRequestDTO implements Serializable {
 
-    private String firstName;
+    private String name;
     private Integer yob;
-    private String lastName;
     private String nickName;
     private String gender;
     private String language;

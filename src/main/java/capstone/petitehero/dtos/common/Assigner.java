@@ -10,7 +10,6 @@ import java.io.Serializable;
 public class Assigner implements Serializable {
 
     private String phoneNumber;
-    private String firstName;
-    private String lastName;
+    private String name;
     private String gender;
 }

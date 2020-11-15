@@ -16,6 +16,9 @@ import capstone.petitehero.services.AccountService;
 import capstone.petitehero.services.ParentService;
 import capstone.petitehero.services.SubscriptionService;
 import capstone.petitehero.utilities.Util;
+import com.authy.AuthyApiClient;
+import com.authy.AuthyException;
+import com.authy.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -97,12 +100,26 @@ public class AccountController {
         }
         // end validate phone number of parent
 
-        // TODO verify phone number of parent using OTP
-
         SubscriptionType subscriptionType = subscriptionService.findSubscriptionTypeById(Constants.FREE_TRAIL_TYPE);
         if (subscriptionType == null) {
             responseObject = new ResponseObject(Constants.CODE_404, "Cannot found that subscription type in the system");
             return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
+        }
+
+        // create user for authy application for sending otp
+        AuthyApiClient authyApiClient = new AuthyApiClient(Constants.TWILIO_AUTHY_KEY);
+        Users users = authyApiClient.getUsers();
+        User user;
+
+        try {
+            user = users.createUser(
+                    "petite-hero-clone@gmail.com",
+                    parentRegisterDTO.getPhoneNumber(),
+                    "84");
+        } catch (AuthyException authyException) {
+            responseObject = new ResponseObject(Constants.CODE_400,
+                    "Cannot create your account because of " + authyException.getMessage());
+            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
 
         Parent parent = new Parent();
@@ -129,14 +146,31 @@ public class AccountController {
                 Subscription subscriptionResult = subscriptionService.createFreeTrialSubscriptionForParentAccount(subscription);
 
                 if (subscriptionResult != null) {
+                    parent.setAuthyId(user.getId());
                     parent.setSubscription(subscriptionResult);
                     parent.setAccount(accountResult);
 
                     ParentRegisterResponseDTO parentResult = parentService.registerByParent(parent);
                     if (parentResult != null) {
-                        responseObject = new ResponseObject(Constants.CODE_200, "OK");
-                        responseObject.setData(parentResult);
-                        return new ResponseEntity<>(responseObject, HttpStatus.OK);
+                        try {
+                            Hash response = users.requestSms(user.getId());
+                            if (response.isOk()) {
+                                responseObject = new ResponseObject(Constants.CODE_200, "An OTP token has sent to your phone number");
+                                responseObject.setData(parentResult);
+                                return new ResponseEntity<>(responseObject, HttpStatus.OK);
+                            } else {
+                                responseObject = new ResponseObject(Constants.CODE_200,
+                                        "Create account success but has problem when sending OTP. " +
+                                                "Please connect with petite-hero supporter");
+                                responseObject.setData(parentResult);
+                                return new ResponseEntity<>(responseObject, HttpStatus.OK);
+                            }
+                        } catch (AuthyException authyException) {
+                            responseObject = new ResponseObject(Constants.CODE_500,
+                                    "Reason: " + authyException.getMessage() +
+                                            "Please connect with petite-hero supporter.");
+                            return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+                        }
                     }
                     responseObject = new ResponseObject(Constants.CODE_500, "Cannot save your account to the system");
                     return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -268,8 +302,73 @@ public class AccountController {
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
 
+        AuthyApiClient authyApiClient = new AuthyApiClient(Constants.TWILIO_AUTHY_KEY);
+        Users users = authyApiClient.getUsers();
 
-        responseObject = new ResponseObject(Constants.CODE_500, "Cannot not reset password for your account");
+        if (parent.getAuthyId() != null && !parent.getAuthyId().toString().isEmpty()) {
+//        // send the otp code to user base on authy id which is store in db
+            try {
+                Hash response = users.requestSms(parent.getAuthyId());
+                if (response.isOk()) {
+                    responseObject = new ResponseObject(Constants.CODE_200,
+                            "An OTP token has sent to your phone number");
+                    return new ResponseEntity<>(responseObject, HttpStatus.OK);
+                } else {
+                    responseObject = new ResponseObject(Constants.CODE_200,
+                            "Has problem when sending OTP to your phone number. " +
+                                    "Please connect with petite-hero supporter");
+                    return new ResponseEntity<>(responseObject, HttpStatus.OK);
+                }
+            } catch (AuthyException authyException) {
+                responseObject = new ResponseObject(Constants.CODE_500,
+                        "Reason: " + authyException.getMessage() +
+                                "Please connect with petite-hero supporter.");
+                return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        }
+
+        responseObject = new ResponseObject(Constants.CODE_500, "Cannot reset password for your account");
+        return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @RequestMapping(value = "verify-otp", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<Object> verifyOTPToken(@RequestParam("username") String username,
+                                                 @RequestParam("token") Integer token) {
+        ResponseObject responseObject;
+
+        Parent parent = parentService.findParentByPhoneNumber(username);
+        if (parent == null) {
+            responseObject = new ResponseObject(Constants.CODE_404, "Cannot found your account in the systen");
+            return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
+        }
+
+        AuthyApiClient authyApiClient = new AuthyApiClient(Constants.TWILIO_AUTHY_KEY);
+
+        if (parent.getAuthyId() != null && !parent.getAuthyId().toString().isEmpty()) {
+            Tokens tokens = authyApiClient.getTokens();
+            try {
+                Token response = tokens.verify(parent.getAuthyId(), token.toString());
+
+                if (response.isOk()) {
+                    responseObject = new ResponseObject(Constants.CODE_200,
+                            "An OTP token has sent to your phone number");
+                    return new ResponseEntity<>(responseObject, HttpStatus.OK);
+                } else {
+                    responseObject = new ResponseObject(Constants.CODE_200,
+                            "Has problem when verifying OTP for your phone number. " +
+                                    "Please connect with petite-hero supporter");
+                    return new ResponseEntity<>(responseObject, HttpStatus.OK);
+                }
+            } catch (AuthyException authyException) {
+                responseObject = new ResponseObject(Constants.CODE_500,
+                        "Reason: " + authyException.getMessage() +
+                                "Please connect with petite-hero supporter.");
+                return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        }
+
+        responseObject = new ResponseObject(Constants.CODE_500, "Cannot verify otp token for your account");
         return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

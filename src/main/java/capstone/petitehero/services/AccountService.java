@@ -112,8 +112,7 @@ public class AccountService {
                 for (Account account : parentAccountList) {
                     ListParentAccountResponseDTO resultData = new ListParentAccountResponseDTO();
 
-                    resultData.setFirstName(account.getParent().getFirstName());
-                    resultData.setLastName(account.getParent().getLastName());
+                    resultData.setName(account.getParent().getName());
                     resultData.setEmail(account.getParent().getEmail());
                     resultData.setPhoneNumber(account.getUsername());
                     resultData.setExpiredDate(account.getParent().getSubscription().getExpiredDate());
@@ -132,8 +131,7 @@ public class AccountService {
         if (account != null) {
             ParentDetailResponseDTO result = new ParentDetailResponseDTO();
 
-            result.setFirstName(account.getParent().getFirstName());
-            result.setLastName(account.getParent().getLastName());
+            result.setName(account.getParent().getName());
             result.setEmail(account.getParent().getEmail());
             result.setPhoneNumber(account.getUsername());
             result.setExpiredDate(account.getParent().getSubscription().getExpiredDate());

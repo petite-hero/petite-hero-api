@@ -11,6 +11,8 @@ public class LicenseDTO implements Serializable {
     private Integer report_delay;
     private String safezone_cron_time;
     private String task_cron_time;
+    private String parent_subscription_cron_time;
+    private Integer expired_date_subscription_noti;
     private Integer total_hour_task_education;
     private Integer total_hour_task_skills;
     private Integer total_hour_task_housework;
@@ -69,6 +71,24 @@ public class LicenseDTO implements Serializable {
 
     public void setTask_cron_time(String task_cron_time) {
         this.task_cron_time = task_cron_time;
+    }
+
+    @XmlElement
+    public String getParent_subscription_cron_time() {
+        return parent_subscription_cron_time;
+    }
+
+    public void setParent_subscription_cron_time(String parent_subscription_cron_time) {
+        this.parent_subscription_cron_time = parent_subscription_cron_time;
+    }
+
+    @XmlElement
+    public Integer getExpired_date_subscription_noti() {
+        return expired_date_subscription_noti;
+    }
+
+    public void setExpired_date_subscription_noti(Integer expired_date_subscription_noti) {
+        this.expired_date_subscription_noti = expired_date_subscription_noti;
     }
 
     @XmlElement

@@ -44,8 +44,7 @@ public class ParentChildService {
                     ChildInformation childInformation = new ChildInformation();
 
                     childInformation.setChildId(data.getChild().getChildId());
-                    childInformation.setFirstName(data.getChild().getFirstName());
-                    childInformation.setLastName(data.getChild().getLastName());
+                    childInformation.setName(data.getChild().getName());
                     childInformation.setNickName(data.getChild().getNickName());
                     if (data.getChild().getGender().booleanValue()) {
                         childInformation.setGender("Male");
@@ -77,8 +76,7 @@ public class ParentChildService {
                     ChildInformation childInformation = new ChildInformation();
 
                     childInformation.setChildId(data.getChild().getChildId());
-                    childInformation.setFirstName(data.getChild().getFirstName());
-                    childInformation.setLastName(data.getChild().getLastName());
+                    childInformation.setName(data.getChild().getName());
                     childInformation.setNickName(data.getChild().getNickName());
                     if (data.getChild().getGender().booleanValue()) {
                         childInformation.setGender("Male");
@@ -136,8 +134,7 @@ public class ParentChildService {
                 ChildInformation childInformation = new ChildInformation();
 
                 childInformation.setChildId(parentChildResult.getChild().getChildId());
-                childInformation.setFirstName(parentChildResult.getChild().getFirstName());
-                childInformation.setLastName(parentChildResult.getChild().getLastName());
+                childInformation.setName(parentChildResult.getChild().getName());
                 if (parentChildResult.getChild().getGender() != null) {
                     if (parentChildResult.getChild().getGender().booleanValue()) {
                         childInformation.setGender("Male");
@@ -176,8 +173,7 @@ public class ParentChildService {
                     ChildInformation childInformation = new ChildInformation();
 
                     childInformation.setChildId(parentChildResult.getChild().getChildId());
-                    childInformation.setFirstName(parentChildResult.getChild().getFirstName());
-                    childInformation.setLastName(parentChildResult.getChild().getLastName());
+                    childInformation.setName(parentChildResult.getChild().getName());
                     if (parentChildResult.getChild().getGender() != null) {
                         if (parentChildResult.getChild().getGender().booleanValue()) {
                             childInformation.setGender("Male");
@@ -241,8 +237,7 @@ public class ParentChildService {
                     ListCollaboratorResponseDTO collaboratorData = new ListCollaboratorResponseDTO();
 
                     collaboratorData.setPhoneNumber(collaborator.getCollaborator().getAccount().getUsername());
-                    collaboratorData.setLastName(collaborator.getCollaborator().getLastName());
-                    collaboratorData.setFirstName(collaborator.getCollaborator().getFirstName());
+                    collaboratorData.setName(collaborator.getCollaborator().getName());
                     if (collaborator.getCollaborator().getGender().booleanValue()) {
                         collaboratorData.setGender("Male");
                     } else {

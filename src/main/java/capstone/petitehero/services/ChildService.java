@@ -35,8 +35,7 @@ public class ChildService {
         AddChildResponseDTO result = new AddChildResponseDTO();
         if (childResult != null) {
             result.setChildId(childResult.getChildId());
-            result.setFirstName(childResult.getFirstName());
-            result.setLastName(childResult.getLastName());
+            result.setName(childResult.getName());
             result.setNickName(childResult.getNickName());
 
             if (childResult.getYob().toString() != null && !childResult.getYob().toString().isEmpty()) {
@@ -82,8 +81,7 @@ public class ChildService {
             // set information for childResult
             ChildInformation childInformation = new ChildInformation();
             childInformation.setChildId(child.getChildId());
-            childInformation.setFirstName(child.getFirstName());
-            childInformation.setLastName(child.getLastName());
+            childInformation.setName(child.getName());
             childInformation.setNickName(child.getNickName());
             if (child.getGender() != null) {
                 if (child.getGender().booleanValue()) {
@@ -109,8 +107,7 @@ public class ChildService {
             ParentInformation parentInformation = new ParentInformation();
 
             // set parent information
-            parentInformation.setFirstName(parentResult.getFirstName());
-            parentInformation.setLastName(parentResult.getLastName());
+            parentInformation.setName(parentResult.getName());
             parentInformation.setPhoneNumber(parentResult.getAccount().getUsername());
             if (parentResult.getGender() != null) {
                 if (parentResult.getGender().booleanValue()) {
@@ -148,8 +145,7 @@ public class ChildService {
             UpdateChildProfileResponseDTO result = new UpdateChildProfileResponseDTO();
 
             result.setChildId(childResult.getChildId());
-            result.setFirstName(child.getFirstName());
-            result.setLastName(child.getLastName());
+            result.setName(child.getName());
             if (childResult.getLanguage().booleanValue()) {
                 result.setLanguage("Vietnamese");
             } else {
@@ -176,8 +172,7 @@ public class ChildService {
         if (childResult != null) {
             ChildDetailResponseDTO result = new ChildDetailResponseDTO();
 
-            result.setFirstName(childResult.getFirstName());
-            result.setLastName(childResult.getLastName());
+            result.setName(childResult.getName());
             result.setNickName(childResult.getNickName());
             Calendar calendar = Calendar.getInstance();
             int currentYear = calendar.get(Calendar.YEAR);

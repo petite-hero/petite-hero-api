@@ -88,6 +88,20 @@ public class ConfigController {
             }
             licenseDTO.setTask_cron_time(modifyLicenseDTO.getTask_cron_time());
         }
+        if (modifyLicenseDTO.getParent_subscription_cron_time() != null && !modifyLicenseDTO.getParent_subscription_cron_time().isEmpty()) {
+            if (!modifyLicenseDTO.getParent_subscription_cron_time().matches("^(?:(?:([01]?\\d|2[0-3]):)?([0-5]?\\d):)?([0-5]?\\d)$")) {
+                responseObject = new ResponseObject(Constants.CODE_400, "Parent subscription cron time should in format HH:MM:ss");
+                return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+            }
+            licenseDTO.setParent_subscription_cron_time(modifyLicenseDTO.getParent_subscription_cron_time());
+        }
+        if (modifyLicenseDTO.getExpired_date_subscription_noti() != null && !modifyLicenseDTO.getExpired_date_subscription_noti().toString().isEmpty()) {
+            if (!Util.validateLongNumber(modifyLicenseDTO.getExpired_date_subscription_noti().toString())) {
+                responseObject = new ResponseObject(Constants.CODE_400, "Expired date subscription should only contain number");
+                return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+            }
+            licenseDTO.setExpired_date_subscription_noti(modifyLicenseDTO.getExpired_date_subscription_noti());
+        }
         if (modifyLicenseDTO.getLicense_EN() != null && !modifyLicenseDTO.getLicense_EN().isEmpty()) {
             licenseDTO.setLicense_EN(modifyLicenseDTO.getLicense_EN());
         }

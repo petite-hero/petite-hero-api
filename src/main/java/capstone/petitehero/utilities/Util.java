@@ -14,7 +14,6 @@ import com.twilio.Twilio;
 import com.twilio.rest.verify.v2.service.Verification;
 import com.twilio.rest.verify.v2.service.VerificationCheck;
 import org.apache.commons.io.FileUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
@@ -124,6 +123,11 @@ public class Util {
 
     public static String formatTimestampToTime(Long timeStamp) {
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+        return sdf.format(new Date(timeStamp));
+    }
+
+    public static String formatTimestampToDate(Long timeStamp) {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
         return sdf.format(new Date(timeStamp));
     }
 
@@ -430,23 +434,32 @@ public class Util {
         return result;
     }
 
-    public static String getTwilioOTPToken(String code, String number) {
-        Twilio.init(Constants.ACCOUNT_SID, Constants.AUTH_TOKEN);
-        Verification verification = Verification.creator(
-                Constants.SERVICE_SID, number,
-                "sms")
-                .create();
-        return verification.getSid();
-    }
+//    public static String getTwilioOTPToken(String code, String number) {
+//        Twilio.init(Constants.TWILIO_SID, Constants.TWILIO_AUTH_TOKEN);
+//        Verification verification = Verification.creator(
+//                Constants.TWILIO_SERVICE_SID, number,
+//                "sms")
+//                .create();
+//        return verification.getSid();
+//    }
+//
+//    public static Boolean checkTwilioVerificationCode(String code, String sid) {
+//        Twilio.init(Constants.TWILIO_SID, Constants.TWILIO_AUTH_TOKEN);
+//        VerificationCheck verificationCheck = VerificationCheck.creator(
+//                Constants.TWILIO_SERVICE_SID,
+//                code).setVerificationSid(sid).create();
+//        if (verificationCheck.getStatus().equalsIgnoreCase("approved")) {
+//            return Boolean.TRUE;
+//        }
+//        return Boolean.FALSE;
+//    }
 
-    public static Boolean checkTwilioVerificationCode(String code, String sid) {
-        Twilio.init(Constants.ACCOUNT_SID, Constants.AUTH_TOKEN);
-        VerificationCheck verificationCheck = VerificationCheck.creator(
-                Constants.SERVICE_SID,
-                code).setVerificationSid(sid).create();
-        if (verificationCheck.getStatus().equalsIgnoreCase("approved")) {
-            return Boolean.TRUE;
+    public static String formatTimeCronjob(String timeCronjob) {
+        String result = "";
+        String[] tempStr = timeCronjob.split(":");
+        for (int i = 0; i < tempStr.length; i++) {
+            result += tempStr[i];
         }
-        return Boolean.FALSE;
+        return result + " * * ?";
     }
 }

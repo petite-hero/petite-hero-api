@@ -20,11 +20,8 @@ public class Parent implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(length = 30)
-    private String firstName;
-
-    @Column(length = 30)
-    private String lastName;
+    @Column(length = 50)
+    private String name;
 
     @Column(length = Integer.MAX_VALUE)
     private String photo;
@@ -43,6 +40,9 @@ public class Parent implements Serializable {
 
     @Column(length = 100)
     private String email;
+
+    @Column
+    private Integer authyId;
 
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
     @EqualsAndHashCode.Exclude // không sử dụng trường này trong equals và hashcode

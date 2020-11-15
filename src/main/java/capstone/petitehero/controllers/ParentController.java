@@ -27,8 +27,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
@@ -72,22 +70,10 @@ public class ParentController {
         ResponseObject responseObject;
 
         // validate mandatory fields
-        if (parentRegisterRequestDTO.getFirstName() == null || parentRegisterRequestDTO.getFirstName().isEmpty()) {
+        if (parentRegisterRequestDTO.getName() == null || parentRegisterRequestDTO.getName().isEmpty()) {
             responseObject = new ResponseObject(Constants.CODE_400, "First name cannot be missing or be empty");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
-//        if (!Util.validateName(parentRegisterRequestDTO.getFirstName(), 2, 30)) {
-//            responseObject = new ResponseObject(Constants.CODE_400, "First name should between 2 to 30 characters and special characters");
-//            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
-//        }
-        if (parentRegisterRequestDTO.getLastName() == null || parentRegisterRequestDTO.getLastName().isEmpty()) {
-            responseObject = new ResponseObject(Constants.CODE_400, "Last name cannot be missing or be empty");
-            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
-        }
-//        if (!Util.validateName(parentRegisterRequestDTO.getLastName(), 2, 30)) {
-//            responseObject = new ResponseObject(Constants.CODE_400, "Last name should between 2 to 30 characters and special characters");
-//            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
-//        }
         if (parentRegisterRequestDTO.getEmail() == null || parentRegisterRequestDTO.getEmail().isEmpty()) {
             responseObject = new ResponseObject(Constants.CODE_400, "Email cannot be missing or be empty");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
@@ -101,10 +87,6 @@ public class ParentController {
             responseObject = new ResponseObject(Constants.CODE_400, "Password cannot be missing or be empty");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
-//        if (!Util.validateLengthOfString(parentRegisterRequestDTO.getPassword(), 6, 30)) {
-//            responseObject = new ResponseObject(Constants.CODE_400, "Password should between 6 characters to 30 characters");
-//            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
-//        }
         if (parentRegisterRequestDTO.getConfirmPassword() == null || parentRegisterRequestDTO.getConfirmPassword().isEmpty()) {
             responseObject = new ResponseObject(Constants.CODE_400, "Confirm password cannot be missing or be empty");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
@@ -128,8 +110,7 @@ public class ParentController {
             Parent parent = parentService.findParentByPhoneNumber(parentRegisterRequestDTO.getPhoneNumber());
             if (parent != null) {
                 // add basic parent information
-                parent.setFirstName(parentRegisterRequestDTO.getFirstName());
-                parent.setLastName(parentRegisterRequestDTO.getLastName());
+                parent.setName(parentRegisterRequestDTO.getName());
                 parent.getAccount().setPassword(parentRegisterRequestDTO.getPassword());
                 parent.setEmail(parentRegisterRequestDTO.getEmail());
 
@@ -175,24 +156,13 @@ public class ParentController {
         ResponseObject responseObject;
 
         Parent parent = parentService.findParentByPhoneNumber(parentPhoneNumber);
-        if (parent != null) {
+        if (parent == null) {
             responseObject = new ResponseObject(Constants.CODE_404, "Cannot found that parent account in the system");
             return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
         }
 
-        if (parentUpdateProfileRequestDTO.getFirstName() != null && !parentUpdateProfileRequestDTO.getFirstName().isEmpty()) {
-//            if (!Util.validateName(parentUpdateProfileRequestDTO.getFirstName(), 2, 30)) {
-//                responseObject = new ResponseObject(Constants.CODE_400, "First name should between 2 to 30 characters and special characters");
-//                return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
-//            }
-            parent.setFirstName(parentUpdateProfileRequestDTO.getFirstName());
-        }
-        if (parentUpdateProfileRequestDTO.getLastName() != null && !parentUpdateProfileRequestDTO.getLastName().isEmpty()) {
-//            if (!Util.validateName(parentUpdateProfileRequestDTO.getLastName(), 2, 30)) {
-//                responseObject = new ResponseObject(Constants.CODE_400, "Last name should between 2 to 30 characters and special characters");
-//                return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
-//            }
-            parent.setLastName(parentUpdateProfileRequestDTO.getLastName());
+        if (parentUpdateProfileRequestDTO.getName() != null && !parentUpdateProfileRequestDTO.getName().isEmpty()) {
+            parent.setName(parentUpdateProfileRequestDTO.getName());
         }
         if (parentUpdateProfileRequestDTO.getEmail() != null && !parentUpdateProfileRequestDTO.getEmail().isEmpty()) {
             if (!Util.validateEmail(parentUpdateProfileRequestDTO.getEmail())) {
@@ -239,22 +209,10 @@ public class ParentController {
         ResponseObject responseObject;
 
         // validate mandatory fields
-        if (addChildRequestDTO.getFirstName() == null || addChildRequestDTO.getFirstName().isEmpty()) {
+        if (addChildRequestDTO.getName() == null || addChildRequestDTO.getName().isEmpty()) {
             responseObject = new ResponseObject(Constants.CODE_400, "Child's first name cannot be missing or empty");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
-//        if (!Util.validateName(addChildRequestDTO.getFirstName(), 2, 30)) {
-//            responseObject = new ResponseObject(Constants.CODE_400, "Child's first name should between 2 characters to 30 characters and special characters");
-//            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
-//        }
-        if (addChildRequestDTO.getLastName() == null || addChildRequestDTO.getLastName().isEmpty()) {
-            responseObject = new ResponseObject(Constants.CODE_400, "Child's first name cannot be missing or empty");
-            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
-        }
-//        if (!Util.validateName(addChildRequestDTO.getLastName(), 2, 30)) {
-//            responseObject = new ResponseObject(Constants.CODE_400, "Child's last name should between 2 characters to 30 characters and special characters");
-//            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
-//        }
         if (addChildRequestDTO.getYob() == null || addChildRequestDTO.getYob().toString().isEmpty()) {
             responseObject = new ResponseObject(Constants.CODE_400, "Child's year of birth cannot be missing or empty");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
@@ -279,8 +237,7 @@ public class ParentController {
             }
 
             Child child = new Child();
-            child.setFirstName(addChildRequestDTO.getFirstName());
-            child.setLastName(addChildRequestDTO.getLastName());
+            child.setName(addChildRequestDTO.getName());
             child.setYob(addChildRequestDTO.getYob());
             if (addChildRequestDTO.getNickName() != null) {
                 child.setNickName(addChildRequestDTO.getNickName());

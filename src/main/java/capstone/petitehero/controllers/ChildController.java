@@ -129,11 +129,8 @@ public class ChildController {
             responseObject = new ResponseObject(Constants.CODE_404, "Cannot found that child in the system");
             return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
         }
-        if (updateChildProfileRequestDTO.getFirstName() != null && !updateChildProfileRequestDTO.getFirstName().isEmpty()) {
-            child.setFirstName(updateChildProfileRequestDTO.getFirstName());
-        }
-        if (updateChildProfileRequestDTO.getLastName() != null && !updateChildProfileRequestDTO.getLastName().isEmpty()) {
-            child.setLastName(updateChildProfileRequestDTO.getLastName());
+        if (updateChildProfileRequestDTO.getName() != null && !updateChildProfileRequestDTO.getName().isEmpty()) {
+            child.setName(updateChildProfileRequestDTO.getName());
         }
         if (updateChildProfileRequestDTO.getYob() != null && !updateChildProfileRequestDTO.getYob().toString().isEmpty()) {
             child.setYob(updateChildProfileRequestDTO.getYob());

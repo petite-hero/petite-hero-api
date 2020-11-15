@@ -4,9 +4,10 @@ import org.springframework.beans.factory.annotation.Value;
 
 public class Constants {
 
-    public static final String AUTH_TOKEN = System.getenv("twilio.auth.token");
-    public static final String ACCOUNT_SID = System.getenv("twilio.account.sid");
-    public static final String SERVICE_SID = System.getenv("twilio.service.sid");
+    public static final String TWILIO_AUTH_TOKEN = System.getenv("twilio.auth.token");
+    public static final String TWILIO_SID = System.getenv("twilio.account.sid");
+    public static final String TWILIO_SERVICE_SID = System.getenv("twilio.service.sid");
+    public static final String TWILIO_AUTHY_KEY = System.getenv("twilio.authy.key");
 
     public static final String ADMIN_ROLE = "";
     public static final String USER_ROLE = "";

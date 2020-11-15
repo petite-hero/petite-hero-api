@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Repository
 public interface ParentRepository extends JpaRepository<Parent, Long> {
@@ -20,4 +21,5 @@ public interface ParentRepository extends JpaRepository<Parent, Long> {
             "WHERE c.child_id = :childId AND pc.child_id = c.child_id AND p.id = pc.parent_id")
     Parent getParentByChildID(@Param("childId") Long childId);
 
+    List<Parent> getParentsByIsDisabledAndSubscription_ExpiredDateIsBetween(Boolean isDeleted, Long startTime, Long endTime);
 }

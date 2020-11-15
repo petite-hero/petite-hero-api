@@ -144,8 +144,7 @@ public class ParentPaymentService {
 
                     ParentInformation parentInformation = new ParentInformation();
                     parentInformation.setPhoneNumber(payment.getParent().getAccount().getUsername());
-                    parentInformation.setLastName(payment.getParent().getLastName());
-                    parentInformation.setFirstName(payment.getParent().getFirstName());
+                    parentInformation.setName(payment.getParent().getName());
                     parentInformation.setEmail(payment.getParent().getEmail());
 
                     dataResult.setParentInformation(parentInformation);

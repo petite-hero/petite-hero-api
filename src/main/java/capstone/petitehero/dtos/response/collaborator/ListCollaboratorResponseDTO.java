@@ -12,8 +12,7 @@ import java.util.List;
 public class ListCollaboratorResponseDTO implements Serializable {
 
     private String phoneNumber;
-    private String firstName;
-    private String lastName;
+    private String name;
     private String gender;
     private List<ChildInformation> confirmChild;
     private List<ChildInformation> notConfirmChild;

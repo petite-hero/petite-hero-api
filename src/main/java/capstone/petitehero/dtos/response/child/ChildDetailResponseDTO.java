@@ -10,8 +10,7 @@ import java.io.Serializable;
 public class ChildDetailResponseDTO implements Serializable {
 
     private Long childId;
-    private String firstName;
-    private String lastName;
+    private String name;
     private String nickName;
     private Integer age;
     private String gender;

@@ -17,7 +17,6 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -51,6 +50,7 @@ public class TaskService {
                 // add information of task
                 TaskCreateResponseDTO resultData = new TaskCreateResponseDTO();
                 resultData.setTaskId(taskResult.getTaskId());
+                resultData.setName(taskResult.getName());
                 resultData.setDescription(taskResult.getDescription());
 
                 resultData.setAssignDate(taskResult.getAssignDate());
@@ -65,8 +65,7 @@ public class TaskService {
                 // information of assigner (colaborator or parent)
                 Assigner assigner = new Assigner();
                 assigner.setPhoneNumber(taskResult.getParent().getAccount().getUsername());
-                assigner.setFirstName(taskResult.getParent().getFirstName());
-                assigner.setLastName(taskResult.getParent().getLastName());
+                assigner.setName(taskResult.getParent().getName());
                 if (taskResult.getParent().getGender().booleanValue()) {
                     assigner.setGender("Male");
                 } else {
@@ -77,8 +76,7 @@ public class TaskService {
                 // information of assignee (child)
                 Assignee assignee = new Assignee();
                 assignee.setChildId(taskResult.getChild().getChildId());
-                assignee.setLastName(taskResult.getChild().getLastName());
-                assignee.setFirstName(taskResult.getChild().getFirstName());
+                assignee.setName(taskResult.getChild().getName());
                 assignee.setNickName(taskResult.getChild().getNickName());
                 if (taskResult.getChild().getGender().booleanValue()) {
                     assignee.setGender("Male");
@@ -150,8 +148,7 @@ public class TaskService {
             // information of assigner (colaborator or parent)
             Assigner assigner = new Assigner();
             assigner.setPhoneNumber(taskResult.getParent().getAccount().getUsername());
-            assigner.setFirstName(taskResult.getParent().getFirstName());
-            assigner.setLastName(taskResult.getParent().getLastName());
+            assigner.setName(taskResult.getParent().getName());
             if (taskResult.getParent().getGender().booleanValue()) {
                 assigner.setGender("Male");
             } else {
@@ -162,8 +159,7 @@ public class TaskService {
             // information of assignee (child)
             Assignee assignee = new Assignee();
             assignee.setChildId(taskResult.getChild().getChildId());
-            assignee.setLastName(taskResult.getChild().getLastName());
-            assignee.setFirstName(taskResult.getChild().getFirstName());
+            assignee.setName(taskResult.getChild().getName());
             assignee.setNickName(taskResult.getChild().getNickName());
             if (taskResult.getChild().getGender().booleanValue()) {
                 assignee.setGender("Male");
@@ -334,11 +330,9 @@ public class TaskService {
                             (taskResult.getAssignDate(),
                                     new Date(taskResult.getToTime().getTime()).getTime())
                             < new Date().getTime()) {
-                        msg = taskResult.getChild().getFirstName() + " " + taskResult.getChild().getLastName() +
-                                " has submitted task " + taskResult.getName() + " LATE";
+                        msg = taskResult.getChild().getName() + " has submitted task " + taskResult.getName() + " LATE";
                     } else {
-                        msg = taskResult.getChild().getFirstName() + " " + taskResult.getChild().getLastName() +
-                                " has submitted task " + taskResult.getName();
+                        msg = taskResult.getChild().getName() + " has submitted task " + taskResult.getName();
                     }
                     notiService.pushNotificationMobile(msg, notificationDTO, pushTokenList);
                 }
@@ -510,13 +504,6 @@ public class TaskService {
                                 task.getChild().getChildId().longValue()
                                         == child.getChildId().longValue())
                         .collect(Collectors.toList()));
-
-                System.out.println("SIZE: " + listTask.size());
-                if (!listTask.isEmpty()) {
-                    for (ListTaskResponseDTO t : listTask) {
-                        System.out.println("ID: " + t.getTaskId().longValue());
-                    }
-                }
                 if (!listTask.isEmpty()) {
                     noti.setData(listTask);
                     notiService.pushNotificationSW(noti, pushToken);

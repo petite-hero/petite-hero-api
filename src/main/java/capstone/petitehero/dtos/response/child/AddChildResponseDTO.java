@@ -10,12 +10,9 @@ import java.io.Serializable;
 public class AddChildResponseDTO implements Serializable {
 
     private Long childId;
-    private String firstName;
-    private String lastName;
+    private String name;
     private String nickName;
     private Integer age;
     private String gender;
-//    private Long token;
-//    private String parentPhoneNumber;
 
 }

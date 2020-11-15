@@ -10,8 +10,7 @@ import java.io.Serializable;
 public class Assignee implements Serializable {
 
     private Long childId;
-    private String firstName;
-    private String lastName;
+    private String name;
     private String nickName;
     private String gender;
 }

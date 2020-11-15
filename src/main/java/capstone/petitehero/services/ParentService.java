@@ -7,7 +7,6 @@ import capstone.petitehero.dtos.response.parent.DisableParentResponseDTO;
 import capstone.petitehero.dtos.response.parent.ParentProfileRegisterResponseDTO;
 import capstone.petitehero.dtos.response.parent.ParentRegisterResponseDTO;
 import capstone.petitehero.dtos.response.parent.ParentUpdateProfileResponseDTO;
-import capstone.petitehero.entities.Account;
 import capstone.petitehero.entities.Parent;
 import capstone.petitehero.repositories.AccountRepository;
 import capstone.petitehero.repositories.ParentRepository;
@@ -46,8 +45,7 @@ public class ParentService {
             ParentProfileRegisterResponseDTO result = new ParentProfileRegisterResponseDTO();
 
             result.setPhoneNumber(parentResult.getAccount().getUsername());
-            result.setFirstName(parentResult.getFirstName());
-            result.setLastName(parentResult.getLastName());
+            result.setName(parentResult.getName());
 
             if (parentResult.getPhoto() != null && !parentResult.getPhoto().isEmpty()) {
                 result.setPhoto(Util.fromImageFileToBase64String(parentResult.getPhoto()));
@@ -104,8 +102,7 @@ public class ParentService {
         if (parentResult != null) {
             ParentUpdateProfileResponseDTO result = new ParentUpdateProfileResponseDTO();
 
-            result.setFirstName(parentResult.getFirstName());
-            result.setLastName(parentResult.getLastName());
+            result.setName(parentResult.getName());
             result.setEmail(parentResult.getEmail());
             if (parentResult.getGender() != null) {
                 if (parentResult.getGender().booleanValue()) {

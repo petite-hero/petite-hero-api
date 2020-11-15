@@ -19,11 +19,8 @@ public class Child implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long childId;
 
-    @Column(length = 30)
-    private String firstName;
-
-    @Column(length = 30)
-    private String lastName;
+    @Column(length = 50)
+    private String name;
 
     @Column
     private Integer yob;
