@@ -13,6 +13,7 @@ public class QuestCreateRequestDTO implements Serializable {
     private Long childId;
     private String creatorPhoneNumber;
     private String name;
+    private String title;
     private String description;
     private Integer reward;
 }

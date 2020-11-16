@@ -247,8 +247,7 @@ public class ChildController {
 
     @RequestMapping(value = "/quest", method = RequestMethod.POST)
     @ResponseBody
-    public ResponseEntity<Object> assignQuestByParent(@ModelAttribute QuestCreateRequestDTO questCreateRequestDTO,
-                                                      @RequestParam(value = "rewardPhoto", required = false) MultipartFile rewardPhoto) {
+    public ResponseEntity<Object> assignQuestByParent(@ModelAttribute QuestCreateRequestDTO questCreateRequestDTO) {
         ResponseObject responseObject;
 
         // validate mandatory fields
@@ -275,13 +274,14 @@ public class ChildController {
             quest.setDescription(questCreateRequestDTO.getDescription());
             quest.setReward(questCreateRequestDTO.getReward());
             quest.setIsDeleted(Boolean.FALSE);
+            quest.setTitle(questCreateRequestDTO.getTitle());
             quest.setCreatedDate(new Date().getTime());
             quest.setStatus(Constants.status.ASSIGNED.toString());
 
             quest.setChild(child);
             quest.setParent(creatorInformation);
 
-            QuestCreateResponseDTO result = questService.addQuestByParentOrCollaborator(quest, rewardPhoto);
+            QuestCreateResponseDTO result = questService.addQuestByParentOrCollaborator(quest);
 
             if (result != null) {
                 responseObject = new ResponseObject(Constants.CODE_200, "OK");
