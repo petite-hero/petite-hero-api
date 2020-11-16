@@ -9,8 +9,6 @@ public class Constants {
     public static final String TWILIO_SERVICE_SID = System.getenv("twilio.service.sid");
     public static final String TWILIO_AUTHY_KEY = System.getenv("twilio.authy.key");
 
-    public static final String ADMIN_ROLE = "";
-    public static final String USER_ROLE = "";
 
     // boolean values
     public static final boolean IS_NOT_DELETED = false;

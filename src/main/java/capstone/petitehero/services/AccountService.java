@@ -91,8 +91,11 @@ public class AccountService {
                 LoginResponseDTO result = new LoginResponseDTO();
                 if (account.getRole().equals(Constants.PARENT)) {
                     result.setJwt(token);
+                    result.setRole(Constants.PARENT);
                     result.setPhoneNumber(account.getUsername());
                 } else {
+                    result.setRole(Constants.ADMIN);
+                    result.setPhoneNumber(account.getUsername());
                     result.setJwt(token);
                 }
                 return result;

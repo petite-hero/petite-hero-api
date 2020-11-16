@@ -107,6 +107,7 @@ public class CRONJobService {
     }
 
     // noti for parent account who account is about to expired
+    @Scheduled(cron = "0 10 00 * * ?")
     public void cronjobParentSubscriptions() {
         LicenseDTO licenseDTO = configService.getLicenseForAdmin();
         Long currentDay = Util.getStartDay(new Date().getTime());
