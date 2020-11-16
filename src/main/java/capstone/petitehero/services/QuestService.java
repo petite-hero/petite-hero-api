@@ -28,7 +28,7 @@ public class QuestService {
     @Autowired
     private NotificationService notiService;
 
-    public QuestCreateResponseDTO addQuestByParentOrCollaborator(Quest quest, MultipartFile rewardPhoto) {
+    public QuestCreateResponseDTO addQuestByParentOrCollaborator(Quest quest) {
         Quest questResult = questRepository.save(quest);
 
         if (questResult != null) {
@@ -38,6 +38,7 @@ public class QuestService {
             result.setName(questResult.getName());
             result.setDescription(questResult.getDescription());
             result.setReward(questResult.getReward());
+            result.setTitle(questResult.getTitle());
 
             result.setCreatedDate(Util.formatTimestampToDateTime(questResult.getCreatedDate()));
 
@@ -115,6 +116,7 @@ public class QuestService {
             result.setCreatedDate(questResult.getCreatedDate());
             result.setStatus(questResult.getStatus());
             result.setReward(questResult.getReward());
+            result.setTitle(questResult.getTitle());
             result.setDescription(questResult.getDescription());
 
             // information of assigner (colaborator or parent)
@@ -183,9 +185,9 @@ public class QuestService {
 
                     resultData.setQuestId(questResult.getQuestId());
                     resultData.setName(questResult.getName());
+                    resultData.setTitle(questResult.getTitle());
                     resultData.setStatus(questResult.getStatus());
                     resultData.setDescription(questResult.getDescription());
-                    System.out.println("DATE: " + Util.formatTimestampToDateTime(questResult.getCreatedDate()));
 
                     if (questResult.getReward() != null) {
                         resultData.setReward(questResult.getReward());
@@ -248,6 +250,7 @@ public class QuestService {
                     resultData.setName(quest.getName());
                     resultData.setDescription(quest.getDescription());
                     resultData.setReward(quest.getReward());
+                    resultData.setTitle(quest.getTitle());
                     resultData.setStatus(quest.getStatus());
 
                     result.add(resultData);
@@ -277,11 +280,14 @@ public class QuestService {
             result.setStatus(questResult.getStatus());
 
             if (questResult.getChild().getPushToken() != null && !questResult.getChild().getPushToken().isEmpty()) {
-                String msg = "";
+                String msg;
+                PushNotiSWDTO noty;
                 if (questResult.getStatus().equalsIgnoreCase(Constants.status.DONE.toString())) {
                     msg = questResult.getName() + " đã thành công";
+                    noty = new PushNotiSWDTO(Constants.PETITE_HERO, msg, result);
+                } else {
+                    noty = new PushNotiSWDTO(Constants.SILENT_NOTI, null, result);
                 }
-                PushNotiSWDTO noty = new PushNotiSWDTO(Constants.PETITE_HERO, msg, result);
                 notiService.pushNotificationSW(noty, questResult.getChild().getPushToken());
             }
             return result;

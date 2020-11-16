@@ -34,6 +34,9 @@ public class Quest implements Serializable {
     @Column(length = 30)
     private String status;
 
+    @Column(length = 30)
+    private String title;
+
     @Column
     private Boolean isDeleted;
 
