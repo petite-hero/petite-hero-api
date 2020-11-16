@@ -10,7 +10,7 @@
     <report_delay>40000</report_delay>
     <safezone_cron_time>00:10:00</safezone_cron_time>
     <task_cron_time>00:05:00</task_cron_time>
-    <parent_subscription_cron_time>00:05:00</parent_subscription_cron_time>
+    <parent_subscription_cron_time>01:00:00</parent_subscription_cron_time>
     <expired_date_subscription_noti>14</expired_date_subscription_noti>
     <total_hour_task_education>2</total_hour_task_education>
     <total_hour_task_housework>2</total_hour_task_housework>

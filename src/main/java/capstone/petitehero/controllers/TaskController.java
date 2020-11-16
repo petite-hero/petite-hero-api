@@ -1,14 +1,12 @@
 package capstone.petitehero.controllers;
 
 import capstone.petitehero.config.common.Constants;
-import capstone.petitehero.config.cronjob.ScheduledDuplicatedTasks;
 import capstone.petitehero.dtos.ResponseObject;
 import capstone.petitehero.dtos.response.task.*;
 import capstone.petitehero.entities.Child;
 import capstone.petitehero.entities.Task;
 import capstone.petitehero.services.ChildService;
 import capstone.petitehero.services.TaskService;
-import capstone.petitehero.utilities.Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

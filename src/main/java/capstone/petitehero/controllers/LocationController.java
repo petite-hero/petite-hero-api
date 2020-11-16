@@ -4,6 +4,7 @@ import capstone.petitehero.dtos.ResponseObject;
 import capstone.petitehero.dtos.request.location.AddLocationRequestDTO;
 import capstone.petitehero.dtos.request.location.AddNewSafeZoneRequestDTO;
 import capstone.petitehero.dtos.request.location.UpdateSafeZoneRequestDTO;
+import capstone.petitehero.services.CRONJobService;
 import capstone.petitehero.services.LocationService;
 import capstone.petitehero.services.SafeZoneService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,9 @@ public class LocationController {
 
     @Autowired
     private SafeZoneService safeZoneService;
+
+    @Autowired
+    private CRONJobService cronJobService;
 
 
     @RequestMapping(value = "/current-location/{emergency}", method = RequestMethod.POST)
@@ -81,5 +85,11 @@ public class LocationController {
     @ResponseBody
     public ResponseObject changeSWStatus(@PathVariable(value = "child") Long child, @PathVariable(value = "status") Boolean status) {
         return locationService.changeSWStatus(child, status);
+    }
+
+    @RequestMapping(value = "/test/CROBJob/{child}", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseObject testCRONJobSafeZone(@PathVariable(value = "child") Long child) {
+        return cronJobService.testCRONJobSafeZone(child);
     }
 }
