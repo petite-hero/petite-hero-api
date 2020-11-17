@@ -142,7 +142,7 @@ public class SubscriptionService {
                         msg = subscriptionType.getName() + " pack is not available anymore, but you can still use it until the expired date.";
                     }
                     notiService.pushNotificationMobile(msg
-                            , null, pushToken);
+                            , result, pushToken);
                 }
             }
             return result;
