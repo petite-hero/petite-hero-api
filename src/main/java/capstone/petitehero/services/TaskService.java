@@ -330,9 +330,17 @@ public class TaskService {
                             (taskResult.getAssignDate(),
                                     new Date(taskResult.getToTime().getTime()).getTime())
                             < new Date().getTime()) {
-                        msg = taskResult.getChild().getName() + " has submitted task " + taskResult.getName() + " LATE";
+                        if (taskResult.getParent().getLanguage().booleanValue()) {
+                            msg = taskResult.getChild().getName() + " đã hoàn thành công việc " + taskResult.getName() + " TRỄ";
+                        } else {
+                            msg = taskResult.getChild().getName() + " has submitted task " + taskResult.getName() + " LATE";
+                        }
                     } else {
-                        msg = taskResult.getChild().getName() + " has submitted task " + taskResult.getName();
+                        if (taskResult.getParent().getLanguage().booleanValue()) {
+                            msg = taskResult.getChild().getName() + " đã hoàn thành công việc " + taskResult.getName();
+                        } else {
+                            msg = taskResult.getChild().getName() + " has submitted task " + taskResult.getName();
+                        }
                     }
                     notiService.pushNotificationMobile(msg, notificationDTO, pushTokenList);
                 }

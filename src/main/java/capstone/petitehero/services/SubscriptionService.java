@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class SubscriptionService {
@@ -23,6 +24,9 @@ public class SubscriptionService {
 
     @Autowired
     private SubscriptionRepository subscriptionRepository;
+
+    @Autowired
+    private NotificationService notiService;
 
     public SubscriptionTypeStatusResponseDTO createNewSubscriptionType(SubscriptionType subscriptionType) {
         SubscriptionType subscriptionTypeResult = subscriptionTypeRepository.save(subscriptionType);
@@ -122,6 +126,25 @@ public class SubscriptionService {
             result.setSubscriptionTypeId(subscriptionTypeResult.getSubscriptionTypeId());
             result.setStatus(Constants.status.DELETED.toString());
 
+
+            List<Subscription> subscriptionsList = subscriptionType.getSubscription().stream().collect(Collectors.toList());
+
+            ArrayList<String> pushToken = new ArrayList<>();
+
+            for (Subscription subscription : subscriptionsList) {
+                if (subscription.getParent().getPushToken() != null && !subscription.getParent().getPushToken().isEmpty()) {
+                    pushToken.add(subscription.getParent().getPushToken());
+                    String msg;
+
+                    if (subscription.getParent().getLanguage().booleanValue()) {
+                        msg = "Gói " + subscriptionType.getName() + " của bạn hiện không còn hỗ trợ nữa, nhưng bạn vẫn có thể sử dụng tới thời điểm đăng ký.";
+                    } else {
+                        msg = subscriptionType.getName() + " pack is not available anymore, but you can still use it until the expired date.";
+                    }
+                    notiService.pushNotificationMobile(msg
+                            , null, pushToken);
+                }
+            }
             return result;
         }
 
