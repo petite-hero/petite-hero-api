@@ -38,6 +38,9 @@ public class SubscriptionType implements Serializable {
     private Integer durationDay;
 
     @Column
+    private Long appliedDate;
+
+    @Column
     private Boolean isDeleted;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "subscriptionType")

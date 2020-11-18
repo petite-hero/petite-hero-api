@@ -116,7 +116,7 @@ public class AccountService {
     public List<ListParentAccountResponseDTO> listAllParentAccountForAdmin() {
         List<ListParentAccountResponseDTO> result = new ArrayList<>();
 
-        List<Account> parentAccountList = accountRepository.findAccountsByParent_IsDisabledAndRole(Boolean.FALSE, Constants.PARENT);
+        List<Account> parentAccountList = accountRepository.findAccountsByRole(Constants.PARENT);
         if (parentAccountList != null) {
             if (!parentAccountList.isEmpty()) {
                 for (Account account : parentAccountList) {
@@ -127,6 +127,7 @@ public class AccountService {
                     resultData.setPhoneNumber(account.getUsername());
                     resultData.setExpiredDate(account.getParent().getSubscription().getExpiredDate());
                     resultData.setSubscriptionType(account.getParent().getSubscription().getSubscriptionType().getName());
+                    resultData.setIsDisable(account.getParent().getIsDisabled());
 
                     result.add(resultData);
                 }

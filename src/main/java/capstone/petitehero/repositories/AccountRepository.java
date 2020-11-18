@@ -11,7 +11,7 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
 
     Account findAdminByUsernameEqualsAndPasswordEquals(String username, String password);
 
-    List<Account> findAccountsByParent_IsDisabledAndRole(Boolean isDisabled, String role);
+    List<Account> findAccountsByRole(String role);
 
     Boolean existsAccountByUsername(String username);
 

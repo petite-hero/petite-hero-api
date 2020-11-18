@@ -11,8 +11,10 @@ import capstone.petitehero.repositories.SubscriptionTypeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -126,28 +128,75 @@ public class SubscriptionService {
             result.setSubscriptionTypeId(subscriptionTypeResult.getSubscriptionTypeId());
             result.setStatus(Constants.status.DELETED.toString());
 
+            List<SubscriptionType> subscriptionTypeReplaceList =
+                    subscriptionTypeRepository.findSubscriptionTypesByMaxCollaboratorGreaterThanEqualAndMaxChildrenIsGreaterThanEqualAndAppliedDateLessThanEqualAndIsDeletedAndPriceNot(
+                            subscriptionTypeResult.getMaxCollaborator(),
+                            subscriptionTypeResult.getMaxChildren(),
+                            new Date().getTime(),
+                            Boolean.FALSE, new Double(0));
 
-            List<Subscription> subscriptionsList = new ArrayList(subscriptionType.getSubscription());
+            if (subscriptionTypeReplaceList != null) {
+                List<SubscriptionTypeDetailResponseDTO> listReplaceResult = new ArrayList<>();
+                if (!subscriptionTypeReplaceList.isEmpty()) {
+                    for (SubscriptionType subsType : subscriptionTypeReplaceList) {
+                        SubscriptionTypeDetailResponseDTO detailSusbcriptionType = new SubscriptionTypeDetailResponseDTO();
 
-            ArrayList<String> pushToken = new ArrayList<>();
+                        detailSusbcriptionType.setSubscriptionTypeId(subsType.getSubscriptionTypeId());
+                        detailSusbcriptionType.setName(subsType.getName());
+                        detailSusbcriptionType.setDescription(subsType.getDescription());
+                        detailSusbcriptionType.setMaxCollaborator(subsType.getMaxCollaborator());
+                        detailSusbcriptionType.setMaxChildren(subsType.getMaxChildren());
+                        detailSusbcriptionType.setPrice(subsType.getPrice());
+                        detailSusbcriptionType.setDurationDay(subsType.getDurationDay());
 
-            for (Subscription subscription : subscriptionsList) {
-                if (subscription.getParent().getPushToken() != null && !subscription.getParent().getPushToken().isEmpty()) {
-                    pushToken.add(subscription.getParent().getPushToken());
-                    String msg;
-
-                    if (subscription.getParent().getLanguage().booleanValue()) {
-                        msg = "Gói " + subscriptionType.getName() + " của bạn hiện không còn hỗ trợ nữa, nhưng bạn vẫn có thể sử dụng tới thời điểm đăng ký.";
-                    } else {
-                        msg = subscriptionType.getName() + " pack is not available anymore, but you can still use it until the expired date.";
+                        listReplaceResult.add(detailSusbcriptionType);
                     }
-                    notiService.pushNotificationMobile(msg
-                            , result, pushToken);
+                    listReplaceResult.sort(Comparator.comparing(SubscriptionTypeDetailResponseDTO::getPrice));
+                    result.setSubscriptionTypeReplace(listReplaceResult);
                 }
             }
             return result;
         }
 
+        return null;
+    }
+
+    @Transactional
+    public SubscriptionTypeStatusResponseDTO replaceSubscriptionType(SubscriptionType newSubsType, Long oldSubsTypeId) {
+        SubscriptionType oldSubsType = subscriptionTypeRepository.findSubscriptionTypeBySubscriptionTypeId(oldSubsTypeId);
+        if (oldSubsType != null) {
+            SubscriptionTypeStatusResponseDTO result = new SubscriptionTypeStatusResponseDTO();
+
+            List<Subscription> subscriptionsList = oldSubsType.getSubscription().stream()
+                    .filter(subs -> !subs.getParent().getIsDisabled().booleanValue())
+                    .collect(Collectors.toList());
+
+            ArrayList<String> pushToken = new ArrayList<>();
+
+            for (Subscription subscription : subscriptionsList) {
+                subscription.setSubscriptionType(newSubsType);
+                Subscription subsResult = subscriptionRepository.save(subscription);
+
+                if (subsResult != null) {
+                    if (subscription.getParent().getPushToken() != null && !subscription.getParent().getPushToken().isEmpty()) {
+                        pushToken.add(subscription.getParent().getPushToken());
+                        String msg;
+
+                        if (subscription.getParent().getLanguage().booleanValue()) {
+                            msg = "Gói " + oldSubsType.getName() + " của bạn đã được nâng cấp lên gói " +
+                                    subsResult.getSubscriptionType().getName() + ".";
+                        } else {
+                            msg = oldSubsType.getName() + " pack of your account is upgrade to pack " +
+                                    subsResult.getSubscriptionType().getName() + ".";
+                        }
+                        notiService.pushNotificationMobile(msg
+                                , result, pushToken);
+                    }
+                    result.setStatus("UPDATED");
+                }
+            }
+            return result;
+        }
         return null;
     }
 }

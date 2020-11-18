@@ -71,6 +71,10 @@ public class SubscriptionController {
                 return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
             }
         }
+        if (createSubscriptionTypeRequestDTO.getAppliedDate() == null || createSubscriptionTypeRequestDTO.getAppliedDate().toString().isEmpty()) {
+            responseObject = new ResponseObject(Constants.CODE_400, "Subscription type applied day cannot be empty or missing");
+            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+        }
 
         SubscriptionType subscriptionType = new SubscriptionType();
         subscriptionType.setName(createSubscriptionTypeRequestDTO.getName());
@@ -79,6 +83,7 @@ public class SubscriptionController {
         subscriptionType.setMaxCollaborator(createSubscriptionTypeRequestDTO.getMaxCollaborator());
         subscriptionType.setPrice(createSubscriptionTypeRequestDTO.getPrice());
         subscriptionType.setIsDeleted(Boolean.FALSE);
+        subscriptionType.setAppliedDate(createSubscriptionTypeRequestDTO.getAppliedDate());
         subscriptionType.setDurationDay(createSubscriptionTypeRequestDTO.getDurationDay());
 
         SubscriptionTypeStatusResponseDTO result = subscriptionService.createNewSubscriptionType(subscriptionType);
@@ -206,6 +211,28 @@ public class SubscriptionController {
         }
 
         responseObject = new ResponseObject(Constants.CODE_500, "Cannot delete subscription type in the system");
+        return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @RequestMapping(value = "/type/replace", method = RequestMethod.PUT)
+    @ResponseBody
+    public ResponseEntity<Object> replaceSubscriptionTypeForParent(@RequestParam("oldSubsTypeId") Long oldSubsTypeId,
+                                                                   @RequestParam("newSubsTypeId") Long newSubsTypeId) {
+        ResponseObject responseObject;
+        SubscriptionType subscriptionType = subscriptionService.findSubscriptionTypeById(newSubsTypeId);
+        if (subscriptionType == null) {
+            responseObject = new ResponseObject(Constants.CODE_404, "Cannot found that subscription type in the system");
+            return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
+        }
+
+        SubscriptionTypeStatusResponseDTO result = subscriptionService.replaceSubscriptionType(subscriptionType, oldSubsTypeId);
+        if (result != null) {
+            responseObject = new ResponseObject(Constants.CODE_200, "OK");
+            responseObject.setData(result);
+            return new ResponseEntity<>(responseObject, HttpStatus.OK);
+        }
+
+        responseObject = new ResponseObject(Constants.CODE_500, "Cannot replace subscription type for parent accounts in the system");
         return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

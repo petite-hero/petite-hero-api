@@ -157,7 +157,13 @@ public class ParentChildService {
             if (collaboratorAccount.getPushToken() != null && !collaboratorAccount.getPushToken().isEmpty()) {
                 ArrayList<String> pushToken = new ArrayList<>();
                 pushToken.add(collaboratorAccount.getPushToken());
-                notiService.pushNotificationMobile(parent.getName() + " want you to become their collaborator.", result, pushToken);
+                String msg;
+                if (parent.getLanguage().booleanValue()) {
+                    msg = parent.getName() + " muốn bạn trở thành người cộng tác.";
+                } else {
+                    msg = parent.getName() + " want you to become their collaborator.";
+                }
+                notiService.pushNotificationMobile(msg, result, pushToken);
             }
         }
         return result;
@@ -205,7 +211,13 @@ public class ParentChildService {
                 if (parentChild.getParent().getPushToken() != null && !parentChild.getParent().getPushToken().isEmpty()) {
                     ArrayList<String> pushToken = new ArrayList<>();
                     pushToken.add(parentChild.getParent().getPushToken());
-                    notiService.pushNotificationMobile(collaboratorAccount.getName() + " has become your collaborator.", result, pushToken);
+                    String msg;
+                    if (parentChild.getParent().getLanguage().booleanValue()) {
+                        msg = collaboratorAccount.getName() + " đã trở thành người cộng tác của bạn.";
+                    } else {
+                        msg = collaboratorAccount.getName() + " has become your collaborator.";
+                    }
+                    notiService.pushNotificationMobile(msg, result, pushToken);
                 }
             }
         }

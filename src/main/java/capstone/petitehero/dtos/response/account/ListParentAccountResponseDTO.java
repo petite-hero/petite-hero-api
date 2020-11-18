@@ -14,4 +14,5 @@ public class ListParentAccountResponseDTO implements Serializable {
     private String phoneNumber;
     private Long expiredDate;
     private String subscriptionType;
+    private Boolean isDisable;
 }

@@ -82,6 +82,7 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
                 .antMatchers("/subscription/type").permitAll()
                 .antMatchers("/subscription/type/{subscriptionTypeId}").permitAll()
                 .antMatchers("/subscription/type/list").permitAll()
+                .antMatchers("/subscription/type/replace").permitAll()
                 .antMatchers("/subscription/create").permitAll()
                 .anyRequest().authenticated()
                 .and().sessionManagement()

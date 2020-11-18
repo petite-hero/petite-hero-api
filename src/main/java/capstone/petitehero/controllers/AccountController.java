@@ -279,7 +279,7 @@ public class AccountController {
 
     @RequestMapping(value = "/list", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<Object> getListActiveParentAccountForAdmin() {
+    public ResponseEntity<Object> getListParentAccountForAdmin() {
         ResponseObject responseObject;
         List<ListParentAccountResponseDTO> result = accountService.listAllParentAccountForAdmin();
 

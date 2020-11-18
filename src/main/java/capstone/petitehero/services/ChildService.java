@@ -157,9 +157,14 @@ public class ChildService {
                 if (parentChild.getParent().getPushToken() != null && !parentChild.getParent().getPushToken().isEmpty()) {
                     ArrayList<String> pushToken = new ArrayList<>();
                     pushToken.add(parentChild.getParent().getPushToken());
-                    notiService.pushNotificationMobile(
-                            collaborator.getName() + " isn't your collaborator with child " + child.getName() + " anymore.",
-                            result, pushToken);
+                    String msg;
+                    if (parentChild.getParent().getLanguage().booleanValue()) {
+                        msg = collaborator.getName() + " không còn là cộng tác cho " + child.getName() + " của bạn nữa.";
+                    } else {
+                        msg = collaborator.getName() + " isn't your collaborator with child " + child.getName() + " anymore.";
+                    }
+
+                    notiService.pushNotificationMobile(msg, result, pushToken);
                 }
 
                 return result;
