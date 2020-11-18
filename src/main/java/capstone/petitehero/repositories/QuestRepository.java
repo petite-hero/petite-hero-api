@@ -19,6 +19,8 @@ public interface QuestRepository extends JpaRepository<Quest, Long> {
 
     List<Quest> findQuestsByChildChildIdAndIsDeletedAndStatus(Long childId, Boolean isDeleted, String status);
 
+    List<Quest> findQuestsByIsDeletedAndStatus(Boolean isDeleted, String status);
+
     @Query(value = "SELECT * FROM petite_hero.quest q WHERE q.assignee_id = :childId " +
             "AND q.is_deleted = :isDeleted " +
             "AND q.status = :status " +

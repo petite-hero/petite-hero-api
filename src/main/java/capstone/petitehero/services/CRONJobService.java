@@ -6,17 +6,13 @@ import capstone.petitehero.dtos.common.CRONJobChildDTO;
 import capstone.petitehero.dtos.common.LicenseDTO;
 import capstone.petitehero.dtos.request.location.PushNotiSWDTO;
 import capstone.petitehero.dtos.response.location.GetListSafeZoneByDateResponseDTO;
+import capstone.petitehero.dtos.response.quest.ListQuestResponseDTO;
 import capstone.petitehero.dtos.response.task.ListTaskResponseDTO;
-import capstone.petitehero.entities.Child;
-import capstone.petitehero.entities.Parent;
-import capstone.petitehero.entities.Safezone;
-import capstone.petitehero.entities.Task;
-import capstone.petitehero.repositories.ChildRepository;
-import capstone.petitehero.repositories.ParentRepository;
-import capstone.petitehero.repositories.SafeZoneRepository;
-import capstone.petitehero.repositories.TaskRepository;
+import capstone.petitehero.entities.*;
+import capstone.petitehero.repositories.*;
 import capstone.petitehero.utilities.Util;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -46,6 +42,9 @@ public class CRONJobService {
 
     @Autowired
     private TaskRepository taskRepository;
+
+    @Autowired
+    private QuestRepository questRepository;
 
     @Scheduled(cron = "0 05 00 * * ?")
     public void cronJobSafeZone () {
@@ -99,6 +98,40 @@ public class CRONJobService {
 
                     if (!listTask.isEmpty()) {
                         noti.setData(listTask);
+                        notiService.pushNotificationSW(noti, pushToken);
+                    }
+                }
+            }
+        }
+    }
+
+    @Scheduled(cron = Constants.CRON_SCHEDULED, zone = Constants.TIME_ZONE)
+    public void cronJobQuests() {
+        List<Quest> questList = questRepository.findQuestsByIsDeletedAndStatus(
+                Boolean.FALSE, Constants.status.ASSIGNED.toString());
+
+        if (questList != null && !questList.isEmpty()) {
+            List<Quest> distinctChildList = questList
+                    .stream()
+                    .filter(Util.distinctByKey(Quest::getChild))
+                    .collect(Collectors.toList());
+
+            PushNotiSWDTO noti = new PushNotiSWDTO(Constants.PETITE_HERO, Constants.NEW_QUESTS, null);
+
+            //cron job for all children
+            for (Quest childHasQuest : distinctChildList) {
+                if (childHasQuest.getChild().getPushToken() != null
+                        && !childHasQuest.getChild().getPushToken().isEmpty()) {
+                    String pushToken = childHasQuest.getChild().getPushToken();
+
+                    List<ListQuestResponseDTO> listQuest = Util.getChildListOfQuest(questList.stream()
+                            .filter(task ->
+                                    task.getChild().getChildId().longValue()
+                                            == childHasQuest.getChild().getChildId().longValue())
+                            .collect(Collectors.toList()));
+
+                    if (!listQuest.isEmpty()) {
+                        noti.setData(listQuest);
                         notiService.pushNotificationSW(noti, pushToken);
                     }
                 }

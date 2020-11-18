@@ -313,7 +313,7 @@ public class AccountController {
     @ResponseBody
     public ResponseEntity<Object> resetPassword(@RequestParam("username") String username) {
         ResponseObject responseObject;
-        Parent parent = parentService.findParentByPhoneNumber(username);
+        Parent parent = parentService.findParentByPhoneNumber(username, Boolean.FALSE);
         if (parent == null) {
             responseObject = new ResponseObject(Constants.CODE_404, "Cannot found your account in the systen");
             return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
@@ -358,7 +358,7 @@ public class AccountController {
                                                  @RequestParam("token") Integer token) {
         ResponseObject responseObject;
 
-        Parent parent = parentService.findParentByPhoneNumber(username);
+        Parent parent = parentService.findParentByPhoneNumber(username, Boolean.FALSE);
         if (parent == null) {
             responseObject = new ResponseObject(Constants.CODE_404, "Cannot found your account in the systen");
             return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);

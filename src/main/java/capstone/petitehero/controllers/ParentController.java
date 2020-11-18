@@ -107,7 +107,7 @@ public class ParentController {
         // end validate mandatory fields
 
         if (parentRegisterRequestDTO.getPhoneNumber() != null && !parentRegisterRequestDTO.getPhoneNumber().isEmpty()) {
-            Parent parent = parentService.findParentByPhoneNumber(parentRegisterRequestDTO.getPhoneNumber());
+            Parent parent = parentService.findParentByPhoneNumber(parentRegisterRequestDTO.getPhoneNumber(), Boolean.FALSE);
             if (parent != null) {
                 // add basic parent information
                 parent.setName(parentRegisterRequestDTO.getName());
@@ -155,7 +155,7 @@ public class ParentController {
                                                       @RequestParam(value = "avatar", required = false) MultipartFile parentAvatar) {
         ResponseObject responseObject;
 
-        Parent parent = parentService.findParentByPhoneNumber(parentPhoneNumber);
+        Parent parent = parentService.findParentByPhoneNumber(parentPhoneNumber, Boolean.FALSE);
         if (parent == null) {
             responseObject = new ResponseObject(Constants.CODE_404, "Cannot found that parent account in the system");
             return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
@@ -227,7 +227,7 @@ public class ParentController {
         }
         // end validate mandatory fields
 
-        Parent parentAccount = parentService.findParentByPhoneNumber(parentPhoneNumber);
+        Parent parentAccount = parentService.findParentByPhoneNumber(parentPhoneNumber, Boolean.FALSE);
         if (parentAccount != null) {
             if (Util.checkSubscriptionWhenParentAddChild(parentAccount)) {
                 responseObject = new ResponseObject(Constants.CODE_400, "Your subscription only support max "
@@ -287,7 +287,7 @@ public class ParentController {
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
 
-        Parent parentAccount = parentService.findParentByPhoneNumber(parentPhoneNumber);
+        Parent parentAccount = parentService.findParentByPhoneNumber(parentPhoneNumber, Boolean.FALSE);
         if (parentAccount != null) {
             if (Util.checkSubscriptionWhenParentAddCollaborator(parentAccount)) {
                 responseObject = new ResponseObject(Constants.CODE_400, "Your subscription only support max "
@@ -296,7 +296,7 @@ public class ParentController {
                 return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
             }
 
-            Parent collaboratorAccount = parentService.findParentByPhoneNumber(addCollaboratorRequestDTO.getCollaboratorPhoneNumber());
+            Parent collaboratorAccount = parentService.findParentByPhoneNumber(addCollaboratorRequestDTO.getCollaboratorPhoneNumber(), Boolean.FALSE);
             if (collaboratorAccount != null) {
                 AddCollaboratorResponseDTO result =
                         parentChildService.addNewCollaborator(addCollaboratorRequestDTO.getListChildId(), parentAccount, collaboratorAccount);
@@ -333,7 +333,7 @@ public class ParentController {
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
 
-        Parent collaboratorAccount = parentService.findParentByPhoneNumber(addCollaboratorRequestDTO.getCollaboratorPhoneNumber());
+        Parent collaboratorAccount = parentService.findParentByPhoneNumber(addCollaboratorRequestDTO.getCollaboratorPhoneNumber(), Boolean.FALSE);
         if (collaboratorAccount != null) {
             AddCollaboratorResponseDTO result = parentChildService.confirmByCollaborator(
                     collaboratorAccount, addCollaboratorRequestDTO.getListChildId());
@@ -365,7 +365,7 @@ public class ParentController {
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
 
-        Parent parentAccount = parentService.findParentByPhoneNumber(parentPhoneNumber);
+        Parent parentAccount = parentService.findParentByPhoneNumber(parentPhoneNumber, Boolean.FALSE);
         if (parentAccount != null) {
             AddCollaboratorResponseDTO result = parentChildService.deleteCollaboratorByParent(
                     addCollaboratorRequestDTO.getListChildId(), parentAccount, addCollaboratorRequestDTO.getCollaboratorPhoneNumber());
@@ -394,7 +394,7 @@ public class ParentController {
     public ResponseEntity<Object> getListCollaboratorOfParent(@PathVariable("phone") String phoneNumber) {
         ResponseObject responseObject;
 
-        Parent parentAccount = parentService.findParentByPhoneNumber(phoneNumber);
+        Parent parentAccount = parentService.findParentByPhoneNumber(phoneNumber, Boolean.FALSE);
         if (parentAccount == null) {
             responseObject = new ResponseObject(Constants.CODE_404, "Cannot found your account in the system");
             return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
@@ -420,7 +420,7 @@ public class ParentController {
     public ResponseEntity<Object> getListChildrenOfParent(@PathVariable("phone") String phoneNumber) {
         ResponseObject responseObject;
 
-        Parent parentAccount = parentService.findParentByPhoneNumber(phoneNumber);
+        Parent parentAccount = parentService.findParentByPhoneNumber(phoneNumber, Boolean.FALSE);
         if (parentAccount == null) {
             responseObject = new ResponseObject(Constants.CODE_404, "Cannot found your account in the system");
             return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
@@ -487,7 +487,7 @@ public class ParentController {
                     parentPayment.setAmount(subscriptionType.getPrice());
                     parentPayment.setStatus(Constants.status.PENDING.toString());
 
-                    Parent parent = parentService.findParentByPhoneNumber(phoneNumber);
+                    Parent parent = parentService.findParentByPhoneNumber(phoneNumber, Boolean.FALSE);
                     if (parent == null) {
                         responseObject = new ResponseObject(Constants.CODE_404, "Cannot found your account in the system");
                         return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
@@ -568,7 +568,7 @@ public class ParentController {
                     return mav;
                 }
 
-                Parent parent = parentService.findParentByPhoneNumber(parentPhoneNumber);
+                Parent parent = parentService.findParentByPhoneNumber(parentPhoneNumber, Boolean.FALSE);
 
                 if (parent == null) {
                     responseObject = new ResponseObject(Constants.CODE_404, "Cannot found your account in the system");
@@ -659,7 +659,8 @@ public class ParentController {
 
     @RequestMapping(value = "/{phone}", method = RequestMethod.DELETE)
     @ResponseBody
-    public ResponseEntity<Object> disableParentAccount(@PathVariable("phone") String phoneNumber) {
+    public ResponseEntity<Object> disableParentAccount(@PathVariable("phone") String phoneNumber,
+                                                       @RequestParam("isDisable") Boolean isDisable) {
         ResponseObject responseObject;
 
         Parent parent = parentService.findParentByPhoneNumber(phoneNumber);
@@ -668,7 +669,7 @@ public class ParentController {
             return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
         }
 
-        DisableParentResponseDTO result = parentService.disableParentAccount(parent);
+        DisableParentResponseDTO result = parentService.disableParentAccount(parent, isDisable);
         if (result != null) {
             responseObject = new ResponseObject(Constants.CODE_200, "OK");
             responseObject.setData(result);

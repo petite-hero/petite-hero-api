@@ -34,6 +34,12 @@ public class Child implements Serializable {
     @Column
     private Boolean language;
 
+    @Column(length = Integer.MAX_VALUE)
+    private String deviceImage;
+
+    @Column(length = Integer.MAX_VALUE)
+    private String deviceName;
+
     @Column
     private Boolean gender;
 

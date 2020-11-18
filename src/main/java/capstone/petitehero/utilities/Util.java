@@ -4,12 +4,10 @@ import capstone.petitehero.config.common.Constants;
 import capstone.petitehero.dtos.ResponseObject;
 import capstone.petitehero.dtos.common.CRONJobChildDTO;
 import capstone.petitehero.dtos.response.location.GetListSafeZoneByDateResponseDTO;
+import capstone.petitehero.dtos.response.quest.ListQuestResponseDTO;
 import capstone.petitehero.dtos.response.task.ListTaskResponseDTO;
-import capstone.petitehero.entities.Parent;
-import capstone.petitehero.entities.Parent_Child;
-import capstone.petitehero.entities.Safezone;
+import capstone.petitehero.entities.*;
 import capstone.petitehero.dtos.common.SummaryTaskDetail;
-import capstone.petitehero.entities.Task;
 import com.twilio.Twilio;
 import com.twilio.rest.verify.v2.service.Verification;
 import com.twilio.rest.verify.v2.service.VerificationCheck;
@@ -434,25 +432,31 @@ public class Util {
         return result;
     }
 
-//    public static String getTwilioOTPToken(String code, String number) {
-//        Twilio.init(Constants.TWILIO_SID, Constants.TWILIO_AUTH_TOKEN);
-//        Verification verification = Verification.creator(
-//                Constants.TWILIO_SERVICE_SID, number,
-//                "sms")
-//                .create();
-//        return verification.getSid();
-//    }
-//
-//    public static Boolean checkTwilioVerificationCode(String code, String sid) {
-//        Twilio.init(Constants.TWILIO_SID, Constants.TWILIO_AUTH_TOKEN);
-//        VerificationCheck verificationCheck = VerificationCheck.creator(
-//                Constants.TWILIO_SERVICE_SID,
-//                code).setVerificationSid(sid).create();
-//        if (verificationCheck.getStatus().equalsIgnoreCase("approved")) {
-//            return Boolean.TRUE;
-//        }
-//        return Boolean.FALSE;
-//    }
+    public static List<ListQuestResponseDTO> getChildListOfQuest(List<Quest> questList) {
+        if (questList != null) {
+            List<ListQuestResponseDTO> result = new ArrayList<>();
+            if (!questList.isEmpty()) {
+                questList.sort(Comparator.comparing(Quest::getCreatedDate).reversed());
+                for (Quest questResult : questList) {
+                    ListQuestResponseDTO resultData = new ListQuestResponseDTO();
+
+                    resultData.setQuestId(questResult.getQuestId());
+                    resultData.setName(questResult.getName());
+                    resultData.setTitle(questResult.getTitle());
+                    resultData.setStatus(questResult.getStatus());
+                    resultData.setDescription(questResult.getDescription());
+
+                    if (questResult.getReward() != null) {
+                        resultData.setReward(questResult.getReward());
+                    }
+
+                    result.add(resultData);
+                }
+            }
+            return result;
+        }
+        return null;
+    }
 
     public static String formatTimeCronjob(String timeCronjob) {
         String result = "";

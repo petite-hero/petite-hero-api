@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 
 @Service
@@ -29,6 +30,9 @@ public class ChildService {
 
     @Autowired
     private ParentRepository parentRepository;
+
+    @Autowired
+    private NotificationService notiService;
 
     public AddChildResponseDTO addChildForParent(Child child, Parent parent, MultipartFile childPhoto) {
         Child childResult = childRepository.save(child);
@@ -133,6 +137,34 @@ public class ChildService {
             DeleteChildResponseDTO result = new DeleteChildResponseDTO();
             result.setStatus(Constants.status.DELETED.toString());
             return result;
+        }
+
+        return null;
+    }
+
+    public DeleteChildResponseDTO disableChildIdByCollaborator(Child child, Parent collaborator) {
+        Parent_Child parentChild =
+                parentChildRepository.findParent_ChildByChild_ChildIdAndCollaborator_Account_Username(child.getChildId(), collaborator.getAccount().getUsername());
+
+        if (parentChild != null) {
+            parentChild.setCollaborator(null);
+            parentChild.setIsCollaboratorConfirm(null);
+
+            if (parentChildRepository.save(parentChild) != null) {
+                DeleteChildResponseDTO result = new DeleteChildResponseDTO();
+                result.setStatus(Constants.status.DELETED.toString());
+
+                if (parentChild.getParent().getPushToken() != null && !parentChild.getParent().getPushToken().isEmpty()) {
+                    ArrayList<String> pushToken = new ArrayList<>();
+                    pushToken.add(parentChild.getParent().getPushToken());
+                    notiService.pushNotificationMobile(
+                            collaborator.getName() + " isn't your collaborator with child " + child.getName() + " anymore.",
+                            result, pushToken);
+                }
+
+                return result;
+            }
+            return null;
         }
 
         return null;

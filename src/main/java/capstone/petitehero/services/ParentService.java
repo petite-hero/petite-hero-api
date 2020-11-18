@@ -7,12 +7,16 @@ import capstone.petitehero.dtos.response.parent.DisableParentResponseDTO;
 import capstone.petitehero.dtos.response.parent.ParentProfileRegisterResponseDTO;
 import capstone.petitehero.dtos.response.parent.ParentRegisterResponseDTO;
 import capstone.petitehero.dtos.response.parent.ParentUpdateProfileResponseDTO;
+import capstone.petitehero.entities.Child;
 import capstone.petitehero.entities.Parent;
+import capstone.petitehero.entities.Parent_Child;
 import capstone.petitehero.repositories.AccountRepository;
 import capstone.petitehero.repositories.ParentRepository;
 import capstone.petitehero.utilities.Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
 
 @Service
 public class ParentService {
@@ -70,8 +74,12 @@ public class ParentService {
         return null;
     }
 
+    public Parent findParentByPhoneNumber(String phoneNumber, Boolean isDisable) {
+        return parentRepository.findParentByAccount_UsernameAndIsDisabled(phoneNumber, isDisable);
+    }
+
     public Parent findParentByPhoneNumber(String phoneNumber) {
-        return parentRepository.findParentByAccount_UsernameAndIsDisabled(phoneNumber, Boolean.FALSE);
+        return parentRepository.findParentByAccount_Username(phoneNumber);
     }
 
     public ResponseObject updateAccountPushToken(UpdatePushTokenRequestDTO data) {
@@ -125,16 +133,23 @@ public class ParentService {
         return null;
     }
 
-    public DisableParentResponseDTO disableParentAccount(Parent parentAccount) {
-
+    public DisableParentResponseDTO disableParentAccount(Parent parentAccount, Boolean isDisable) {
         if (parentAccount != null) {
-            parentAccount.setIsDisabled(Boolean.TRUE);
+            parentAccount.setIsDisabled(isDisable);
+            ArrayList<Parent_Child> childList = new ArrayList(parentAccount.getParent_childCollection());
+            for (Parent_Child parentChild : childList) {
+                parentChild.getChild().setIsDisabled(isDisable);
+            }
             Parent parentResult = parentRepository.save(parentAccount);
             if (parentResult != null) {
                 DisableParentResponseDTO result = new DisableParentResponseDTO();
 
                 result.setPhoneNumber(parentResult.getAccount().getUsername());
-                result.setStatus(Constants.status.DELETED.toString());
+                if (isDisable.booleanValue()) {
+                    result.setStatus(Constants.status.DEACTIVE.toString());
+                } else {
+                    result.setStatus(Constants.status.ACTIVE.toString());
+                }
                 return result;
             }
         }

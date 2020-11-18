@@ -127,7 +127,7 @@ public class SubscriptionService {
             result.setStatus(Constants.status.DELETED.toString());
 
 
-            List<Subscription> subscriptionsList = subscriptionType.getSubscription().stream().collect(Collectors.toList());
+            List<Subscription> subscriptionsList = new ArrayList(subscriptionType.getSubscription());
 
             ArrayList<String> pushToken = new ArrayList<>();
 

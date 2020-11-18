@@ -26,6 +26,9 @@ public class ParentChildService {
     @Autowired
     private ChildRepository childRepository;
 
+    @Autowired
+    private NotificationService notiService;
+
     public List<ChildInformation> getListChildOfParent(String parentPhoneNumber) {
         // get parent children
         List<Parent_Child> listParentChildrenResult =
@@ -151,6 +154,11 @@ public class ParentChildService {
         }
         if (!result.getListChildren().isEmpty()) {
             result.setStatus(Constants.status.ADDED.toString());
+            if (collaboratorAccount.getPushToken() != null && !collaboratorAccount.getPushToken().isEmpty()) {
+                ArrayList<String> pushToken = new ArrayList<>();
+                pushToken.add(collaboratorAccount.getPushToken());
+                notiService.pushNotificationMobile(parent.getName() + " want you to become their collaborator.", result, pushToken);
+            }
         }
         return result;
     }
@@ -191,6 +199,15 @@ public class ParentChildService {
         }
         if (!result.getListChildren().isEmpty()) {
             result.setStatus(Constants.status.CONFIRMED.toString());
+            Parent_Child parentChild = collaboratorAccount.getParent_childCollection().stream().findFirst().orElse(null);
+
+            if (parentChild != null) {
+                if (parentChild.getParent().getPushToken() != null && !parentChild.getParent().getPushToken().isEmpty()) {
+                    ArrayList<String> pushToken = new ArrayList<>();
+                    pushToken.add(parentChild.getParent().getPushToken());
+                    notiService.pushNotificationMobile(collaboratorAccount.getName() + " has become your collaborator.", result, pushToken);
+                }
+            }
         }
         return result;
     }

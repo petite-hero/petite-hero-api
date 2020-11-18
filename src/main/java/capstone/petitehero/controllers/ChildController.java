@@ -98,7 +98,8 @@ public class ChildController {
 
     @RequestMapping(value = "/{childId}", method = RequestMethod.DELETE)
     @ResponseBody
-    public ResponseEntity<Object> disableChildById(@PathVariable("childId") Long childId) {
+    public ResponseEntity<Object> disableChildById(@PathVariable("childId") Long childId,
+                                                   @RequestParam(value = "collaborator", required = false) String collaboratorPhoneNumber) {
         ResponseObject responseObject;
 
         Child child = childService.findChildByChildId(childId, Boolean.FALSE);
@@ -106,15 +107,26 @@ public class ChildController {
             responseObject = new ResponseObject(Constants.CODE_404, "Cannot found that child in the system");
             return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
         }
+        DeleteChildResponseDTO result;
 
-        DeleteChildResponseDTO result = childService.disableChildById(child);
+        if (collaboratorPhoneNumber != null && !collaboratorPhoneNumber.isEmpty()) {
+            Parent collaborator = parentRepository.findParentByAccount_UsernameAndIsDisabled(collaboratorPhoneNumber, Boolean.FALSE);
+            if (collaborator == null) {
+                responseObject = new ResponseObject(Constants.CODE_404, "Cannot found that collaborator in the system");
+                return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
+            }
+            result = childService.disableChildIdByCollaborator(child, collaborator);
+        } else {
+            result = childService.disableChildById(child);
+        }
 
         if (result != null) {
             responseObject = new ResponseObject(Constants.CODE_200, "OK");
             responseObject.setData(result);
             return new ResponseEntity<>(responseObject, HttpStatus.OK);
         }
-        responseObject = new ResponseObject(Constants.CODE_500, "Cannot deleted your children in the system");
+
+        responseObject = new ResponseObject(Constants.CODE_500, "Cannot deleted that child in the system");
         return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
@@ -206,7 +218,7 @@ public class ChildController {
 
         if (child != null) {
             List<Task> taskList = new ArrayList<>();
-            Parent creatorInformation = parentService.findParentByPhoneNumber(taskCreateRequestDTO.getCreatorPhoneNumber());
+            Parent creatorInformation = parentService.findParentByPhoneNumber(taskCreateRequestDTO.getCreatorPhoneNumber(), Boolean.FALSE);
             if (creatorInformation == null) {
                 responseObject = new ResponseObject(Constants.CODE_404, "Cannot found that creator account in the system");
                 return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
@@ -263,7 +275,7 @@ public class ChildController {
         Child child = childService.findChildByChildId(questCreateRequestDTO.getChildId(), Boolean.FALSE);
 
         if (child != null) {
-            Parent creatorInformation = parentService.findParentByPhoneNumber(questCreateRequestDTO.getCreatorPhoneNumber());
+            Parent creatorInformation = parentService.findParentByPhoneNumber(questCreateRequestDTO.getCreatorPhoneNumber(), Boolean.FALSE);
             if (creatorInformation == null) {
                 responseObject = new ResponseObject(Constants.CODE_404, "Cannot found that creator account in the system");
                 return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);

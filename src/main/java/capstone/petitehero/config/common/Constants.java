@@ -40,7 +40,8 @@ public class Constants {
         DONE, FAILED, HANDED,
         ASSIGNED, DELETED, CREATED,
         UPDATED, ADDED, CONFIRMED,
-        SUCCESS, CANCELLED, PENDING
+        SUCCESS, CANCELLED, PENDING,
+        ACTIVE, DEACTIVE
     }
     public enum taskType {
         HOUSEWORK, SKILLS, EDUCATION
@@ -86,6 +87,7 @@ public class Constants {
     public static final String UPDATED_SAFEZONES = "updated-safezones";
     public static final String NEW_TASKS = "new-tasks";
     public static final String UPDATED_TASKS = "updated-tasks";
+    public static final String NEW_QUESTS = "new-quests";
     public static final String UPDATED_QUEST = "updated-quests";
     public static final String CHILD_SAFE = "Child is currently safe";
     public static final String CHILD_NOT_SAFE = "Child is currently not safe";

@@ -2,12 +2,15 @@ package capstone.petitehero.services;
 
 import capstone.petitehero.config.common.Constants;
 import capstone.petitehero.config.jwt.PetiteHeroUserDetailService;
+import capstone.petitehero.dtos.common.ChildInformation;
+import capstone.petitehero.dtos.common.ParentInformation;
 import capstone.petitehero.dtos.request.admin.AccountLoginDTO;
 import capstone.petitehero.dtos.response.account.AccountLoginResponseDTO;
 import capstone.petitehero.dtos.response.account.ListParentAccountResponseDTO;
 import capstone.petitehero.dtos.response.account.LoginResponseDTO;
 import capstone.petitehero.dtos.response.account.ParentDetailResponseDTO;
 import capstone.petitehero.entities.Account;
+import capstone.petitehero.entities.Child;
 import capstone.petitehero.entities.Parent_Child;
 import capstone.petitehero.exceptions.DuplicateKeyException;
 import capstone.petitehero.repositories.AccountRepository;
@@ -20,8 +23,12 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 @Service
 public class AccountService {
@@ -136,6 +143,7 @@ public class AccountService {
 
             result.setName(account.getParent().getName());
             result.setEmail(account.getParent().getEmail());
+            result.setAvatar(Util.fromImageFileToBase64String(account.getParent().getPhoto()));
             result.setPhoneNumber(account.getUsername());
             result.setExpiredDate(account.getParent().getSubscription().getExpiredDate());
             result.setSubscriptionType(account.getParent().getSubscription().getSubscriptionType().getName());
@@ -145,26 +153,56 @@ public class AccountService {
 
             //get list children active of active parent
             if (account.getParent().getParent_childCollection() != null) {
+                ArrayList<ChildInformation> childInformationList = new ArrayList<>();
                 if (!account.getParent().getParent_childCollection().isEmpty()) {
-                    Long countActiveChildren = account.getParent().getParent_childCollection().stream()
+                    List<Parent_Child> children = account.getParent().getParent_childCollection()
+                            .stream()
                             .filter(Util.distinctByKey(Parent_Child::getChild))
                             .filter(parent_child -> !parent_child.getChild().getIsDisabled().booleanValue())
-                            .count();
-                    result.setListActiveChildren(countActiveChildren.intValue());
+                            .collect(Collectors.toList());
+                    for (Parent_Child parent_child : children) {
+                        ChildInformation childInformation = new ChildInformation();
+                        childInformation.setName(parent_child.getChild().getName());
+                        childInformation.setNickName(parent_child.getChild().getNickName());
+                        childInformation.setYob(parent_child.getChild().getYob());
+                        if (parent_child.getChild().getGender().booleanValue()) {
+                            childInformation.setGender("Male");
+                        } else {
+                            childInformation.setGender("Female");
+                        }
+
+                        childInformationList.add(childInformation);
+                    }
+                    result.setChildInformationList(childInformationList);
                 } else {
-                    result.setListActiveChildren(new Integer(0));
+                    result.setChildInformationList(new ArrayList<>());
                 }
             }
 
             //get list collaborator active of active parent
             if (account.getParent().getParent_collaboratorCollection() != null) {
+                ArrayList<ParentInformation> collaboratorInformationList = new ArrayList<>();
                 if (!account.getParent().getParent_collaboratorCollection().isEmpty()) {
-                    Long countCollaborator = account.getParent().getParent_collaboratorCollection().stream()
+                    List<Parent_Child> collaborator = account.getParent().getParent_childCollection().stream()
+                            .filter(parent_child -> parent_child.getCollaborator() != null)
                             .filter(Util.distinctByKey(Parent_Child::getCollaborator))
-                            .count();
-                    result.setListCollaborator(countCollaborator.intValue());
+                            .collect(Collectors.toList());
+                    for (Parent_Child parent_child : collaborator) {
+                        ParentInformation collaboratorInformation = new ParentInformation();
+
+                        collaboratorInformation.setPhoneNumber(parent_child.getCollaborator().getAccount().getUsername());
+                        collaboratorInformation.setName(parent_child.getCollaborator().getName());
+                        collaboratorInformation.setEmail(parent_child.getCollaborator().getEmail());
+                        if (parent_child.getCollaborator().getGender().booleanValue()) {
+                            collaboratorInformation.setGender("Male");
+                        } else {
+                            collaboratorInformation.setGender("Female");
+                        }
+                        collaboratorInformationList.add(collaboratorInformation);
+                    }
+                    result.setCollaboratorInformationList(collaboratorInformationList);
                 } else {
-                    result.setListCollaborator(new Integer(0));
+                    result.setCollaboratorInformationList(collaboratorInformationList);
                 }
             }
 

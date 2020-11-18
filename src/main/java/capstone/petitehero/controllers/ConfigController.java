@@ -10,6 +10,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.temporal.TemporalUnit;
+import java.util.Calendar;
+import java.util.Date;
+
 @RestController
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 public class ConfigController {
@@ -87,6 +95,13 @@ public class ConfigController {
                 return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
             }
             licenseDTO.setTask_cron_time(modifyLicenseDTO.getTask_cron_time());
+        }
+        if (modifyLicenseDTO.getQuest_cron_time() != null && !modifyLicenseDTO.getQuest_cron_time().isEmpty()) {
+            if (!modifyLicenseDTO.getQuest_cron_time().matches("^(?:(?:([01]?\\d|2[0-3]):)?([0-5]?\\d):)?([0-5]?\\d)$")) {
+                responseObject = new ResponseObject(Constants.CODE_400, "Quest cron time should in format HH:MM:ss");
+                return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+            }
+            licenseDTO.setQuest_cron_time(modifyLicenseDTO.getQuest_cron_time());
         }
         if (modifyLicenseDTO.getParent_subscription_cron_time() != null && !modifyLicenseDTO.getParent_subscription_cron_time().isEmpty()) {
             if (!modifyLicenseDTO.getParent_subscription_cron_time().matches("^(?:(?:([01]?\\d|2[0-3]):)?([0-5]?\\d):)?([0-5]?\\d)$")) {
