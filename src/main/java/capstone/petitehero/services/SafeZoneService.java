@@ -102,8 +102,12 @@ public class SafeZoneService {
             } else {
                 List<Safezone> rawData = safeZoneRepository.getListSafeZone(childId, currentDate, Util.getCurrentWeekdayRegex());
                 List<GetListSafeZoneByDateResponseDTO> filteredData = Util.castToSafeZoneResponse(rawData);
-                result.setData(filteredData);
-                result.setMsg(Constants.NO_ERROR);
+                if (filteredData.size() > 0) {
+                    result.setData(filteredData);
+                    result.setMsg(Constants.NO_ERROR);
+                } else {
+                    result.setMsg("No available safezone for child with current date");
+                }
             }
         } catch (Exception e) {
             result.setData(null);
