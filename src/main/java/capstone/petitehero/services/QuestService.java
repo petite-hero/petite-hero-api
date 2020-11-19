@@ -11,9 +11,7 @@ import capstone.petitehero.entities.Quest;
 import capstone.petitehero.repositories.QuestRepository;
 import capstone.petitehero.utilities.Util;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -160,7 +158,7 @@ public class QuestService {
                 result.setStatus(Constants.status.DELETED.toString());
 
                 if (questResult.getChild().getPushToken() != null && !questResult.getChild().getPushToken().isEmpty()) {
-                    PushNotiSWDTO noty = new PushNotiSWDTO(Constants.SILENT_NOTI, Constants.UPDATED_QUEST, result);
+                    PushNotiSWDTO noty = new PushNotiSWDTO(Constants.SILENT_NOTI, Constants.UPDATED_QUESTS, result);
                     notiService.pushNotificationSW(noty, questResult.getChild().getPushToken());
                 }
                 return result;
@@ -288,7 +286,7 @@ public class QuestService {
                     msg = questResult.getName() + " đã thành công";
                     noty = new PushNotiSWDTO(Constants.PETITE_HERO, msg, result);
                 } else {
-                    noty = new PushNotiSWDTO(Constants.SILENT_NOTI, null, result);
+                    noty = new PushNotiSWDTO(Constants.SILENT_NOTI, Constants.FAILED_QUESTS, result);
                 }
                 notiService.pushNotificationSW(noty, questResult.getChild().getPushToken());
             }
