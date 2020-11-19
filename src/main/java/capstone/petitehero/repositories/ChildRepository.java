@@ -23,4 +23,6 @@ public interface ChildRepository extends JpaRepository<Child, Long> {
             "\tAND ((s.date >= :currentDate) OR (s.repeat_on IS NOT NULL))\n" +
             "\tAND s.child_id = c.child_id;")
     public List<Object[]> getChildListBySafeZones (@Param("currentDate") Long currentDate);
+
+    List<Child> findChildrenByIsDisabled(Boolean isDisabled);
 }

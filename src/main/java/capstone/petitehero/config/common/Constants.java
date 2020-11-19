@@ -89,6 +89,7 @@ public class Constants {
     public static final String UPDATED_TASKS = "updated-tasks";
     public static final String NEW_QUESTS = "new-quests";
     public static final String UPDATED_QUEST = "updated-quests";
+    public static final String UPDATED_CONFIG = "update-config";
     public static final String CHILD_SAFE = "Child is currently safe";
     public static final String CHILD_NOT_SAFE = "Child is currently not safe";
     public static final String DONE_SETTING_UP_DEVICE = "Done setting up child's device";
