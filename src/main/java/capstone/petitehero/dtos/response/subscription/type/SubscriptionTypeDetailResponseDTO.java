@@ -16,4 +16,5 @@ public class SubscriptionTypeDetailResponseDTO implements Serializable {
     private Integer maxChildren;
     private Integer maxCollaborator;
     private Integer durationDay;
+    private Long appliedDate;
 }

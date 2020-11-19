@@ -192,18 +192,19 @@ public class SubscriptionController {
         return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @RequestMapping(value = "/type/{subscriptionTypeId}", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/type/{oldSubscriptionTypeId}/{newSubscriptionTypeId}", method = RequestMethod.DELETE)
     @ResponseBody
-    public ResponseEntity<Object> deleteSubscriptionType(@PathVariable("subscriptionTypeId") Long subscriptionTypeId) {
+    public ResponseEntity<Object> deleteSubscriptionType(@PathVariable("oldSubscriptionTypeId") Long deletedSubscriptionTypeId, @PathVariable("newSubscriptionTypeId") Long replaceSubscriptionTypeId) {
         ResponseObject responseObject;
 
-        SubscriptionType subscriptionType = subscriptionService.findSubscriptionTypeById(subscriptionTypeId);
-        if (subscriptionType == null) {
-            responseObject = new ResponseObject(Constants.CODE_404, "Cannot found that subscription type in the system");
+        SubscriptionType oldSubscriptionType = subscriptionService.findSubscriptionTypeById(deletedSubscriptionTypeId);
+        SubscriptionType replaceSubscriptionType = subscriptionService.findSubscriptionTypeById(replaceSubscriptionTypeId);
+        if (oldSubscriptionType == null) {
+            responseObject = new ResponseObject(Constants.CODE_404, "Cannot find the deleted or replace subscription type in the system");
             return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
         }
 
-        SubscriptionTypeStatusResponseDTO result = subscriptionService.deleteSubscriptionType(subscriptionType);
+        SubscriptionTypeStatusResponseDTO result = subscriptionService.deleteSubscriptionType(oldSubscriptionType, replaceSubscriptionType);
         if (result != null) {
             responseObject = new ResponseObject(Constants.CODE_200, "OK");
             responseObject.setData(result);
@@ -211,6 +212,28 @@ public class SubscriptionController {
         }
 
         responseObject = new ResponseObject(Constants.CODE_500, "Cannot delete subscription type in the system");
+        return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @RequestMapping(value = "/type/replacement/{subscriptionTypeId}", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<Object> getSubscriptionTypeReplaceList(@PathVariable("subscriptionTypeId") Long subscriptionTypeId) {
+        ResponseObject responseObject;
+
+        SubscriptionType subscriptionType = subscriptionService.findSubscriptionTypeById(subscriptionTypeId);
+        if (subscriptionType == null) {
+            responseObject = new ResponseObject(Constants.CODE_404, "Cannot find that subscription type in the system");
+            return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
+        }
+
+        SubscriptionTypeStatusResponseDTO result = subscriptionService.getSubscriptionTypeReplaceList(subscriptionTypeId);
+        if (result != null) {
+            responseObject = new ResponseObject(Constants.CODE_200, "OK");
+            responseObject.setData(result);
+            return new ResponseEntity<>(responseObject, HttpStatus.OK);
+        }
+
+        responseObject = new ResponseObject(Constants.CODE_500, "Cannot find any replacement");
         return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 

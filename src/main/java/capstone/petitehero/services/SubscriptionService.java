@@ -61,6 +61,7 @@ public class SubscriptionService {
                     dataResult.setMaxCollaborator(subscriptionType.getMaxCollaborator());
                     dataResult.setPrice(subscriptionType.getPrice());
                     dataResult.setDurationDay(subscriptionType.getDurationDay());
+                    dataResult.setAppliedDate(subscriptionType.getAppliedDate());
 
                     result.add(dataResult);
                 }
@@ -118,10 +119,28 @@ public class SubscriptionService {
         return subscriptionRepository.save(subscription);
     }
 
-    public SubscriptionTypeStatusResponseDTO deleteSubscriptionType(SubscriptionType subscriptionType) {
-        subscriptionType.setIsDeleted(Boolean.TRUE);
+    @Transactional
+    public SubscriptionTypeStatusResponseDTO deleteSubscriptionType(SubscriptionType oldSubscriptionType, SubscriptionType newSubscriptionType) {
+        oldSubscriptionType.setIsDeleted(Boolean.TRUE);
 
-        SubscriptionType subscriptionTypeResult = subscriptionTypeRepository.save(subscriptionType);
+        SubscriptionType subscriptionTypeResult = subscriptionTypeRepository.save(oldSubscriptionType);
+        if (subscriptionTypeResult != null) {
+            SubscriptionTypeStatusResponseDTO result = new SubscriptionTypeStatusResponseDTO();
+
+            result.setSubscriptionTypeId(subscriptionTypeResult.getSubscriptionTypeId());
+            result.setStatus(Constants.status.DELETED.toString());
+
+            replaceSubscriptionType(newSubscriptionType, oldSubscriptionType.getSubscriptionTypeId());
+
+            return result;
+        }
+
+        return null;
+    }
+
+    public SubscriptionTypeStatusResponseDTO getSubscriptionTypeReplaceList(Long subscriptionTypeId) {
+
+        SubscriptionType subscriptionTypeResult = subscriptionTypeRepository.getOne(subscriptionTypeId);
         if (subscriptionTypeResult != null) {
             SubscriptionTypeStatusResponseDTO result = new SubscriptionTypeStatusResponseDTO();
 
@@ -134,7 +153,9 @@ public class SubscriptionService {
                             subscriptionTypeResult.getMaxChildren(),
                             new Date().getTime(),
                             Boolean.FALSE, new Double(0));
-
+            if (subscriptionTypeReplaceList.contains(subscriptionTypeResult)) {
+                subscriptionTypeReplaceList.remove(subscriptionTypeResult);
+            }
             if (subscriptionTypeReplaceList != null) {
                 List<SubscriptionTypeDetailResponseDTO> listReplaceResult = new ArrayList<>();
                 if (!subscriptionTypeReplaceList.isEmpty()) {
@@ -148,6 +169,7 @@ public class SubscriptionService {
                         detailSusbcriptionType.setMaxChildren(subsType.getMaxChildren());
                         detailSusbcriptionType.setPrice(subsType.getPrice());
                         detailSusbcriptionType.setDurationDay(subsType.getDurationDay());
+                        detailSusbcriptionType.setAppliedDate(subsType.getAppliedDate());
 
                         listReplaceResult.add(detailSusbcriptionType);
                     }
