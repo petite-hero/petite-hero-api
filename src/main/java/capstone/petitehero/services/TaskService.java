@@ -491,30 +491,33 @@ public class TaskService {
         List<Task> taskList = taskRepository.findTasksByIsDeletedAndAssignDateIsBetween(
                 Boolean.FALSE, Util.getStartDay(new Date().getTime()), Util.getEndDay(new Date().getTime()));
 
-        List<Task> distinctChildList = taskList
-                .stream()
-                .filter(Util.distinctByKey(Task::getChild))
-                .collect(Collectors.toList());
+        if (taskList != null && !taskList.isEmpty()) {
 
-        Child child = distinctChildList.stream()
-                .filter(t -> t.getChild().getChildId().longValue() == childId.longValue())
-                .findAny().orElse(null).getChild();
+            List<Task> distinctChildList = taskList
+                    .stream()
+                    .filter(Util.distinctByKey(Task::getChild))
+                    .collect(Collectors.toList());
 
-        PushNotiSWDTO noti = new PushNotiSWDTO(Constants.SILENT_NOTI, Constants.NEW_TASKS, null);
+            Child child = distinctChildList.stream()
+                    .filter(t -> t.getChild().getChildId().longValue() == childId.longValue())
+                    .findAny().orElse(null).getChild();
 
-        if (child != null) {
-            if (child.getPushToken() != null
-                    && !child.getPushToken().isEmpty()) {
-                String pushToken = child.getPushToken();
+            PushNotiSWDTO noti = new PushNotiSWDTO(Constants.SILENT_NOTI, Constants.NEW_TASKS, null);
 
-                List<ListTaskResponseDTO> listTask = Util.notiTasksAtCurrentDateForChild(taskList.stream()
-                        .filter(task ->
-                                task.getChild().getChildId().longValue()
-                                        == child.getChildId().longValue())
-                        .collect(Collectors.toList()));
-                if (!listTask.isEmpty()) {
-                    noti.setData(listTask);
-                    notiService.pushNotificationSW(noti, pushToken);
+            if (child != null) {
+                if (child.getPushToken() != null
+                        && !child.getPushToken().isEmpty()) {
+                    String pushToken = child.getPushToken();
+
+                    List<ListTaskResponseDTO> listTask = Util.notiTasksAtCurrentDateForChild(taskList.stream()
+                            .filter(task ->
+                                    task.getChild().getChildId().longValue()
+                                            == child.getChildId().longValue())
+                            .collect(Collectors.toList()));
+                    if (!listTask.isEmpty()) {
+                        noti.setData(listTask);
+                        notiService.pushNotificationSW(noti, pushToken);
+                    }
                 }
             }
         }

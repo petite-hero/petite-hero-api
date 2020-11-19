@@ -13,7 +13,7 @@ public interface SubscriptionTypeRepository extends JpaRepository<SubscriptionTy
 
     SubscriptionType findSubscriptionTypeBySubscriptionTypeIdAndIsDeleted(Long subscriptionTypeId, Boolean isDeleted);
 
-    List<SubscriptionType> findSubscriptionTypesByIsDeleted(Boolean isDeleted);
+    List<SubscriptionType> findSubscriptionTypesByIsDeletedAndAppliedDateLessThanEqual(Boolean isDeleted, Long currentDayTimeStamp);
 
     List<SubscriptionType> findSubscriptionTypesByMaxCollaboratorGreaterThanEqualAndMaxChildrenIsGreaterThanEqualAndAppliedDateLessThanEqualAndIsDeletedAndPriceNot(Integer maxCollaborator, Integer maxChildren, Long appliedDayTimeStamp, Boolean isDeleted, Double    price);
 }

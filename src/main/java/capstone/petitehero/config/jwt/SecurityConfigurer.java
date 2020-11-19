@@ -64,6 +64,7 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
                 .antMatchers("/task/test/cronjob").permitAll()
                 .antMatchers("/task/list/{childId}").permitAll()
                 .antMatchers("/quest/list/{childId}").permitAll()
+                .antMatchers("/quest/test/cronjob").permitAll()
                 .antMatchers("/quest/list/{childId}/badges").permitAll()
                 .antMatchers("/quest/{questId}").permitAll()
                 .antMatchers("/child/{childId}").permitAll()

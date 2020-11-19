@@ -35,7 +35,7 @@ public class Child implements Serializable {
     private Boolean language;
 
     @Column(length = Integer.MAX_VALUE)
-    private String deviceImage;
+    private String androidId;
 
     @Column(length = Integer.MAX_VALUE)
     private String deviceName;

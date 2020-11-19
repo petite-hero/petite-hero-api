@@ -176,4 +176,9 @@ public class QuestController {
         responseObject = new ResponseObject(Constants.CODE_500, "Cannot update status of quest");
         return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    @RequestMapping(value = "/test/cronjob", method = RequestMethod.GET)
+    public void testCronjob(@RequestParam("childId") Long childId) {
+        questService.cronJobQuestsTest(childId);
+    }
 }

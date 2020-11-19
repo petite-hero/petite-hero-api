@@ -45,7 +45,7 @@ public class SubscriptionService {
 
     public List<SubscriptionTypeDetailResponseDTO> getListSubscriptionType() {
         List<SubscriptionType> listSubscriptionTypeResult =
-                subscriptionTypeRepository.findSubscriptionTypesByIsDeleted(Boolean.FALSE);
+                subscriptionTypeRepository.findSubscriptionTypesByIsDeletedAndAppliedDateLessThanEqual(Boolean.FALSE, new Date().getTime());
 
         if (listSubscriptionTypeResult != null) {
             List<SubscriptionTypeDetailResponseDTO> result = new ArrayList<>();

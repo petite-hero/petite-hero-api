@@ -70,6 +70,8 @@ public class ChildController {
                     parentChildService.findChildParentByChildId(verifyParentRequestDTO.getChildId());
 
             child.setPushToken(verifyParentRequestDTO.getPushToken());
+            child.setDeviceName(verifyParentRequestDTO.getDeviceName());
+            child.setAndroidId(verifyParentRequestDTO.getAndroidId());
 
             if (childParent != null) {
 

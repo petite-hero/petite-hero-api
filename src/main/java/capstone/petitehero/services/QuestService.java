@@ -6,10 +6,12 @@ import capstone.petitehero.dtos.common.Assigner;
 import capstone.petitehero.dtos.request.location.PushNotiSWDTO;
 import capstone.petitehero.dtos.response.quest.*;
 import capstone.petitehero.dtos.response.quest.badge.QuestBadgeResponseDTO;
+import capstone.petitehero.entities.Child;
 import capstone.petitehero.entities.Quest;
 import capstone.petitehero.repositories.QuestRepository;
 import capstone.petitehero.utilities.Util;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -293,5 +295,41 @@ public class QuestService {
             return result;
         }
         return null;
+    }
+
+    public void cronJobQuestsTest(Long childId) {
+        List<Quest> questList = questRepository.findQuestsByIsDeletedAndStatus(
+                Boolean.FALSE, Constants.status.ASSIGNED.toString());
+
+        if (questList != null && !questList.isEmpty()) {
+            List<Quest> distinctChildList = questList
+                    .stream()
+                    .filter(Util.distinctByKey(Quest::getChild))
+                    .collect(Collectors.toList());
+
+            Child child = distinctChildList.stream()
+                    .filter(t -> t.getChild().getChildId().longValue() == childId.longValue())
+                    .findAny().orElse(null).getChild();
+
+            PushNotiSWDTO noti = new PushNotiSWDTO(Constants.PETITE_HERO, Constants.NEW_QUESTS, null);
+
+            if (child != null) {
+                if (child.getPushToken() != null
+                        && !child.getPushToken().isEmpty()) {
+                    String pushToken = child.getPushToken();
+
+                    List<ListQuestResponseDTO> listQuest = Util.getChildListOfQuest(questList.stream()
+                            .filter(task ->
+                                    task.getChild().getChildId().longValue()
+                                            == child.getChildId().longValue())
+                            .collect(Collectors.toList()));
+
+                    if (!listQuest.isEmpty()) {
+                        noti.setData(listQuest);
+                        notiService.pushNotificationSW(noti, pushToken);
+                    }
+                }
+            }
+        }
     }
 }
