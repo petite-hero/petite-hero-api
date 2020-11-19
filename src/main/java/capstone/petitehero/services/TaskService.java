@@ -500,7 +500,7 @@ public class TaskService {
 
             Child child = distinctChildList.stream()
                     .filter(t -> t.getChild().getChildId().longValue() == childId.longValue())
-                    .findAny().orElse(null).getChild();
+                    .findAny().orElse(new Task()).getChild();
 
             PushNotiSWDTO noti = new PushNotiSWDTO(Constants.SILENT_NOTI, Constants.NEW_TASKS, null);
 

@@ -8,6 +8,7 @@ import capstone.petitehero.dtos.response.quest.*;
 import capstone.petitehero.dtos.response.quest.badge.QuestBadgeResponseDTO;
 import capstone.petitehero.entities.Child;
 import capstone.petitehero.entities.Quest;
+import capstone.petitehero.entities.Task;
 import capstone.petitehero.repositories.QuestRepository;
 import capstone.petitehero.utilities.Util;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -307,7 +308,7 @@ public class QuestService {
 
             Child child = distinctChildList.stream()
                     .filter(t -> t.getChild().getChildId().longValue() == childId.longValue())
-                    .findAny().orElse(null).getChild();
+                    .findAny().orElse(new Quest()).getChild();
 
             PushNotiSWDTO noti = new PushNotiSWDTO(Constants.PETITE_HERO, Constants.NEW_QUESTS, null);
 
