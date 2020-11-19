@@ -70,7 +70,7 @@ public class SafeZoneService {
                     result.setMsg("Added successfully!");
 
                     //  notify SW if current date' safe zones changed
-                    Integer pushStatus = notiService.notifySWSafeZoneChanges(safezone.getChild().getPushToken(), safezone.getRepeatOn());
+                    Integer pushStatus = notiService.notifySWSafeZoneChanges(safezone.getChild().getPushToken(), safezone.getRepeatOn(), safezone.getDate());
                     if (pushStatus == Constants.CODE_200) {
                         result.setMsg(Constants.NO_ERROR);
                     } else {
@@ -162,7 +162,7 @@ public class SafeZoneService {
 
                 if (updatedSafezone != null) {
                     //  notify SW if current date' safe zones changed
-                    Integer pushStatus = notiService.notifySWSafeZoneChanges(safezone.getChild().getPushToken(), safezone.getRepeatOn());
+                    Integer pushStatus = notiService.notifySWSafeZoneChanges(safezone.getChild().getPushToken(), safezone.getRepeatOn(), safezone.getDate());
                     if (pushStatus == Constants.CODE_200) {
                         result.setMsg(Constants.NO_ERROR);
                     } else {
@@ -219,7 +219,7 @@ public class SafeZoneService {
                 Safezone updatedSafezone = safeZoneRepository.save(safezone);
                 if (updatedSafezone != null) {
                     //  notify SW if current date' safe zones changed
-                    Integer pushStatus = notiService.notifySWSafeZoneChanges(safezone.getChild().getPushToken(), safezone.getRepeatOn());
+                    Integer pushStatus = notiService.notifySWSafeZoneChanges(safezone.getChild().getPushToken(), safezone.getRepeatOn(), safezone.getDate());
 
                     if (pushStatus == Constants.CODE_200) {
                         result.setMsg(Constants.NO_ERROR);

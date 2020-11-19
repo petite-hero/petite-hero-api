@@ -90,10 +90,10 @@ public class NotificationService {
         return result;
     }
 
-    public Integer notifySWSafeZoneChanges(String pushToken, String repeatOn) {
+    public Integer notifySWSafeZoneChanges(String pushToken, String repeatOn, Long currentDate) {
         Integer pushStatus = 100;
         try {
-            if (Util.fromRepeatOnStringToDayInWeek(repeatOn).contains(Util.getCurrentWeekday())) {
+            if (Util.fromRepeatOnStringToDayInWeek(repeatOn).contains(Util.getCurrentWeekday()) || Util.getCurrentDateMilliValue() == currentDate) {
                 PushNotiSWDTO data = new PushNotiSWDTO(Constants.SILENT_NOTI, Constants.UPDATED_SAFEZONES, null);
                 pushStatus = pushNotificationSW(data, pushToken);
             } else {
