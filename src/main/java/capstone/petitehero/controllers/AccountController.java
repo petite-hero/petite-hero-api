@@ -20,13 +20,13 @@ import com.authy.AuthyApiClient;
 import com.authy.AuthyException;
 import com.authy.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 @RestController
@@ -42,6 +42,9 @@ public class AccountController {
 
     @Autowired
     private SubscriptionService subscriptionService;
+
+    @Value("${twilio.authy.key}")
+    private String AUTHY_KEY;
 
     @RequestMapping(value = "/admin/register", method = RequestMethod.POST)
     @ResponseBody
@@ -132,7 +135,7 @@ public class AccountController {
 
                 if (subscriptionResult != null) {
                     // create user for authy application for sending otp
-                    AuthyApiClient authyApiClient = new AuthyApiClient(Constants.TWILIO_AUTHY_KEY);
+                    AuthyApiClient authyApiClient = new AuthyApiClient(AUTHY_KEY);
                     Users users = authyApiClient.getUsers();
                     User user;
 
@@ -323,7 +326,7 @@ public class AccountController {
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
 
-        AuthyApiClient authyApiClient = new AuthyApiClient(Constants.TWILIO_AUTHY_KEY);
+        AuthyApiClient authyApiClient = new AuthyApiClient(AUTHY_KEY);
         Users users = authyApiClient.getUsers();
 
         if (parent.getAuthyId() != null && !parent.getAuthyId().toString().isEmpty()) {
@@ -364,7 +367,7 @@ public class AccountController {
             return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
         }
 
-        AuthyApiClient authyApiClient = new AuthyApiClient(Constants.TWILIO_AUTHY_KEY);
+        AuthyApiClient authyApiClient = new AuthyApiClient(AUTHY_KEY);
 
         if (parent.getAuthyId() != null && !parent.getAuthyId().toString().isEmpty()) {
             Tokens tokens = authyApiClient.getTokens();
