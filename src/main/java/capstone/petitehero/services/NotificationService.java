@@ -90,19 +90,23 @@ public class NotificationService {
         return result;
     }
 
-    public Integer notifySWSafeZoneChanges(String pushToken, String repeatOn, Long currentDate) {
+    public Integer notifySWSafeZoneChanges(String pushToken, String repeatOn, Long currentDate, Long optionalCurrentDate) {
         Integer pushStatus = 100;
         Boolean flag = false;
         try {
+            Long currentServerDateMilli = Util.getCurrentDateMilliValue();
             if (repeatOn != null && !repeatOn.isEmpty()) {
                 if (Util.fromRepeatOnStringToDayInWeek(repeatOn).contains(Util.getCurrentWeekday())) {
                     flag = true;
                 }
             }
-            if (Util.getCurrentDateMilliValue() == currentDate) {
+            if (currentDate.equals(currentServerDateMilli)) {
                 flag = true;
-                PushNotiSWDTO data = new PushNotiSWDTO(Constants.SILENT_NOTI, Constants.UPDATED_SAFEZONES, null);
-                pushStatus = pushNotificationSW(data, pushToken);
+            }
+            if (optionalCurrentDate != null) {
+                if (optionalCurrentDate.equals(currentServerDateMilli)) {
+                    flag = true;
+                }
             }
             if (flag) {
                 PushNotiSWDTO data = new PushNotiSWDTO(Constants.SILENT_NOTI, Constants.UPDATED_SAFEZONES, null);
