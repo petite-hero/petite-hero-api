@@ -4,6 +4,7 @@ import capstone.petitehero.config.common.Constants;
 import capstone.petitehero.dtos.ResponseObject;
 import capstone.petitehero.dtos.common.CRONJobChildDTO;
 import capstone.petitehero.dtos.response.location.GetListSafeZoneByDateResponseDTO;
+import capstone.petitehero.dtos.response.location.SafeZoneChangedResponseDTO;
 import capstone.petitehero.dtos.response.quest.ListQuestResponseDTO;
 import capstone.petitehero.dtos.response.task.ListTaskResponseDTO;
 import capstone.petitehero.entities.*;
@@ -482,5 +483,55 @@ public class Util {
             result += tempStr[i];
         }
         return result + " * * ?";
+    }
+
+    public static SafeZoneChangedResponseDTO convertSafeZoneToReponseObj(Safezone input, String status) {
+        SafeZoneChangedResponseDTO result = new SafeZoneChangedResponseDTO();
+        if (status.equals(Constants.DELETED)) {
+            result.setStatus(Constants.DELETED);
+            result.setSafezoneId(input.getSafezoneId());
+        } else {
+            result.setStatus(status);
+            if (input.getSafezoneId() != null) {
+                result.setSafezoneId(input.getSafezoneId());
+            }
+            if (input.getName() != null && !input.getName().isEmpty()) {
+                result.setName(input.getName());
+            }
+            if (input.getLatitude() != null) {
+                result.setLatitude(input.getLatitude());
+            }
+            if (input.getLongitude() != null) {
+                result.setLongitude(input.getLongitude());
+            }
+            if (input.getFromTime() != null) {
+                result.setFromTime(input.getFromTime());
+            }
+            if (input.getToTime() != null) {
+                result.setToTime(input.getToTime());
+            }
+            if (input.getDate() != null) {
+                result.setDate(input.getDate());
+            }
+            if (input.getRepeatOn() != null && !input.getRepeatOn().isEmpty()) {
+                result.setRepeatOn(input.getRepeatOn());
+            }
+            if (input.getRadius() != null) {
+                result.setRadius(input.getRadius());
+            }
+            if (input.getIsDisabled() != null) {
+                result.setIsDisabled(input.getIsDisabled());
+            }
+            if (input.getType() != null && !input.getType().isEmpty()) {
+                result.setType(input.getType());
+            }
+            if (input.getChild().getChildId() != null) {
+                result.setChild(input.getChild().getChildId());
+            }
+            if (input.getParent().getId() != null) {
+                result.setParent(input.getParent().getId());
+            }
+        }
+        return result;
     }
 }

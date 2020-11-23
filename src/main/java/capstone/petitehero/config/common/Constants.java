@@ -95,6 +95,9 @@ public class Constants {
     public static final String CHILD_NOT_SAFE = "Child is currently not safe";
     public static final String DONE_SETTING_UP_DEVICE_EN = "Done setting up child's device";
     public static final String DONE_SETTING_UP_DEVICE_VN = "Hoàn thành thiết lập thiết bị của trẻ";
+    public static final String ADDED = "ADDED";
+    public static final String UPDATED = "UPDATED";
+    public static final String DELETED = "DELETED";
 
 //    // push notification message
 //    public static final int CHILD_STATUS_CHANGED = 1;

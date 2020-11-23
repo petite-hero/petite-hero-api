@@ -2,6 +2,7 @@ package capstone.petitehero.services;
 
 import capstone.petitehero.config.common.Constants;
 import capstone.petitehero.dtos.request.location.PushNotiSWDTO;
+import capstone.petitehero.dtos.response.location.SafeZoneChangedResponseDTO;
 import capstone.petitehero.utilities.Util;
 import com.google.gson.Gson;
 import org.apache.http.HttpHeaders;
@@ -90,9 +91,11 @@ public class NotificationService {
         return result;
     }
 
-    public Integer notifySWSafeZoneChanges(String pushToken, String repeatOn, Long currentDate, Long optionalCurrentDate) {
+    public Integer notifySWSafeZoneChanges(SafeZoneChangedResponseDTO data, String pushToken, Long optionalCurrentDate) {
         Integer pushStatus = 100;
         Boolean flag = false;
+        String repeatOn = data.getRepeatOn();
+        Long currentDate = data.getDate();
         try {
             Long currentServerDateMilli = Util.getCurrentDateMilliValue();
             if (repeatOn != null && !repeatOn.isEmpty()) {
@@ -100,8 +103,10 @@ public class NotificationService {
                     flag = true;
                 }
             }
-            if (currentDate.equals(currentServerDateMilli)) {
-                flag = true;
+            if (currentDate != null) {
+                if (currentDate.equals(currentServerDateMilli)) {
+                    flag = true;
+                }
             }
             if (optionalCurrentDate != null) {
                 if (optionalCurrentDate.equals(currentServerDateMilli)) {
@@ -109,8 +114,8 @@ public class NotificationService {
                 }
             }
             if (flag) {
-                PushNotiSWDTO data = new PushNotiSWDTO(Constants.SILENT_NOTI, Constants.UPDATED_SAFEZONES, null);
-                pushStatus = pushNotificationSW(data, pushToken);
+                PushNotiSWDTO noti = new PushNotiSWDTO(Constants.SILENT_NOTI, Constants.UPDATED_SAFEZONES, data);
+                pushStatus = pushNotificationSW(noti, pushToken);
             } else {
                 pushStatus = Constants.CODE_200;
             }
