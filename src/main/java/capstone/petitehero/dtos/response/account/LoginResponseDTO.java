@@ -10,6 +10,7 @@ import java.io.Serializable;
 public class LoginResponseDTO implements Serializable {
 
     private String phoneNumber;
+    private String language;
     private String role;
     private String jwt;
 }

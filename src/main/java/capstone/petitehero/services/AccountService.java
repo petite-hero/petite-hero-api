@@ -100,6 +100,11 @@ public class AccountService {
                     result.setJwt(token);
                     result.setRole(Constants.PARENT);
                     result.setPhoneNumber(account.getUsername());
+                    if (account.getParent().getLanguage().booleanValue()) {
+                        result.setLanguage("vi");
+                    } else {
+                        result.setLanguage("en");
+                    }
                 } else {
                     result.setRole(Constants.ADMIN);
                     result.setPhoneNumber(account.getUsername());
