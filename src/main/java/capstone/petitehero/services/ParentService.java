@@ -155,4 +155,15 @@ public class ParentService {
         }
         return null;
     }
+
+    public String searchCollaboratorName(String phoneNumber, Boolean isDisable) {
+        Parent collaborator =
+                parentRepository.findParentByAccount_UsernameAndIsDisabled(phoneNumber, isDisable);
+        if (collaborator != null) {
+            String result = collaborator.getName();
+
+            return result;
+        }
+        return null;
+    }
 }

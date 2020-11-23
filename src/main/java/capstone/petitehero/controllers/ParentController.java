@@ -694,9 +694,24 @@ public class ParentController {
             return new ResponseEntity<>(responseObject, HttpStatus.OK);
         }
 
-        responseObject = new ResponseObject(Constants.CODE_500, "Server cannot disable parent account");
+        responseObject = new ResponseObject(Constants.CODE_500, "Cannot disable parent account");
         return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    @RequestMapping(value = "/{phone}", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<Object> searchCollaboratorName(@PathVariable("phone") String phoneNumber) {
+        ResponseObject responseObject;
+
+        String collaboratorName = parentService.searchCollaboratorName(phoneNumber, Boolean.FALSE);
+        if (collaboratorName == null) {
+            responseObject = new ResponseObject(Constants.CODE_404, "Cannot found that collaborator account in the system");
+            return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
+        } else {
+            responseObject = new ResponseObject(Constants.CODE_200, "OK");
+            responseObject.setData(collaboratorName);
+            return new ResponseEntity<>(responseObject, HttpStatus.OK);
+        }
+    }
 
 }
