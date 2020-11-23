@@ -7,6 +7,7 @@ import capstone.petitehero.dtos.request.location.PushNotiSWDTO;
 import capstone.petitehero.dtos.request.location.UpdateSafeZoneRequestDTO;
 import capstone.petitehero.dtos.response.location.GetListSafeZoneByDateResponseDTO;
 import capstone.petitehero.dtos.response.location.GetSafeZoneDetailResponseDTO;
+import capstone.petitehero.dtos.response.location.SafeZoneChangedResponseDTO;
 import capstone.petitehero.entities.Child;
 import capstone.petitehero.entities.Parent;
 import capstone.petitehero.entities.Safezone;
@@ -70,7 +71,8 @@ public class SafeZoneService {
                     result.setMsg("Added successfully!");
 
                     //  notify SW if current date' safe zones changed
-                    Integer pushStatus = notiService.notifySWSafeZoneChanges(safezone.getChild().getPushToken(), safezone.getRepeatOn(), safezone.getDate(), null);
+                    SafeZoneChangedResponseDTO data = Util.convertSafeZoneToReponseObj(safezone, Constants.ADDED);
+                    Integer pushStatus = notiService.notifySWSafeZoneChanges(data, safezone.getChild().getPushToken(), null);
                     if (pushStatus == Constants.CODE_200) {
                         result.setMsg(Constants.NO_ERROR);
                     } else {
@@ -162,7 +164,8 @@ public class SafeZoneService {
 
                 if (updatedSafezone != null) {
                     //  notify SW if current date' safe zones changed
-                    Integer pushStatus = notiService.notifySWSafeZoneChanges(safezone.getChild().getPushToken(), safezone.getRepeatOn(), safezone.getDate(), null);
+                    SafeZoneChangedResponseDTO data = Util.convertSafeZoneToReponseObj(updatedSafezone, Constants.DELETED);
+                    Integer pushStatus = notiService.notifySWSafeZoneChanges(data, safezone.getChild().getPushToken(), updatedSafezone.getDate());
                     if (pushStatus == Constants.CODE_200) {
                         result.setMsg(Constants.NO_ERROR);
                     } else {
@@ -189,7 +192,6 @@ public class SafeZoneService {
                 result.setCode(Constants.CODE_400);
             } else {
                 Long beforeUpdateDate = safezone.getDate();
-                Long afterUpdateDate = null;
                 if (dto.getName() != null && !dto.getName().isEmpty()) {
                     safezone.setName(dto.getName());
                 }
@@ -207,7 +209,6 @@ public class SafeZoneService {
                 }
                 if (dto.getDate() != null) {
                     safezone.setDate(dto.getDate());
-                    afterUpdateDate = dto.getDate();
                 }
                 if (dto.getRepeatOn() != null && !dto.getRepeatOn().isEmpty()) {
                     safezone.setRepeatOn(dto.getRepeatOn());
@@ -223,7 +224,8 @@ public class SafeZoneService {
                 if (updatedSafezone != null) {
                     //  notify SW if current date' safe zones changed
 
-                    Integer pushStatus = notiService.notifySWSafeZoneChanges(safezone.getChild().getPushToken(), safezone.getRepeatOn(), beforeUpdateDate, afterUpdateDate);
+                    SafeZoneChangedResponseDTO data = Util.convertSafeZoneToReponseObj(updatedSafezone, Constants.UPDATED);
+                    Integer pushStatus = notiService.notifySWSafeZoneChanges(data, safezone.getChild().getPushToken(), beforeUpdateDate);
 
                     if (pushStatus == Constants.CODE_200) {
                         result.setMsg(Constants.NO_ERROR);
