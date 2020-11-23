@@ -12,4 +12,5 @@ public class AddCollaboratorRequestDTO implements Serializable {
 
     private String collaboratorPhoneNumber;
     private List<Long> listChildId;
+    private Boolean isConfirm;
 }

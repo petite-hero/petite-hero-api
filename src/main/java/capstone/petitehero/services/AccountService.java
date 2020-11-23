@@ -23,11 +23,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Calendar;
+
 import java.util.List;
-import java.util.stream.Collector;
+
 import java.util.stream.Collectors;
 
 @Service
@@ -100,10 +99,12 @@ public class AccountService {
                     result.setJwt(token);
                     result.setRole(Constants.PARENT);
                     result.setPhoneNumber(account.getUsername());
-                    if (account.getParent().getLanguage().booleanValue()) {
-                        result.setLanguage("vi");
-                    } else {
-                        result.setLanguage("en");
+                    if (account.getParent().getLanguage() != null && !account.getParent().getLanguage().toString().isEmpty()) {
+                        if (account.getParent().getLanguage().booleanValue()) {
+                            result.setLanguage("vi");
+                        } else {
+                            result.setLanguage("en");
+                        }
                     }
                 } else {
                     result.setRole(Constants.ADMIN);

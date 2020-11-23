@@ -9,6 +9,7 @@ import java.io.Serializable;
 @Getter
 public class AccountChangePasswordRequestDTO implements Serializable {
 
+    private String oldPassword;
     private String password;
     private String confirmPassword;
 }

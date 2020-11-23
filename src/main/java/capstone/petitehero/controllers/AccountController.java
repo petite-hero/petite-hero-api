@@ -25,6 +25,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -68,10 +70,10 @@ public class AccountController {
         }
         Account account = new Account();
         account.setUsername(accountLoginDTO.getUsername());
-        account.setPassword(accountLoginDTO.getPassword());
         account.setRole(Constants.ADMIN);
 
         try {
+            account.setPassword(Util.encodePassword(accountLoginDTO.getPassword()));
             AccountLoginResponseDTO result = accountService.registerByAdmin(account);
             if (result != null) {
                 responseObject = new ResponseObject(Constants.CODE_200, "OK");
@@ -83,6 +85,16 @@ public class AccountController {
         } catch (DuplicateKeyException duplicateKeyException) {
             responseObject = new ResponseObject(Constants.CODE_400, duplicateKeyException.getMessage());
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+        } catch (NoSuchAlgorithmException noSuchAlgorithmException) {
+            responseObject = new ResponseObject(Constants.CODE_500,
+                    "Has something wrong in encoded password. Reason: "
+                            + noSuchAlgorithmException.getMessage());
+            return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (InvalidKeySpecException invalidKeySpecException) {
+            responseObject = new ResponseObject(Constants.CODE_500,
+                    "Has something wrong in encoded password. Reason: "
+                            + invalidKeySpecException.getMessage());
+            return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -232,12 +244,25 @@ public class AccountController {
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
         // end validate mandatory fields
+        try {
+            accountLoginDTO.setPassword(Util.encodePassword(accountLoginDTO.getPassword()));
 
-        LoginResponseDTO result = accountService.loginAccount(accountLoginDTO);
-        if (result != null) {
-            responseObject = new ResponseObject(Constants.CODE_200, "OK");
-            responseObject.setData(result);
-            return new ResponseEntity<>(responseObject, HttpStatus.OK);
+            LoginResponseDTO result = accountService.loginAccount(accountLoginDTO);
+            if (result != null) {
+                responseObject = new ResponseObject(Constants.CODE_200, "OK");
+                responseObject.setData(result);
+                return new ResponseEntity<>(responseObject, HttpStatus.OK);
+            }
+        } catch (NoSuchAlgorithmException noSuchAlgorithmException) {
+            responseObject = new ResponseObject(Constants.CODE_500,
+                    "Has something wrong in encoded password. Reason: "
+                            + noSuchAlgorithmException.getMessage());
+            return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (InvalidKeySpecException invalidKeySpecException) {
+            responseObject = new ResponseObject(Constants.CODE_500,
+                    "Has something wrong in encoded password. Reason: "
+                            + invalidKeySpecException.getMessage());
+            return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
         }
         responseObject = new ResponseObject(Constants.CODE_404, "Wrong username or password. Please try again");
         return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
@@ -248,6 +273,10 @@ public class AccountController {
     public ResponseEntity<Object> changePasswordForAccount(@PathVariable("username") String username,
                                                            @RequestBody AccountChangePasswordRequestDTO accountChangePasswordRequestDTO) {
         ResponseObject responseObject;
+        if (accountChangePasswordRequestDTO.getOldPassword() == null || accountChangePasswordRequestDTO.getOldPassword().isEmpty()) {
+            responseObject = new ResponseObject(Constants.CODE_400, "Old password cannot be null");
+            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+        }
         if (accountChangePasswordRequestDTO.getPassword() == null || accountChangePasswordRequestDTO.getPassword().isEmpty()) {
             responseObject = new ResponseObject(Constants.CODE_400, "New password cannot be null");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
@@ -264,13 +293,31 @@ public class AccountController {
 
         Account account = accountService.findAccountByUsername(username);
         if (account != null) {
-            account.setPassword(accountChangePasswordRequestDTO.getPassword());
+            try {
+                String encodeNewPwd = Util.encodePassword(accountChangePasswordRequestDTO.getPassword());
+                String encodeOldPwd = Util.encodePassword(accountChangePasswordRequestDTO.getOldPassword());
+                if (!encodeOldPwd.equals(account.getPassword())) {
+                    responseObject = new ResponseObject(Constants.CODE_400, "Your old password is not match. Please check again");
+                    return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+                }
+                account.setPassword(encodeNewPwd);
 
-            String result = accountService.changeAccountPassword(account);
-            if (result != null) {
-                responseObject = new ResponseObject(Constants.CODE_200, "OK");
-                responseObject.setData(result);
-                return new ResponseEntity<>(responseObject, HttpStatus.OK);
+                String result = accountService.changeAccountPassword(account);
+                if (result != null) {
+                    responseObject = new ResponseObject(Constants.CODE_200, "OK");
+                    responseObject.setData(result);
+                    return new ResponseEntity<>(responseObject, HttpStatus.OK);
+                }
+            } catch (NoSuchAlgorithmException noSuchAlgorithmException) {
+                responseObject = new ResponseObject(Constants.CODE_500,
+                        "Has something wrong in encoded password. Reason: "
+                                + noSuchAlgorithmException.getMessage());
+                return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+            } catch (InvalidKeySpecException invalidKeySpecException) {
+                responseObject = new ResponseObject(Constants.CODE_500,
+                        "Has something wrong in encoded password. Reason: "
+                                + invalidKeySpecException.getMessage());
+                return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
             }
         } else {
             responseObject = new ResponseObject(Constants.CODE_404, "Cannot found your account in the system");

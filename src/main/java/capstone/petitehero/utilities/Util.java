@@ -9,17 +9,20 @@ import capstone.petitehero.dtos.response.quest.ListQuestResponseDTO;
 import capstone.petitehero.dtos.response.task.ListTaskResponseDTO;
 import capstone.petitehero.entities.*;
 import capstone.petitehero.dtos.common.SummaryTaskDetail;
-import com.twilio.Twilio;
-import com.twilio.rest.verify.v2.service.Verification;
-import com.twilio.rest.verify.v2.service.VerificationCheck;
 import org.apache.commons.io.FileUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.KeySpec;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -28,6 +31,20 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class Util {
+
+    public static String encodePassword(String password) throws InvalidKeySpecException, NoSuchAlgorithmException {
+        String generatedPassword;
+        KeySpec spec = new PBEKeySpec(password.toCharArray(), Constants.SALT, Constants.LOOP, Constants.LENGTH_PASSWORD);
+        SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+
+        byte[] bytes = factory.generateSecret(spec).getEncoded();
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < bytes.length; i++) {
+            sb.append(Integer.toString((bytes[i] & 0xff) + 0x100, 16).substring(1));
+        }
+        generatedPassword = sb.toString();
+        return generatedPassword;
+    }
 
     public static boolean validatePhoneNumberParent(String phoneNumber) {
         // 1234567890

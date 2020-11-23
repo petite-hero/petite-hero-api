@@ -43,6 +43,13 @@ public class Constants {
     // error messages
     public static final String NO_VALUE_PRESENT = "No value present";
 
+    // for encode password
+    public static final byte[] SALT = {-57, -50, -17, -40, -112, 81, -126, 13, -21, 62, -127, -92, -14, 88, -96, -114};
+    // for the length of encoded password
+    public static final Integer LENGTH_PASSWORD = 256;
+    // the loop for encoded password
+    public static final Integer LOOP = 2048;
+
     //response values
     public static final int CODE_200 = 200;
     public static final int CODE_400 = 400;
