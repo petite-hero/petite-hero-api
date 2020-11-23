@@ -332,11 +332,15 @@ public class ParentController {
             responseObject = new ResponseObject(Constants.CODE_400, "List children of collaborator to confirm is empty");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
+        if (addCollaboratorRequestDTO.getIsConfirm() == null || addCollaboratorRequestDTO.getIsConfirm().toString().isEmpty()) {
+            responseObject = new ResponseObject(Constants.CODE_400, "Collaborator confirm is empty");
+            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+        }
 
         Parent collaboratorAccount = parentService.findParentByPhoneNumber(addCollaboratorRequestDTO.getCollaboratorPhoneNumber(), Boolean.FALSE);
         if (collaboratorAccount != null) {
             AddCollaboratorResponseDTO result = parentChildService.confirmByCollaborator(
-                    collaboratorAccount, addCollaboratorRequestDTO.getListChildId());
+                    collaboratorAccount, addCollaboratorRequestDTO.getListChildId(), addCollaboratorRequestDTO.getIsConfirm());
 
             if (!result.getListChildren().isEmpty()) {
                 responseObject = new ResponseObject(Constants.CODE_200, "OK");

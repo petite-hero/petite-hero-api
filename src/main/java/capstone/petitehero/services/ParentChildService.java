@@ -39,7 +39,7 @@ public class ParentChildService {
 
         // get collaborator children
         List<Parent_Child> listCollaboratorChildrenResult =
-                parentChildRepository.findParent_ChildrenByCollaborator_Account_UsernameAndChild_IsDisabled(parentPhoneNumber, Boolean.FALSE);
+                parentChildRepository.findParent_ChildrenByCollaborator_Account_UsernameAndChild_IsDisabledAndIsCollaboratorConfirm(parentPhoneNumber, Boolean.FALSE, Boolean.TRUE);
         List<ChildInformation> result = new ArrayList<>();
         if (listParentChildrenResult != null) {
             if (!listParentChildrenResult.isEmpty()) {
@@ -65,9 +65,9 @@ public class ParentChildService {
                     if (data.getChild().getTrackingActive() != null) {
                         childInformation.setIsTrackingActive(data.getChild().getTrackingActive());
                     }
-                    if (data.getChild().getPhoto() != null && !data.getChild().getPhoto().isEmpty()) {
-                        childInformation.setPhoto(Util.fromImageFileToBase64String(data.getChild().getPhoto()));
-                    }
+//                    if (data.getChild().getPhoto() != null && !data.getChild().getPhoto().isEmpty()) {
+//                        childInformation.setPhoto(Util.fromImageFileToBase64String(data.getChild().getPhoto()));
+//                    }
                     childInformation.setIsCollaboratorChild(Boolean.FALSE);
                     result.add(childInformation);
                 }
@@ -97,9 +97,9 @@ public class ParentChildService {
                     if (data.getChild().getTrackingActive() != null) {
                         childInformation.setIsTrackingActive(data.getChild().getTrackingActive());
                     }
-                    if (data.getChild().getPhoto() != null && !data.getChild().getPhoto().isEmpty()) {
-                        childInformation.setPhoto(Util.fromImageFileToBase64String(data.getChild().getPhoto()));
-                    }
+//                    if (data.getChild().getPhoto() != null && !data.getChild().getPhoto().isEmpty()) {
+//                        childInformation.setPhoto(Util.fromImageFileToBase64String(data.getChild().getPhoto()));
+//                    }
                     childInformation.setIsCollaboratorChild(Boolean.TRUE);
                     result.add(childInformation);
                 }
@@ -158,7 +158,7 @@ public class ParentChildService {
                 ArrayList<String> pushToken = new ArrayList<>();
                 pushToken.add(collaboratorAccount.getPushToken());
                 String msg;
-                if (parent.getLanguage().booleanValue()) {
+                if (collaboratorAccount.getLanguage().booleanValue()) {
                     msg = parent.getName() + " muốn bạn trở thành người cộng tác.";
                 } else {
                     msg = parent.getName() + " want you to become their collaborator.";
@@ -169,7 +169,7 @@ public class ParentChildService {
         return result;
     }
 
-    public AddCollaboratorResponseDTO confirmByCollaborator(Parent collaboratorAccount, List<Long> listChildId) {
+    public AddCollaboratorResponseDTO confirmByCollaborator(Parent collaboratorAccount, List<Long> listChildId, Boolean isConfirm) {
         AddCollaboratorResponseDTO result = new AddCollaboratorResponseDTO();
         result.setListChildren(new ArrayList<>());
         result.setParentPhoneNumber(collaboratorAccount.getAccount().getUsername());
@@ -180,7 +180,7 @@ public class ParentChildService {
                             childId, collaboratorAccount.getAccount().getUsername(), Boolean.FALSE
                     );
             if (parentChildResult != null) {
-                parentChildResult.setIsCollaboratorConfirm(Boolean.TRUE);
+                parentChildResult.setIsCollaboratorConfirm(isConfirm);
                 Parent_Child parentChildUpdated = parentChildRepository.save(parentChildResult);
 
                 if (parentChildUpdated != null) {
