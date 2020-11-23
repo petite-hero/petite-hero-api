@@ -82,7 +82,8 @@ public class ChildController {
 
                     ArrayList<String> pushTokens = new ArrayList<>();
                     pushTokens.add(parent.getPushToken());
-                    notiService.pushNotificationMobile(Constants.DONE_SETTING_UP_DEVICE, verifyParentRequestDTO, pushTokens);
+                    String msg = parent.getLanguage() ? Constants.DONE_SETTING_UP_DEVICE_VN : Constants.DONE_SETTING_UP_DEVICE_VN;
+                    notiService.pushNotificationMobile(msg, verifyParentRequestDTO, pushTokens);
 
                     return new ResponseEntity<>(responseObject, HttpStatus.OK);
                 }

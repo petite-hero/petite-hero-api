@@ -70,7 +70,7 @@ public class SafeZoneService {
                     result.setMsg("Added successfully!");
 
                     //  notify SW if current date' safe zones changed
-                    Integer pushStatus = notiService.notifySWSafeZoneChanges(safezone.getChild().getPushToken(), safezone.getRepeatOn(), safezone.getDate());
+                    Integer pushStatus = notiService.notifySWSafeZoneChanges(safezone.getChild().getPushToken(), safezone.getRepeatOn(), safezone.getDate(), null);
                     if (pushStatus == Constants.CODE_200) {
                         result.setMsg(Constants.NO_ERROR);
                     } else {
@@ -162,7 +162,7 @@ public class SafeZoneService {
 
                 if (updatedSafezone != null) {
                     //  notify SW if current date' safe zones changed
-                    Integer pushStatus = notiService.notifySWSafeZoneChanges(safezone.getChild().getPushToken(), safezone.getRepeatOn(), safezone.getDate());
+                    Integer pushStatus = notiService.notifySWSafeZoneChanges(safezone.getChild().getPushToken(), safezone.getRepeatOn(), safezone.getDate(), null);
                     if (pushStatus == Constants.CODE_200) {
                         result.setMsg(Constants.NO_ERROR);
                     } else {
@@ -188,6 +188,8 @@ public class SafeZoneService {
                 result.setMsg("Bad request - Safe Zone doesn't exist");
                 result.setCode(Constants.CODE_400);
             } else {
+                Long beforeUpdateDate = safezone.getDate();
+                Long afterUpdateDate = null;
                 if (dto.getName() != null && !dto.getName().isEmpty()) {
                     safezone.setName(dto.getName());
                 }
@@ -205,6 +207,7 @@ public class SafeZoneService {
                 }
                 if (dto.getDate() != null) {
                     safezone.setDate(dto.getDate());
+                    afterUpdateDate = dto.getDate();
                 }
                 if (dto.getRepeatOn() != null && !dto.getRepeatOn().isEmpty()) {
                     safezone.setRepeatOn(dto.getRepeatOn());
@@ -219,7 +222,8 @@ public class SafeZoneService {
                 Safezone updatedSafezone = safeZoneRepository.save(safezone);
                 if (updatedSafezone != null) {
                     //  notify SW if current date' safe zones changed
-                    Integer pushStatus = notiService.notifySWSafeZoneChanges(safezone.getChild().getPushToken(), safezone.getRepeatOn(), safezone.getDate());
+
+                    Integer pushStatus = notiService.notifySWSafeZoneChanges(safezone.getChild().getPushToken(), safezone.getRepeatOn(), beforeUpdateDate, afterUpdateDate);
 
                     if (pushStatus == Constants.CODE_200) {
                         result.setMsg(Constants.NO_ERROR);
