@@ -317,12 +317,11 @@ public class ParentController {
 
                 if (!result.getListChildren().isEmpty()) {
                     responseObject = new ResponseObject(Constants.CODE_200, "OK");
-                    responseObject.setData(result);
-                    return new ResponseEntity<>(responseObject, HttpStatus.OK);
+                } else {
+                    responseObject = new ResponseObject(Constants.CODE_200, "Collaborator all ready collaborate with all these child");
                 }
-
-                responseObject = new ResponseObject(Constants.CODE_500, "Server is down cannot add collaborator to the system");
-                return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+                responseObject.setData(result);
+                return new ResponseEntity<>(responseObject, HttpStatus.OK);
             } else {
                 responseObject = new ResponseObject(Constants.CODE_404, "Cannot found that collaborator account in the system");
                 return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);

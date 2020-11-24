@@ -33,9 +33,9 @@ public class ParentChildService {
         // get parent children
         List<Parent_Child> listParentChildrenResult =
                 parentChildRepository.findParent_ChildrenByParent_Account_UsernameAndChild_IsDisabled(parentPhoneNumber, Boolean.FALSE)
-                .stream()
-                .filter(Util.distinctByKey(Parent_Child::getChild))
-                .collect(Collectors.toList());
+                        .stream()
+                        .filter(Util.distinctByKey(Parent_Child::getChild))
+                        .collect(Collectors.toList());
 
         // get collaborator children
         List<Parent_Child> listCollaboratorChildrenResult =
@@ -114,56 +114,74 @@ public class ParentChildService {
 
     public AddCollaboratorResponseDTO addNewCollaborator(List<Long> listChildId, Parent parent, Parent collaboratorAccount) {
         AddCollaboratorResponseDTO result = new AddCollaboratorResponseDTO();
-        result.setListChildren(new ArrayList<>());
         result.setParentPhoneNumber(parent.getAccount().getUsername());
+        result.setListChildren(new ArrayList<>());
         Parent_Child parent_child;
+        List<Long> childNeedToCollab = new ArrayList<>();
+
+        // checking is this collaborator has collab with this child
+        // prevent duplicated record in parent_child table in db
         for (Long childId : listChildId) {
-            parent_child =
-                    parentChildRepository.findDistinctFirstByChild_ChildIdAndParent_IdAndCollaboratorIsNull(
-                            childId, parent.getId());
-            if (parent_child != null) {
-                parent_child.setIsCollaboratorConfirm(Boolean.FALSE);
-                parent_child.setCollaborator(collaboratorAccount);
-            } else {
-                parent_child = new Parent_Child();
+            Parent_Child duplicatedParentChild =
+                    parentChildRepository.findParent_ChildByChild_ChildIdAndCollaborator_Account_Username(
+                            childId, collaboratorAccount.getAccount().getUsername());
 
-                parent_child.setParent(parent);
-                parent_child.setIsCollaboratorConfirm(Boolean.FALSE);
-                parent_child.setCollaborator(collaboratorAccount);
-                parent_child.setChild(childRepository.findChildByChildIdEqualsAndIsDisabled(childId, Boolean.FALSE));
-            }
-            Parent_Child parentChildResult = parentChildRepository.save(parent_child);
-            if (parentChildResult != null) {
-                ChildInformation childInformation = new ChildInformation();
-
-                childInformation.setChildId(parentChildResult.getChild().getChildId());
-                childInformation.setName(parentChildResult.getChild().getName());
-                if (parentChildResult.getChild().getGender() != null) {
-                    if (parentChildResult.getChild().getGender().booleanValue()) {
-                        childInformation.setGender("Male");
-                    } else {
-                        childInformation.setGender("Female");
-                    }
-                }
-                Calendar calendar = Calendar.getInstance();
-                int year = calendar.get(Calendar.YEAR);
-                childInformation.setAge(year - parentChildResult.getChild().getYob());
-
-                result.getListChildren().add(childInformation);
+            if (duplicatedParentChild == null) {
+                childNeedToCollab.add(childId);
             }
         }
-        if (!result.getListChildren().isEmpty()) {
-            result.setStatus(Constants.status.ADDED.toString());
-            if (collaboratorAccount.getPushToken() != null && !collaboratorAccount.getPushToken().isEmpty()) {
-                ArrayList<String> pushToken = new ArrayList<>();
-                pushToken.add(collaboratorAccount.getPushToken());
-                String msg;
-                if (collaboratorAccount.getLanguage().booleanValue()) {
-                    msg = parent.getName() + " muốn bạn trở thành người cộng tác.";
+
+        if (!childNeedToCollab.isEmpty()) {
+            for (Long childId : childNeedToCollab) {
+                parent_child =
+                        parentChildRepository.findDistinctFirstByChild_ChildIdAndParent_IdAndCollaboratorIsNull(
+                                childId, parent.getId());
+                if (parent_child != null) {
+                    parent_child.setIsCollaboratorConfirm(Boolean.FALSE);
+                    parent_child.setCollaborator(collaboratorAccount);
                 } else {
-                    msg = parent.getName() + " want you to become their collaborator.";
+                    parent_child = new Parent_Child();
+
+                    parent_child.setParent(parent);
+                    parent_child.setIsCollaboratorConfirm(Boolean.FALSE);
+                    parent_child.setCollaborator(collaboratorAccount);
+                    parent_child.setChild(childRepository.findChildByChildIdEqualsAndIsDisabled(childId, Boolean.FALSE));
                 }
-                notiService.pushNotificationMobile(msg, result, pushToken);
+                Parent_Child parentChildResult = parentChildRepository.save(parent_child);
+                if (parentChildResult != null) {
+                    ChildInformation childInformation = new ChildInformation();
+
+                    childInformation.setChildId(parentChildResult.getChild().getChildId());
+                    childInformation.setName(parentChildResult.getChild().getName());
+                    if (parentChildResult.getChild().getGender() != null) {
+                        if (parentChildResult.getChild().getGender().booleanValue()) {
+                            childInformation.setGender("Male");
+                        } else {
+                            childInformation.setGender("Female");
+                        }
+                    }
+                    Calendar calendar = Calendar.getInstance();
+                    int year = calendar.get(Calendar.YEAR);
+                    childInformation.setAge(year - parentChildResult.getChild().getYob());
+
+                    result.getListChildren().add(childInformation);
+                }
+            }
+        }
+        if (result.getListChildren() != null) {
+            if (!result.getListChildren().isEmpty()) {
+                result.setStatus(Constants.status.ADDED.toString());
+                if (collaboratorAccount.getPushToken() != null && !collaboratorAccount.getPushToken().isEmpty()) {
+                    ArrayList<String> pushToken = new ArrayList<>();
+                    pushToken.add(collaboratorAccount.getPushToken());
+                    String msg;
+                    if (collaboratorAccount.getLanguage().booleanValue()) {
+                        msg = parent.getName() + " muốn bạn trở thành người cộng tác.";
+                    } else {
+                        msg = parent.getName() + " want you to become their collaborator.";
+                    }
+                    notiService.pushNotificationMobile(msg, result, pushToken);
+                }
             }
         }
         return result;
@@ -177,8 +195,7 @@ public class ParentChildService {
         for (Long childId : listChildId) {
             Parent_Child parentChildResult =
                     parentChildRepository.findParent_ChildByChild_ChildIdAndCollaborator_Account_UsernameAndIsCollaboratorConfirm(
-                            childId, collaboratorAccount.getAccount().getUsername(), Boolean.FALSE
-                    );
+                            childId, collaboratorAccount.getAccount().getUsername(), Boolean.FALSE);
             if (parentChildResult != null) {
                 parentChildResult.setIsCollaboratorConfirm(isConfirm);
                 Parent_Child parentChildUpdated = parentChildRepository.save(parentChildResult);
