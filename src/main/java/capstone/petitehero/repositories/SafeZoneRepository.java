@@ -22,7 +22,7 @@ public interface SafeZoneRepository extends JpaRepository<Safezone, Long>{
             "FROM petite_hero.safezone s\n" +
             "WHERE s.child_id = :childId \n" +
             "\tAND s.is_disabled = FALSE \n" +
-            "\tAND s.repeat_on IS NULL \n" +
+//            "\tAND s.repeat_on IS NULL \n" +
             "\tAND s.date = :currentDate")
     List<Safezone> getListSafeZone(@Param("childId") Long childId, @Param("currentDate") Long currentDate, @Param("regex") String regex);
 }
