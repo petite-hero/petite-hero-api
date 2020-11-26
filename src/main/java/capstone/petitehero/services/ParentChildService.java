@@ -39,7 +39,7 @@ public class ParentChildService {
 
         // get collaborator children
         List<Parent_Child> listCollaboratorChildrenResult =
-                parentChildRepository.findParent_ChildrenByCollaborator_Account_UsernameAndChild_IsDisabledAndIsCollaboratorConfirm(parentPhoneNumber, Boolean.FALSE, Boolean.TRUE);
+                parentChildRepository.findParent_ChildrenByCollaborator_Account_UsernameAndChild_IsDisabled(parentPhoneNumber, Boolean.FALSE);
         List<ChildInformation> result = new ArrayList<>();
         if (listParentChildrenResult != null) {
             if (!listParentChildrenResult.isEmpty()) {
@@ -65,9 +65,9 @@ public class ParentChildService {
                     if (data.getChild().getTrackingActive() != null) {
                         childInformation.setIsTrackingActive(data.getChild().getTrackingActive());
                     }
-                    if (data.getChild().getPhoto() != null && !data.getChild().getPhoto().isEmpty()) {
-                        childInformation.setPhoto(Util.fromImageFileToBase64String(data.getChild().getPhoto()));
-                    }
+//                    if (data.getChild().getPhoto() != null && !data.getChild().getPhoto().isEmpty()) {
+//                        childInformation.setPhoto(Util.fromImageFileToBase64String(data.getChild().getPhoto()));
+//                    }
                     childInformation.setIsCollaboratorChild(Boolean.FALSE);
                     result.add(childInformation);
                 }
@@ -97,8 +97,15 @@ public class ParentChildService {
                     if (data.getChild().getTrackingActive() != null) {
                         childInformation.setIsTrackingActive(data.getChild().getTrackingActive());
                     }
-                    if (data.getChild().getPhoto() != null && !data.getChild().getPhoto().isEmpty()) {
-                        childInformation.setPhoto(Util.fromImageFileToBase64String(data.getChild().getPhoto()));
+//                    if (data.getChild().getPhoto() != null && !data.getChild().getPhoto().isEmpty()) {
+//                        childInformation.setPhoto(Util.fromImageFileToBase64String(data.getChild().getPhoto()));
+//                    }
+                    if (data.getIsCollaboratorConfirm() != null && !data.getIsCollaboratorConfirm().toString().isEmpty()) {
+                        if (data.getIsCollaboratorConfirm().booleanValue()) {
+                            childInformation.setIsConfirm(Boolean.TRUE);
+                        } else {
+                            childInformation.setIsConfirm(Boolean.FALSE);
+                        }
                     }
                     childInformation.setIsCollaboratorChild(Boolean.TRUE);
                     result.add(childInformation);

@@ -15,4 +15,5 @@ public class ChildInformation extends Assignee implements Serializable {
     private Boolean hasDevice;
     private Boolean isTrackingActive;
     private Boolean isCollaboratorChild;
+    private Boolean isConfirm;
 }

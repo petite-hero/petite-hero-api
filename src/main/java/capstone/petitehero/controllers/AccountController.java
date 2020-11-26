@@ -423,7 +423,7 @@ public class AccountController {
 
                 if (response.isOk()) {
                     responseObject = new ResponseObject(Constants.CODE_200,
-                            "An OTP token has sent to your phone number");
+                            "Verify OTP for your phone number successfully.");
                     return new ResponseEntity<>(responseObject, HttpStatus.OK);
                 } else {
                     responseObject = new ResponseObject(Constants.CODE_200,

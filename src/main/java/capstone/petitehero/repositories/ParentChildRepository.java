@@ -22,5 +22,5 @@ public interface ParentChildRepository extends JpaRepository<Parent_Child, Long>
 
     List<Parent_Child> findParent_ChildrenByParent_Account_UsernameAndCollaboratorNotNull(String phoneNumber);
 
-    List<Parent_Child> findParent_ChildrenByCollaborator_Account_UsernameAndChild_IsDisabledAndIsCollaboratorConfirm(String phoneNumber, Boolean isDisabled, Boolean isCollabConfirm);
+    List<Parent_Child> findParent_ChildrenByCollaborator_Account_UsernameAndChild_IsDisabled(String phoneNumber, Boolean isDisabled);
 }
