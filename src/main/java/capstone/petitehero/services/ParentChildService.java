@@ -65,9 +65,9 @@ public class ParentChildService {
                     if (data.getChild().getTrackingActive() != null) {
                         childInformation.setIsTrackingActive(data.getChild().getTrackingActive());
                     }
-//                    if (data.getChild().getPhoto() != null && !data.getChild().getPhoto().isEmpty()) {
-//                        childInformation.setPhoto(Util.fromImageFileToBase64String(data.getChild().getPhoto()));
-//                    }
+                    if (data.getChild().getPhoto() != null && !data.getChild().getPhoto().isEmpty()) {
+                        childInformation.setPhoto(Util.fromImageFileToBase64String(data.getChild().getPhoto()));
+                    }
                     childInformation.setIsCollaboratorChild(Boolean.FALSE);
                     result.add(childInformation);
                 }
@@ -97,9 +97,9 @@ public class ParentChildService {
                     if (data.getChild().getTrackingActive() != null) {
                         childInformation.setIsTrackingActive(data.getChild().getTrackingActive());
                     }
-//                    if (data.getChild().getPhoto() != null && !data.getChild().getPhoto().isEmpty()) {
-//                        childInformation.setPhoto(Util.fromImageFileToBase64String(data.getChild().getPhoto()));
-//                    }
+                    if (data.getChild().getPhoto() != null && !data.getChild().getPhoto().isEmpty()) {
+                        childInformation.setPhoto(Util.fromImageFileToBase64String(data.getChild().getPhoto()));
+                    }
                     if (data.getIsCollaboratorConfirm() != null && !data.getIsCollaboratorConfirm().toString().isEmpty()) {
                         if (data.getIsCollaboratorConfirm().booleanValue()) {
                             childInformation.setIsConfirm(Boolean.TRUE);
