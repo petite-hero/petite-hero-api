@@ -184,6 +184,7 @@ public class AccountService {
                 } else {
                     result.setChildInformationList(new ArrayList<>());
                 }
+                result.setMaxChild(result.getChildInformationList().size());
             }
 
             //get list collaborator active of active parent
@@ -211,6 +212,7 @@ public class AccountService {
                 } else {
                     result.setCollaboratorInformationList(collaboratorInformationList);
                 }
+                result.setMaxCollaborator(result.getCollaboratorInformationList().size());
             }
 
             return result;

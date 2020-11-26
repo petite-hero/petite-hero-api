@@ -71,10 +71,10 @@ public class SubscriptionController {
                 return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
             }
         }
-        if (createSubscriptionTypeRequestDTO.getAppliedDate() == null || createSubscriptionTypeRequestDTO.getAppliedDate().toString().isEmpty()) {
-            responseObject = new ResponseObject(Constants.CODE_400, "Subscription type applied day cannot be empty or missing");
-            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
-        }
+//        if (createSubscriptionTypeRequestDTO.getAppliedDate() == null || createSubscriptionTypeRequestDTO.getAppliedDate().toString().isEmpty()) {
+//            responseObject = new ResponseObject(Constants.CODE_400, "Subscription type applied day cannot be empty or missing");
+//            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+//        }
 
         SubscriptionType subscriptionType = new SubscriptionType();
         subscriptionType.setName(createSubscriptionTypeRequestDTO.getName());
@@ -85,6 +85,7 @@ public class SubscriptionController {
         subscriptionType.setIsDeleted(Boolean.FALSE);
         subscriptionType.setAppliedDate(createSubscriptionTypeRequestDTO.getAppliedDate());
         subscriptionType.setDurationDay(createSubscriptionTypeRequestDTO.getDurationDay());
+        subscriptionType.setAppliedDate(System.currentTimeMillis()); //Just get currentDateTime for the sake of convenience
 
         SubscriptionTypeStatusResponseDTO result = subscriptionService.createNewSubscriptionType(subscriptionType);
         if (result != null) {

@@ -13,6 +13,8 @@ import java.util.List;
 public class ParentDetailResponseDTO extends ListParentAccountResponseDTO implements Serializable {
 
     private String avatar;
+    private Integer maxChild;
+    private Integer maxCollaborator;
     private List<ChildInformation> childInformationList;
     private List<ParentInformation> collaboratorInformationList;
 }
