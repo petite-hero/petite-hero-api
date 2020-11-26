@@ -48,8 +48,8 @@ public class SafeZoneService {
             } else {
                 Safezone addedSafeZone = new Safezone();
                 addedSafeZone.setName(sentSafeZone.getName());
-                addedSafeZone.setLatA(sentSafeZone.getLatitude());
-                addedSafeZone.setLngA(sentSafeZone.getLongitude());
+                addedSafeZone.setLatitude(sentSafeZone.getLatitude());
+                addedSafeZone.setLongitude(sentSafeZone.getLongitude());
                 addedSafeZone.setFromTime(sentSafeZone.getFromTime());
                 addedSafeZone.setToTime(sentSafeZone.getToTime());
                 addedSafeZone.setDate(sentSafeZone.getDate());
@@ -127,8 +127,8 @@ public class SafeZoneService {
                 GetSafeZoneDetailResponseDTO response = new GetSafeZoneDetailResponseDTO(
                         safezone.getSafezoneId(),
                         safezone.getName(),
-                        safezone.getLatA(),
-                        safezone.getLngA(),
+                        safezone.getLatitude(),
+                        safezone.getLongitude(),
                         safezone.getFromTime(),
                         safezone.getToTime(),
                         safezone.getDate(),
@@ -196,10 +196,10 @@ public class SafeZoneService {
                     safezone.setName(dto.getName());
                 }
                 if (dto.getLatitude() != null) {
-                    safezone.setLatA(dto.getLatitude());
+                    safezone.setLatitude(dto.getLatitude());
                 }
                 if (dto.getLongitude() != null) {
-                    safezone.setLngA(dto.getLongitude());
+                    safezone.setLongitude(dto.getLongitude());
                 }
                 if (dto.getFromTime() != null) {
                     safezone.setFromTime(dto.getFromTime());
