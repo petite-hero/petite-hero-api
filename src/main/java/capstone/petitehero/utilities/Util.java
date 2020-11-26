@@ -364,7 +364,7 @@ public class Util {
         try {
             GetListSafeZoneByDateResponseDTO temp;
             for (Safezone safezone : input) {
-                temp = new GetListSafeZoneByDateResponseDTO(safezone.getSafezoneId(), safezone.getName(), safezone.getLatitude(), safezone.getLongitude(), safezone.getDate(), safezone.getRadius(), safezone.getRepeatOn(), safezone.getFromTime(), safezone.getToTime(), safezone.getType(), safezone.getChild().getChildId(), safezone.getParent().getId());
+                temp = new GetListSafeZoneByDateResponseDTO(safezone.getSafezoneId(), safezone.getName(), safezone.getLatA(), safezone.getLngA(), safezone.getDate(), safezone.getRadius(), safezone.getRepeatOn(), safezone.getFromTime(), safezone.getToTime(), safezone.getType(), safezone.getChild().getChildId(), safezone.getParent().getId());
                 result.add(temp);
             }
         } catch (Exception e) {
@@ -498,11 +498,11 @@ public class Util {
             if (input.getName() != null && !input.getName().isEmpty()) {
                 result.setName(input.getName());
             }
-            if (input.getLatitude() != null) {
-                result.setLatitude(input.getLatitude());
+            if (input.getLatA() != null) {
+                result.setLatitude(input.getLatA());
             }
-            if (input.getLongitude() != null) {
-                result.setLongitude(input.getLongitude());
+            if (input.getLngA() != null) {
+                result.setLongitude(input.getLngA());
             }
             if (input.getFromTime() != null) {
                 result.setFromTime(input.getFromTime());

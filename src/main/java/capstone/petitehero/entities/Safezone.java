@@ -25,10 +25,28 @@ public class Safezone implements Serializable {
     private String name;
 
     @Column
-    private Double latitude;
+    private Double latA;
 
     @Column
-    private Double longitude;
+    private Double lngA;
+
+    @Column
+    private Double latB;
+
+    @Column
+    private Double lngB;
+
+    @Column
+    private Double latC;
+
+    @Column
+    private Double lngC;
+
+    @Column
+    private Double latD;
+
+    @Column
+    private Double lngD;
 
     @Column
     @Temporal(value = TemporalType.TIME)
