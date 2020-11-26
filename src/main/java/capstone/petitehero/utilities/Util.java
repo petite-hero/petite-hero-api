@@ -393,7 +393,7 @@ public class Util {
         try {
             GetListSafeZoneByDateResponseDTO temp;
             for (Safezone safezone : input) {
-                temp = new GetListSafeZoneByDateResponseDTO(safezone.getSafezoneId(), safezone.getName(), safezone.getLatitude(), safezone.getLongitude(), safezone.getDate(), safezone.getRadius(), safezone.getRepeatOn(), safezone.getFromTime(), safezone.getToTime(), safezone.getType(), safezone.getChild().getChildId(), safezone.getParent().getId());
+                temp = new GetListSafeZoneByDateResponseDTO(safezone.getSafezoneId(), safezone.getName(), safezone.getLatitude(), safezone.getLongitude(), safezone.getDate(), safezone.getRadius(), safezone.getRepeatOn(), safezone.getFromTime(), safezone.getToTime(), safezone.getType(), safezone.getChild().getChildId(), safezone.getParent().getId(), safezone.getLatA(), safezone.getLngA(), safezone.getLatB(), safezone.getLngB(), safezone.getLatC(), safezone.getLngC(), safezone.getLatD(), safezone.getLngD());
                 result.add(temp);
             }
         } catch (Exception e) {
@@ -519,6 +519,9 @@ public class Util {
         if (status.equals(Constants.DELETED)) {
             result.setStatus(Constants.DELETED);
             result.setSafezoneId(input.getSafezoneId());
+            if (input.getRepeatOn() != null && !input.getRepeatOn().isEmpty()) {
+                result.setRepeatOn(input.getRepeatOn());
+            }
         } else {
             result.setStatus(status);
             if (input.getSafezoneId() != null) {
@@ -559,6 +562,31 @@ public class Util {
             }
             if (input.getParent().getId() != null) {
                 result.setParent(input.getParent().getId());
+            }
+
+            if (input.getLatA() != null) {
+                result.setLatA(input.getLatA());
+            }
+            if (input.getLngA() != null) {
+                result.setLngA(input.getLngA());
+            }
+            if (input.getLatB() != null) {
+                result.setLatB(input.getLatB());
+            }
+            if (input.getLngB() != null) {
+                result.setLngB(input.getLngB());
+            }
+            if (input.getLatC() != null) {
+                result.setLatC(input.getLatC());
+            }
+            if (input.getLngC() != null) {
+                result.setLngC(input.getLngC());
+            }
+            if (input.getLatD() != null) {
+                result.setLatD(input.getLatD());
+            }
+            if (input.getLngD() != null) {
+                result.setLngD(input.getLngD());
             }
         }
         return result;

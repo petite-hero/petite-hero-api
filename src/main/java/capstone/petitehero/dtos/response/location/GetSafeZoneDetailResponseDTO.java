@@ -22,10 +22,19 @@ public class GetSafeZoneDetailResponseDTO {
     private Long child;
     private Long parent;
 
+    private Double latA;
+    private Double lngA;
+    private Double latB;
+    private Double lngB;
+    private Double latC;
+    private Double lngC;
+    private Double latD;
+    private Double lngD;
+
     public GetSafeZoneDetailResponseDTO() {
     }
 
-    public GetSafeZoneDetailResponseDTO(Long safezoneId, String name, Double latitude, Double longitude, Date fromTime, Date toTime, Long date, String repeatOn, Integer radius, Boolean isDisabled, String type, Long child, Long parent) {
+    public GetSafeZoneDetailResponseDTO(Long safezoneId, String name, Double latitude, Double longitude, Date fromTime, Date toTime, Long date, String repeatOn, Integer radius, Boolean isDisabled, String type, Long child, Long parent, Double latA, Double lngA, Double latB, Double lngB, Double latC, Double lngC, Double latD, Double lngD) {
         this.safezoneId = safezoneId;
         this.name = name;
         this.latitude = latitude;
@@ -39,5 +48,14 @@ public class GetSafeZoneDetailResponseDTO {
         this.type = type;
         this.child = child;
         this.parent = parent;
+
+        this.latA = latA;
+        this.lngA = lngA;
+        this.latB = latB;
+        this.lngB = lngB;
+        this.latC = latC;
+        this.lngC = lngC;
+        this.latD = latD;
+        this.lngD = lngD;
     }
 }

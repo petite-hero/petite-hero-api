@@ -96,6 +96,8 @@ public class NotificationService {
         Boolean flag = false;
         String repeatOn = data.getRepeatOn();
         Long currentDate = data.getDate();
+
+        System.out.println("Repeat: " + repeatOn);
         try {
             Long currentServerDateMilli = Util.getCurrentDateMilliValue();
             if (repeatOn != null && !repeatOn.isEmpty()) {
@@ -114,6 +116,9 @@ public class NotificationService {
                 }
             }
             if (flag) {
+                if (data.getStatus().equals(Constants.DELETED)) {
+                    data.setRepeatOn(null);
+                }
                 PushNotiSWDTO noti = new PushNotiSWDTO(Constants.SILENT_NOTI, Constants.UPDATED_SAFEZONES, data);
                 pushStatus = pushNotificationSW(noti, pushToken);
             } else {
