@@ -102,7 +102,8 @@ public class SafeZoneService {
                 result.setMsg("Bad request - Child doesn't exist");
                 result.setCode(Constants.CODE_400);
             } else {
-                List<Safezone> rawData = safeZoneRepository.getListSafeZone(childId, currentDate, Util.getCurrentWeekdayRegex());
+                String weekdayREGEX = Util.getWeekdayRegex(currentDate);
+                List<Safezone> rawData = safeZoneRepository.getListSafeZone(childId, currentDate, weekdayREGEX);
                 List<GetListSafeZoneByDateResponseDTO> filteredData = Util.castToSafeZoneResponse(rawData);
                 result.setData(filteredData);
                 result.setMsg(Constants.NO_ERROR);

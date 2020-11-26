@@ -264,8 +264,37 @@ public class Util {
         return map.get(day);
     }
 
+    public static String getCurrentWeekdayByInput(Long inputDate) {
+        Calendar calendar = Calendar.getInstance();
+        Date date = new Date(inputDate);
+        calendar.setTime(date);
+        int day = calendar.get(Calendar.DAY_OF_WEEK);
+        HashMap<Integer, String> map = new HashMap<>();
+        map.put(Calendar.SUNDAY, "sun");
+        map.put(Calendar.MONDAY, "mon");
+        map.put(Calendar.TUESDAY, "tue");
+        map.put(Calendar.WEDNESDAY, "wed");
+        map.put(Calendar.THURSDAY, "thu");
+        map.put(Calendar.FRIDAY, "fri");
+        map.put(Calendar.SATURDAY, "sat");
+        return map.get(day);
+    }
+
     public static String getCurrentWeekdayRegex() {
         String weekday = getCurrentWeekday();
+        HashMap<String, String> map = new HashMap<>();
+        map.put("sun", Constants.SUN_REGEX);
+        map.put("mon", Constants.MON_REGEX);
+        map.put("tue", Constants.TUE_REGEX);
+        map.put("wed", Constants.WED_REGEX);
+        map.put("thu", Constants.THU_REGEX);
+        map.put("fri", Constants.FRI_REGEX);
+        map.put("sat", Constants.SAT_REGEX);
+        return map.get(weekday);
+    }
+
+    public static String getWeekdayRegex(Long date) {
+        String weekday = getCurrentWeekdayByInput(date);
         HashMap<String, String> map = new HashMap<>();
         map.put("sun", Constants.SUN_REGEX);
         map.put("mon", Constants.MON_REGEX);
