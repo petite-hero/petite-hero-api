@@ -53,6 +53,15 @@ public class SafeZoneService {
                 addedSafeZone.setFromTime(sentSafeZone.getFromTime());
                 addedSafeZone.setToTime(sentSafeZone.getToTime());
                 addedSafeZone.setDate(sentSafeZone.getDate());
+
+                addedSafeZone.setLatA(sentSafeZone.getLatA());
+                addedSafeZone.setLngA(sentSafeZone.getLngA());
+                addedSafeZone.setLatB(sentSafeZone.getLatB());
+                addedSafeZone.setLngB(sentSafeZone.getLngB());
+                addedSafeZone.setLatC(sentSafeZone.getLatC());
+                addedSafeZone.setLngC(sentSafeZone.getLngC());
+                addedSafeZone.setLatD(sentSafeZone.getLatD());
+                addedSafeZone.setLngD(sentSafeZone.getLngD());
                 if (sentSafeZone.getRepeatOn() == null || sentSafeZone.getRepeatOn().isEmpty()) {
                     addedSafeZone.setRepeatOn(null);
                 } else {
@@ -102,7 +111,8 @@ public class SafeZoneService {
                 result.setMsg("Bad request - Child doesn't exist");
                 result.setCode(Constants.CODE_400);
             } else {
-                List<Safezone> rawData = safeZoneRepository.getListSafeZone(childId, currentDate, Util.getCurrentWeekdayRegex());
+                String weekdayREGEX = Util.getWeekdayRegex(currentDate);
+                List<Safezone> rawData = safeZoneRepository.getListSafeZone(childId, currentDate, weekdayREGEX);
                 List<GetListSafeZoneByDateResponseDTO> filteredData = Util.castToSafeZoneResponse(rawData);
                 result.setData(filteredData);
                 result.setMsg(Constants.NO_ERROR);
@@ -137,7 +147,15 @@ public class SafeZoneService {
                         safezone.getIsDisabled(),
                         safezone.getType(),
                         safezone.getChild().getChildId(),
-                        safezone.getParent().getId()
+                        safezone.getParent().getId(),
+                        safezone.getLatA(),
+                        safezone.getLngA(),
+                        safezone.getLatB(),
+                        safezone.getLngB(),
+                        safezone.getLatC(),
+                        safezone.getLngC(),
+                        safezone.getLatD(),
+                        safezone.getLngD()
                 );
                 result.setData(response);
                 result.setMsg(Constants.NO_ERROR);
@@ -164,7 +182,9 @@ public class SafeZoneService {
 
                 if (updatedSafezone != null) {
                     //  notify SW if current date' safe zones changed
+                    System.out.println("Before: " + updatedSafezone.getRepeatOn());
                     SafeZoneChangedResponseDTO data = Util.convertSafeZoneToReponseObj(updatedSafezone, Constants.DELETED);
+                    System.out.println("After: " + data.getRepeatOn());
                     Integer pushStatus = notiService.notifySWSafeZoneChanges(data, safezone.getChild().getPushToken(), updatedSafezone.getDate());
                     if (pushStatus == Constants.CODE_200) {
                         result.setMsg(Constants.NO_ERROR);
@@ -218,6 +238,31 @@ public class SafeZoneService {
                 }
                 if (dto.getType() != null && !dto.getType().isEmpty()) {
                     safezone.setType(dto.getType());
+                }
+
+                if (dto.getLatA() != null) {
+                    safezone.setLatA(dto.getLatA());
+                }
+                if (dto.getLngA() != null) {
+                    safezone.setLngA(dto.getLngA());
+                }
+                if (dto.getLatB() != null) {
+                    safezone.setLatB(dto.getLatB());
+                }
+                if (dto.getLngB() != null) {
+                    safezone.setLngB(dto.getLngB());
+                }
+                if (dto.getLatC() != null) {
+                    safezone.setLatC(dto.getLatC());
+                }
+                if (dto.getLngC() != null) {
+                    safezone.setLngC(dto.getLngC());
+                }
+                if (dto.getLatD() != null) {
+                    safezone.setLatD(dto.getLatD());
+                }
+                if (dto.getLngD() != null) {
+                    safezone.setLngD(dto.getLngD());
                 }
 
                 Safezone updatedSafezone = safeZoneRepository.save(safezone);

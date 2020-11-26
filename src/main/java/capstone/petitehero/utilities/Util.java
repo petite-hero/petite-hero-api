@@ -264,8 +264,37 @@ public class Util {
         return map.get(day);
     }
 
+    public static String getCurrentWeekdayByInput(Long inputDate) {
+        Calendar calendar = Calendar.getInstance();
+        Date date = new Date(inputDate);
+        calendar.setTime(date);
+        int day = calendar.get(Calendar.DAY_OF_WEEK);
+        HashMap<Integer, String> map = new HashMap<>();
+        map.put(Calendar.SUNDAY, "sun");
+        map.put(Calendar.MONDAY, "mon");
+        map.put(Calendar.TUESDAY, "tue");
+        map.put(Calendar.WEDNESDAY, "wed");
+        map.put(Calendar.THURSDAY, "thu");
+        map.put(Calendar.FRIDAY, "fri");
+        map.put(Calendar.SATURDAY, "sat");
+        return map.get(day);
+    }
+
     public static String getCurrentWeekdayRegex() {
         String weekday = getCurrentWeekday();
+        HashMap<String, String> map = new HashMap<>();
+        map.put("sun", Constants.SUN_REGEX);
+        map.put("mon", Constants.MON_REGEX);
+        map.put("tue", Constants.TUE_REGEX);
+        map.put("wed", Constants.WED_REGEX);
+        map.put("thu", Constants.THU_REGEX);
+        map.put("fri", Constants.FRI_REGEX);
+        map.put("sat", Constants.SAT_REGEX);
+        return map.get(weekday);
+    }
+
+    public static String getWeekdayRegex(Long date) {
+        String weekday = getCurrentWeekdayByInput(date);
         HashMap<String, String> map = new HashMap<>();
         map.put("sun", Constants.SUN_REGEX);
         map.put("mon", Constants.MON_REGEX);
@@ -364,7 +393,7 @@ public class Util {
         try {
             GetListSafeZoneByDateResponseDTO temp;
             for (Safezone safezone : input) {
-                temp = new GetListSafeZoneByDateResponseDTO(safezone.getSafezoneId(), safezone.getName(), safezone.getLatitude(), safezone.getLongitude(), safezone.getDate(), safezone.getRadius(), safezone.getRepeatOn(), safezone.getFromTime(), safezone.getToTime(), safezone.getType(), safezone.getChild().getChildId(), safezone.getParent().getId());
+                temp = new GetListSafeZoneByDateResponseDTO(safezone.getSafezoneId(), safezone.getName(), safezone.getLatitude(), safezone.getLongitude(), safezone.getDate(), safezone.getRadius(), safezone.getRepeatOn(), safezone.getFromTime(), safezone.getToTime(), safezone.getType(), safezone.getChild().getChildId(), safezone.getParent().getId(), safezone.getLatA(), safezone.getLngA(), safezone.getLatB(), safezone.getLngB(), safezone.getLatC(), safezone.getLngC(), safezone.getLatD(), safezone.getLngD());
                 result.add(temp);
             }
         } catch (Exception e) {
@@ -490,6 +519,9 @@ public class Util {
         if (status.equals(Constants.DELETED)) {
             result.setStatus(Constants.DELETED);
             result.setSafezoneId(input.getSafezoneId());
+            if (input.getRepeatOn() != null && !input.getRepeatOn().isEmpty()) {
+                result.setRepeatOn(input.getRepeatOn());
+            }
         } else {
             result.setStatus(status);
             if (input.getSafezoneId() != null) {
@@ -530,6 +562,31 @@ public class Util {
             }
             if (input.getParent().getId() != null) {
                 result.setParent(input.getParent().getId());
+            }
+
+            if (input.getLatA() != null) {
+                result.setLatA(input.getLatA());
+            }
+            if (input.getLngA() != null) {
+                result.setLngA(input.getLngA());
+            }
+            if (input.getLatB() != null) {
+                result.setLatB(input.getLatB());
+            }
+            if (input.getLngB() != null) {
+                result.setLngB(input.getLngB());
+            }
+            if (input.getLatC() != null) {
+                result.setLatC(input.getLatC());
+            }
+            if (input.getLngC() != null) {
+                result.setLngC(input.getLngC());
+            }
+            if (input.getLatD() != null) {
+                result.setLatD(input.getLatD());
+            }
+            if (input.getLngD() != null) {
+                result.setLngD(input.getLngD());
             }
         }
         return result;

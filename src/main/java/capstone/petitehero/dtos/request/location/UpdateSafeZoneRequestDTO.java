@@ -19,11 +19,20 @@ public class UpdateSafeZoneRequestDTO {
     private Integer radius;
     private String type;
 
+    private Double latA;
+    private Double lngA;
+    private Double latB;
+    private Double lngB;
+    private Double latC;
+    private Double lngC;
+    private Double latD;
+    private Double lngD;
+
     public UpdateSafeZoneRequestDTO() {
 
     }
 
-    public UpdateSafeZoneRequestDTO(Long safezoneId, String name, Double latitude, Double longitude, Date fromTime, Date toTime, Long date, String repeatOn, Integer radius, String type) {
+    public UpdateSafeZoneRequestDTO(Long safezoneId, String name, Double latitude, Double longitude, Date fromTime, Date toTime, Long date, String repeatOn, Integer radius, String type, Double latA, Double lngA, Double latB, Double lngB, Double latC, Double lngC, Double latD, Double lngD) {
         this.safezoneId = safezoneId;
         this.name = name;
         this.latitude = latitude;
@@ -34,5 +43,14 @@ public class UpdateSafeZoneRequestDTO {
         this.repeatOn = repeatOn;
         this.radius = radius;
         this.type = type;
+
+        this.latA = latA;
+        this.lngA = lngA;
+        this.latB = latB;
+        this.lngB = lngB;
+        this.latC = latC;
+        this.lngC = lngC;
+        this.latD = latD;
+        this.lngD = lngD;
     }
 }
