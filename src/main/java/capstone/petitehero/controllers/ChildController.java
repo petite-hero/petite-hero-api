@@ -252,10 +252,10 @@ public class ChildController {
                 return new ResponseEntity<>(responseObject, HttpStatus.OK);
             }
 
-            responseObject = new ResponseObject(Constants.CODE_500, "Server is down pls come back again");
+            responseObject = new ResponseObject(Constants.CODE_500, "Cannot assign task to that child.");
             return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
         } else {
-            responseObject = new ResponseObject(Constants.CODE_404, "Cannot assign task to that child because cannot found that child in the system ");
+            responseObject = new ResponseObject(Constants.CODE_404, "Cannot found that child in the system");
             return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
         }
     }

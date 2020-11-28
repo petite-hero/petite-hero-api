@@ -204,7 +204,12 @@ public class ParentChildService {
                     parentChildRepository.findParent_ChildByChild_ChildIdAndCollaborator_Account_UsernameAndIsCollaboratorConfirm(
                             childId, collaboratorAccount.getAccount().getUsername(), Boolean.FALSE);
             if (parentChildResult != null) {
-                parentChildResult.setIsCollaboratorConfirm(isConfirm);
+                if (isConfirm.booleanValue()) {
+                    parentChildResult.setIsCollaboratorConfirm(isConfirm);
+                } else {
+                    parentChildResult.setCollaborator(null);
+                    parentChildResult.setIsCollaboratorConfirm(null);
+                }
                 Parent_Child parentChildUpdated = parentChildRepository.save(parentChildResult);
 
                 if (parentChildUpdated != null) {
@@ -236,10 +241,18 @@ public class ParentChildService {
                     ArrayList<String> pushToken = new ArrayList<>();
                     pushToken.add(parentChild.getParent().getPushToken());
                     String msg;
-                    if (parentChild.getParent().getLanguage().booleanValue()) {
-                        msg = collaboratorAccount.getName() + " đã trở thành người cộng tác của bạn.";
+                    if (isConfirm.booleanValue()) {
+                        if (parentChild.getParent().getLanguage().booleanValue()) {
+                            msg = collaboratorAccount.getName() + " đã trở thành người cộng tác của bạn.";
+                        } else {
+                            msg = collaboratorAccount.getName() + " has become your collaborator.";
+                        }
                     } else {
-                        msg = collaboratorAccount.getName() + " has become your collaborator.";
+                        if (parentChild.getParent().getLanguage().booleanValue()) {
+                            msg = collaboratorAccount.getName() + " đã không trở thành người cộng tác của bạn.";
+                        } else {
+                            msg = collaboratorAccount.getName() + " has not become your collaborator.";
+                        }
                     }
                     notiService.pushNotificationMobile(msg, result, pushToken);
                 }

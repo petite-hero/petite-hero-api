@@ -139,7 +139,6 @@ public class SubscriptionService {
     }
 
     public SubscriptionTypeStatusResponseDTO getSubscriptionTypeReplaceList(Long subscriptionTypeId) {
-
         SubscriptionType subscriptionTypeResult = subscriptionTypeRepository.getOne(subscriptionTypeId);
         if (subscriptionTypeResult != null) {
             SubscriptionTypeStatusResponseDTO result = new SubscriptionTypeStatusResponseDTO();
@@ -208,7 +207,7 @@ public class SubscriptionService {
                             msg = "Gói " + oldSubsType.getName() + " của bạn đã được nâng cấp lên gói " +
                                     subsResult.getSubscriptionType().getName() + ".";
                         } else {
-                            msg = oldSubsType.getName() + " pack of your account is upgrade to pack " +
+                            msg = oldSubsType.getName() + " pack of your account is upgraded to pack " +
                                     subsResult.getSubscriptionType().getName() + ".";
                         }
                         notiService.pushNotificationMobile(msg

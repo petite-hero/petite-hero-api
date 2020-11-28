@@ -224,7 +224,7 @@ public class ParentController {
 
         // validate mandatory fields
         if (addChildRequestDTO.getName() == null || addChildRequestDTO.getName().isEmpty()) {
-            responseObject = new ResponseObject(Constants.CODE_400, "Child's first name cannot be missing or empty");
+            responseObject = new ResponseObject(Constants.CODE_400, "Child's name cannot be missing or empty");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
         if (addChildRequestDTO.getYob() == null || addChildRequestDTO.getYob().toString().isEmpty()) {
