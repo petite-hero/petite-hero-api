@@ -232,6 +232,11 @@ public class ChildService {
                     result.setLanguage("English");
                 }
             }
+            if (childResult.getAndroidId() != null && !childResult.getAndroidId().isEmpty()) {
+                result.setHasDevice(Boolean.TRUE);
+            } else {
+                result.setHasDevice(Boolean.FALSE);
+            }
 
             return result;
         }

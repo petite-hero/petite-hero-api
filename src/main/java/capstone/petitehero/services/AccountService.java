@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 
+import java.util.Date;
 import java.util.List;
 
 import java.util.stream.Collectors;
@@ -96,18 +97,27 @@ public class AccountService {
 
                 LoginResponseDTO result = new LoginResponseDTO();
                 if (account.getRole().equals(Constants.PARENT)) {
-                    result.setJwt(token);
-                    result.setRole(Constants.PARENT);
-                    result.setPhoneNumber(account.getUsername());
-                    if (account.getParent().getLanguage() != null && !account.getParent().getLanguage().toString().isEmpty()) {
-                        if (account.getParent().getLanguage().booleanValue()) {
-                            result.setLanguage("vi");
-                        } else {
-                            result.setLanguage("en");
+                    // check account is expired or disabled.
+                    if (account.getParent().getSubscription().getExpiredDate() < new Date().getTime()) {
+                        result.setIsExpired(Boolean.TRUE);
+                    } else {
+                        result.setIsExpired(Boolean.FALSE);
+                    }
+                    if (!account.getParent().getIsDisabled().booleanValue()) {
+                        result.setJwt(token);
+                        result.setRole(account.getRole());
+                        result.setPhoneNumber(account.getUsername());
+                        if (account.getParent().getLanguage() != null && !account.getParent().getLanguage().toString().isEmpty()) {
+                            if (account.getParent().getLanguage().booleanValue()) {
+                                result.setLanguage("vi");
+                            } else {
+                                result.setLanguage("en");
+                            }
                         }
                     }
+                    result.setIsDisabled(account.getParent().getIsDisabled().booleanValue());
                 } else {
-                    result.setRole(Constants.ADMIN);
+                    result.setRole(account.getRole());
                     result.setPhoneNumber(account.getUsername());
                     result.setJwt(token);
                 }

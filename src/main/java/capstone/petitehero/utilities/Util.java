@@ -10,6 +10,7 @@ import capstone.petitehero.dtos.response.task.ListTaskResponseDTO;
 import capstone.petitehero.entities.*;
 import capstone.petitehero.dtos.common.SummaryTaskDetail;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.crypto.SecretKeyFactory;
@@ -126,6 +127,18 @@ public class Util {
 
     public static boolean validateLongNumber(String number) {
         return number.matches("\\d+");
+    }
+
+    public static boolean validateImageFile(MultipartFile multipartFile) {
+        String fileExtenstion = FilenameUtils.getExtension(multipartFile.getOriginalFilename());
+        if (fileExtenstion.equalsIgnoreCase("PNG")
+                || fileExtenstion.equalsIgnoreCase("JPEG")
+                || fileExtenstion.equalsIgnoreCase("JPG")
+                || fileExtenstion.equalsIgnoreCase("GIF")
+        ) {
+            return true;
+        }
+        return false;
     }
 
     public static boolean validateFloatNumber(String number) {

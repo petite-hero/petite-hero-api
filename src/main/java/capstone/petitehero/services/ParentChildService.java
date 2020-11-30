@@ -86,7 +86,7 @@ public class ParentChildService {
                     } else {
                         childInformation.setGender("Female");
                     }
-                    if (data.getChild().getPushToken() == null || data.getChild().getPushToken().isEmpty()) {
+                    if (data.getChild().getAndroidId() == null || data.getChild().getAndroidId().isEmpty()) {
                         childInformation.setHasDevice(Boolean.FALSE);
                     } else {
                         childInformation.setHasDevice(Boolean.TRUE);

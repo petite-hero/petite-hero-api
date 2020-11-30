@@ -7,6 +7,7 @@ import capstone.petitehero.entities.Child;
 import capstone.petitehero.entities.Task;
 import capstone.petitehero.services.ChildService;
 import capstone.petitehero.services.TaskService;
+import capstone.petitehero.utilities.Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -105,6 +106,12 @@ public class TaskController {
             responseObject = new ResponseObject(Constants.CODE_400, "You must have proof photo to submit task");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
+        if (proofPhoto != null && !proofPhoto.isEmpty()) {
+            if (!Util.validateImageFile(proofPhoto)) {
+                responseObject = new ResponseObject(Constants.CODE_400, "That's not an image file");
+                return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+            }
+        }
 
         Task taskResult = taskService.findTaskByTaskId(taskId);
         if (taskResult == null) {
@@ -142,7 +149,7 @@ public class TaskController {
             return new ResponseEntity<>(responseObject, HttpStatus.OK);
         }
 
-        responseObject = new ResponseObject(Constants.CODE_500, "Server cannot update task for child");
+        responseObject = new ResponseObject(Constants.CODE_500, "Cannot update task for child");
         return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 

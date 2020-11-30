@@ -6,13 +6,14 @@ import org.hibernate.service.spi.ServiceException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.multipart.MultipartException;
 
 @ControllerAdvice
-public class MultipartFileSizeExceededException implements InitializingBean {
+public class HandleException implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -26,4 +27,13 @@ public class MultipartFileSizeExceededException implements InitializingBean {
         responseObject.setData(e.getMessage());
         return new ResponseEntity(responseObject, HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public ResponseEntity<Object> handleJSONObjectNotReadable () {
+        ResponseObject responseObject = new ResponseObject(Constants.CODE_400, "Json object cannot read because missing some field");
+        return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+    }
+
+
 }
