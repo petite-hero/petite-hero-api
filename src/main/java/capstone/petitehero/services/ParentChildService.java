@@ -55,9 +55,7 @@ public class ParentChildService {
                         childInformation.setGender("Female");
                     }
                     if (data.getChild().getAndroidId() == null || data.getChild().getAndroidId().isEmpty()) {
-                        childInformation.setHasDevice(Boolean.FALSE);
-                    } else {
-                        childInformation.setHasDevice(Boolean.TRUE);
+                        childInformation.setAndroidId(data.getChild().getAndroidId());
                     }
                     Calendar calendar = Calendar.getInstance();
                     int year = calendar.get(Calendar.YEAR);
@@ -87,9 +85,7 @@ public class ParentChildService {
                         childInformation.setGender("Female");
                     }
                     if (data.getChild().getAndroidId() == null || data.getChild().getAndroidId().isEmpty()) {
-                        childInformation.setHasDevice(Boolean.FALSE);
-                    } else {
-                        childInformation.setHasDevice(Boolean.TRUE);
+                        childInformation.setAndroidId(data.getChild().getAndroidId());
                     }
                     Calendar calendar = Calendar.getInstance();
                     int year = calendar.get(Calendar.YEAR);

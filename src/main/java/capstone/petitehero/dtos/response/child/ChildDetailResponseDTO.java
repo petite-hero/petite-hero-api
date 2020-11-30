@@ -16,5 +16,5 @@ public class ChildDetailResponseDTO implements Serializable {
     private String gender;
     private String photo;
     private String language;
-    private Boolean hasDevice;
+    private String androidId;
 }

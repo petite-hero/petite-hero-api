@@ -233,9 +233,7 @@ public class ChildService {
                 }
             }
             if (childResult.getAndroidId() != null && !childResult.getAndroidId().isEmpty()) {
-                result.setHasDevice(Boolean.TRUE);
-            } else {
-                result.setHasDevice(Boolean.FALSE);
+                result.setAndroidId(childResult.getAndroidId());
             }
 
             return result;
