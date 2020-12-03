@@ -113,7 +113,9 @@ public class ParentPaymentService {
                 dataResult.setTransactionId(payment.getTransactionId());
                 dataResult.setPhoneNumber(payment.getParent().getAccount().getUsername());
                 dataResult.setStatus(payment.getStatus());
-                dataResult.setLink(payment.getLink());
+                if (payment.getStatus().equals(Constants.status.PENDING.toString())) {
+                    dataResult.setLink(payment.getLink());
+                }
                 dataResult.setAmount(payment.getAmount());
 
                 dataResult.setDate(payment.getDate());

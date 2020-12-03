@@ -651,7 +651,7 @@ public class ParentController {
         if (status != null) {
             if (!status.equalsIgnoreCase(Constants.status.PENDING.toString()) &&
                     !status.equalsIgnoreCase(Constants.status.SUCCESS.toString()) &&
-                    !status.equalsIgnoreCase(Constants.status.FAILED.toString())) {
+                    !status.equalsIgnoreCase(Constants.status.CANCELLED.toString())) {
                 responseObject = new ResponseObject(Constants.CODE_400, "Status should be success or failed or pending");
                 return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
             }

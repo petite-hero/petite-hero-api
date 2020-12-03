@@ -32,6 +32,7 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
                 .authorizeRequests().antMatchers("/test/token").permitAll()
                 .antMatchers("/v2/api-docs", "/configuration/**", "/swagger*/**", "/webjars/**").permitAll()
                 .antMatchers("/config").permitAll()
+                .antMatchers("/welcome").permitAll()
                 .antMatchers("/account/login").permitAll()
                 .antMatchers("/account/admin/register").permitAll()
                 .antMatchers("/account/parent/register").permitAll()

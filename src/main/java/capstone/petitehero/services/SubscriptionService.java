@@ -144,7 +144,6 @@ public class SubscriptionService {
             SubscriptionTypeStatusResponseDTO result = new SubscriptionTypeStatusResponseDTO();
 
             result.setSubscriptionTypeId(subscriptionTypeResult.getSubscriptionTypeId());
-            result.setStatus(Constants.status.DELETED.toString());
 
             List<SubscriptionType> subscriptionTypeReplaceList =
                     subscriptionTypeRepository.findSubscriptionTypesByMaxCollaboratorGreaterThanEqualAndMaxChildrenIsGreaterThanEqualAndAppliedDateLessThanEqualAndIsDeletedAndPriceNot(

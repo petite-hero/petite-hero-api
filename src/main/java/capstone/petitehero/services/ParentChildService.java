@@ -287,15 +287,15 @@ public class ParentChildService {
 
     public List<ListCollaboratorResponseDTO> getParentCollaborator(String phoneNumber) {
         List<Parent_Child> parentChildListResult =
-                parentChildRepository.findParent_ChildrenByParent_Account_UsernameAndCollaboratorNotNull(phoneNumber)
-                        .stream()
-                        .filter(Util.distinctByKey(Parent_Child::getCollaborator))
-                        .collect(Collectors.toList());
+                parentChildRepository.findParent_ChildrenByParent_Account_UsernameAndCollaboratorNotNull(phoneNumber);
 
         if (parentChildListResult != null) {
             List<ListCollaboratorResponseDTO> result = new ArrayList<>();
             if (!parentChildListResult.isEmpty()) {
-                for (Parent_Child collaborator : parentChildListResult) {
+                List<Parent_Child> listDistinctCollaborator = parentChildListResult.stream()
+                        .filter(Util.distinctByKey(Parent_Child::getCollaborator))
+                        .collect(Collectors.toList());
+                for (Parent_Child collaborator : listDistinctCollaborator) {
                     ListCollaboratorResponseDTO collaboratorData = new ListCollaboratorResponseDTO();
 
                     collaboratorData.setPhoneNumber(collaborator.getCollaborator().getAccount().getUsername());
