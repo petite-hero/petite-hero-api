@@ -114,6 +114,7 @@ public class AccountService {
                                 result.setLanguage("en");
                             }
                         }
+                        result.setIsVerify(account.getParent().getIsVerify());
                     }
                     result.setIsDisabled(account.getParent().getIsDisabled().booleanValue());
                 } else {

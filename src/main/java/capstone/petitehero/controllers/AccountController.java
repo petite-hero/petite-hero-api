@@ -114,6 +114,10 @@ public class AccountController {
                     "Phone number should be (1234567890) or (123( |-)456( |-)7890)");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
+        if (parentRegisterDTO.getPassword() == null || parentRegisterDTO.getPassword().isEmpty()) {
+            responseObject = new ResponseObject(Constants.CODE_400, "Parent's password cannot be missing or be empty when register");
+            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+        }
         // end validate phone number of parent
 
         SubscriptionType subscriptionType = subscriptionService.findSubscriptionTypeById(Constants.FREE_TRAIL_TYPE);
@@ -127,11 +131,13 @@ public class AccountController {
         parent.setIsDisabled(Boolean.FALSE);
 
         // create account and save parent information to account
-        Account account = new Account();
-        account.setUsername(parentRegisterDTO.getPhoneNumber());
-        account.setRole(Constants.PARENT);
         // end create account and save parent information to account
         try {
+            Account account = new Account();
+            account.setPassword(Util.encodePassword(parentRegisterDTO.getPassword()));
+            account.setUsername(parentRegisterDTO.getPhoneNumber());
+            account.setRole(Constants.PARENT);
+
             Account accountResult = accountService.registerByParent(account);
             if (accountResult != null) {
                 // create new subscription type free trial for parent account
@@ -217,6 +223,16 @@ public class AccountController {
         } catch (DuplicateKeyException duplicateKeyException) {
             responseObject = new ResponseObject(Constants.CODE_400, duplicateKeyException.getMessage());
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+        } catch (NoSuchAlgorithmException noSuchAlgorithmException) {
+            responseObject = new ResponseObject(Constants.CODE_500,
+                    "Has something wrong in encoded password. Reason: "
+                            + noSuchAlgorithmException.getMessage());
+            return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (InvalidKeySpecException invalidKeySpecException) {
+            responseObject = new ResponseObject(Constants.CODE_500,
+                    "Has something wrong in encoded password. Reason: "
+                            + invalidKeySpecException.getMessage());
+            return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
         }
         responseObject = new ResponseObject(Constants.CODE_500, "Cannot save your account to the system");
         return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -359,9 +375,9 @@ public class AccountController {
         return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
     }
 
-    @RequestMapping(value = "/reset-password", method = RequestMethod.POST)
+    @RequestMapping(value = "/send-otp", method = RequestMethod.POST)
     @ResponseBody
-    public ResponseEntity<Object> resetPassword(@RequestParam("username") String username) {
+    public ResponseEntity<Object> sendOTP(@RequestParam("username") String username) {
         ResponseObject responseObject;
         Parent parent = parentService.findParentByPhoneNumber(username, Boolean.FALSE);
         if (parent == null) {
@@ -422,8 +438,17 @@ public class AccountController {
                 Token response = tokens.verify(parent.getAuthyId(), token.toString());
 
                 if (response.isOk()) {
+                    parent.setIsVerify(Boolean.TRUE);
+
+                    ParentRegisterResponseDTO result = parentService.saveParentInformationToSystem(parent);
+                    if (result != null) {
+                        responseObject = new ResponseObject(Constants.CODE_200,
+                                "Verify OTP for your phone number successfully.");
+                        return new ResponseEntity<>(responseObject, HttpStatus.OK);
+                    }
                     responseObject = new ResponseObject(Constants.CODE_200,
-                            "Verify OTP for your phone number successfully.");
+                            "Has problem when verifying OTP for your phone number. " +
+                                    "Please connect with petite-hero supporter");
                     return new ResponseEntity<>(responseObject, HttpStatus.OK);
                 } else {
                     responseObject = new ResponseObject(Constants.CODE_200,

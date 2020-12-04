@@ -21,7 +21,7 @@ public class Safezone implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long safezoneId;
 
-    @Column(length = 20)
+    @Column(length = 50)
     private String name;
 
     @Column

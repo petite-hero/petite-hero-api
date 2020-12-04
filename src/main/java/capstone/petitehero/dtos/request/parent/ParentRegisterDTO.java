@@ -10,4 +10,5 @@ import java.io.Serializable;
 public class ParentRegisterDTO implements Serializable {
 
     private String phoneNumber;
+    private String password;
 }

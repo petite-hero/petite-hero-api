@@ -15,4 +15,5 @@ public class LoginResponseDTO implements Serializable {
     private String jwt;
     private Boolean isDisabled;
     private Boolean isExpired;
+    private Boolean isVerify;
 }

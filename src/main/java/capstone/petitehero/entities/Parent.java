@@ -44,6 +44,9 @@ public class Parent implements Serializable {
     @Column
     private Integer authyId;
 
+    @Column
+    private Boolean isVerify;
+
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
     @EqualsAndHashCode.Exclude // không sử dụng trường này trong equals và hashcode
     @ToString.Exclude // Không sử dụng trong toString()
