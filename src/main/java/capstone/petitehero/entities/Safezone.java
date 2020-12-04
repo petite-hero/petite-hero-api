@@ -68,8 +68,8 @@ public class Safezone implements Serializable {
     @Column(length = 7)
     private String repeatOn;
 
-    @Column
-    private Integer radius;
+//    @Column
+//    private Integer radius;
 
     @Column
     private Boolean isDisabled;

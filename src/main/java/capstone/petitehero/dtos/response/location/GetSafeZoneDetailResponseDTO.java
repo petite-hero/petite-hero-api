@@ -58,4 +58,27 @@ public class GetSafeZoneDetailResponseDTO {
         this.latD = latD;
         this.lngD = lngD;
     }
+
+    public GetSafeZoneDetailResponseDTO(Long safezoneId, String name, Double latitude, Double longitude, Date fromTime, Date toTime, Long date, String repeatOn, Boolean isDisabled, String type, Long child, Long parent, Double latA, Double lngA, Double latB, Double lngB, Double latC, Double lngC, Double latD, Double lngD) {
+        this.safezoneId = safezoneId;
+        this.name = name;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.fromTime = fromTime;
+        this.toTime = toTime;
+        this.date = date;
+        this.repeatOn = repeatOn;
+        this.isDisabled = isDisabled;
+        this.type = type;
+        this.child = child;
+        this.parent = parent;
+        this.latA = latA;
+        this.lngA = lngA;
+        this.latB = latB;
+        this.lngB = lngB;
+        this.latC = latC;
+        this.lngC = lngC;
+        this.latD = latD;
+        this.lngD = lngD;
+    }
 }

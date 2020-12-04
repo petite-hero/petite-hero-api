@@ -19,7 +19,7 @@ public class ParentPayment implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long transactionId;
 
-    @Column(length = Integer.MAX_VALUE)
+    @Column
     private String content;
 
     @Column
@@ -28,7 +28,7 @@ public class ParentPayment implements Serializable {
     @Column
     private Long date;
 
-    @Column(length = 30)
+    @Column(length = 20)
     private String status;
 
     @Column(length = 200)

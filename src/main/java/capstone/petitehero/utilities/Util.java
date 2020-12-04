@@ -406,7 +406,27 @@ public class Util {
         try {
             GetListSafeZoneByDateResponseDTO temp;
             for (Safezone safezone : input) {
-                temp = new GetListSafeZoneByDateResponseDTO(safezone.getSafezoneId(), safezone.getName(), safezone.getLatitude(), safezone.getLongitude(), safezone.getDate(), safezone.getRadius(), safezone.getRepeatOn(), safezone.getFromTime(), safezone.getToTime(), safezone.getType(), safezone.getChild().getChildId(), safezone.getParent().getId(), safezone.getLatA(), safezone.getLngA(), safezone.getLatB(), safezone.getLngB(), safezone.getLatC(), safezone.getLngC(), safezone.getLatD(), safezone.getLngD());
+                temp = new GetListSafeZoneByDateResponseDTO(
+                        safezone.getSafezoneId(),
+                        safezone.getName(),
+                        safezone.getLatitude(),
+                        safezone.getLongitude(),
+                        safezone.getDate(),
+//                        safezone.getRadius(),
+                        safezone.getRepeatOn(),
+                        safezone.getFromTime(),
+                        safezone.getToTime(),
+                        safezone.getType(),
+                        safezone.getChild().getChildId(),
+                        safezone.getParent().getId(),
+                        safezone.getLatA(),
+                        safezone.getLngA(),
+                        safezone.getLatB(),
+                        safezone.getLngB(),
+                        safezone.getLatC(),
+                        safezone.getLngC(),
+                        safezone.getLatD(),
+                        safezone.getLngD());
                 result.add(temp);
             }
         } catch (Exception e) {
@@ -561,9 +581,9 @@ public class Util {
             if (input.getRepeatOn() != null && !input.getRepeatOn().isEmpty()) {
                 result.setRepeatOn(input.getRepeatOn());
             }
-            if (input.getRadius() != null) {
-                result.setRadius(input.getRadius());
-            }
+//            if (input.getRadius() != null) {
+//                result.setRadius(input.getRadius());
+//            }
             if (input.getIsDisabled() != null) {
                 result.setIsDisabled(input.getIsDisabled());
             }

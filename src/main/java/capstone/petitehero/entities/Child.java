@@ -34,10 +34,10 @@ public class Child implements Serializable {
     @Column
     private Boolean language;
 
-    @Column(length = Integer.MAX_VALUE)
+    @Column
     private String androidId;
 
-    @Column(length = Integer.MAX_VALUE)
+    @Column
     private String deviceName;
 
     @Column

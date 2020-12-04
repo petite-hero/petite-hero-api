@@ -67,7 +67,7 @@ public class SafeZoneService {
                 } else {
                     addedSafeZone.setRepeatOn(sentSafeZone.getRepeatOn());
                 }
-                addedSafeZone.setRadius(sentSafeZone.getRadius());
+//                addedSafeZone.setRadius(sentSafeZone.getRadius());
                 addedSafeZone.setIsDisabled(false);
                 addedSafeZone.setType(sentSafeZone.getType());
                 addedSafeZone.setChild(child);
@@ -143,7 +143,7 @@ public class SafeZoneService {
                         safezone.getToTime(),
                         safezone.getDate(),
                         safezone.getRepeatOn(),
-                        safezone.getRadius(),
+//                        safezone.getRadius(),
                         safezone.getIsDisabled(),
                         safezone.getType(),
                         safezone.getChild().getChildId(),
@@ -233,9 +233,9 @@ public class SafeZoneService {
                 if (dto.getRepeatOn() != null && !dto.getRepeatOn().isEmpty()) {
                     safezone.setRepeatOn(dto.getRepeatOn());
                 }
-                if (dto.getRadius() != null) {
-                    safezone.setRadius(dto.getRadius());
-                }
+//                if (dto.getRadius() != null) {
+//                    safezone.setRadius(dto.getRadius());
+//                }
                 if (dto.getType() != null && !dto.getType().isEmpty()) {
                     safezone.setType(dto.getType());
                 }
