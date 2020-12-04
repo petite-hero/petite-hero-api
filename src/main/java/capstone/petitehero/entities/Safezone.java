@@ -65,7 +65,7 @@ public class Safezone implements Serializable {
     @Column
     private Long date;
 
-    @Column(length = 20)
+    @Column(length = 7)
     private String repeatOn;
 
     @Column

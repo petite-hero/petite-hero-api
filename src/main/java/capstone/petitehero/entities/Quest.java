@@ -19,10 +19,10 @@ public class Quest implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long questId;
 
-    @Column(length = 30)
+    @Column(length = 50)
     private String name;
 
-    @Column(length = Integer.MAX_VALUE)
+    @Column
     private String description;
 
     @Column
@@ -31,10 +31,10 @@ public class Quest implements Serializable {
     @Column
     private Long createdDate;
 
-    @Column(length = 30)
+    @Column(length = 20)
     private String status;
 
-    @Column(length = 30)
+    @Column(length = 50)
     private String title;
 
     @Column

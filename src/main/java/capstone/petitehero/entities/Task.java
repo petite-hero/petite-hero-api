@@ -21,13 +21,13 @@ public class Task implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long taskId;
 
-    @Column(length = 30)
+    @Column(length = 50)
     private String name;
 
-    @Column(length = Integer.MAX_VALUE)
+    @Column
     private String description;
 
-    @Column(length = 30)
+    @Column(length = 20)
     private String status;
 
     @Column(length = Integer.MAX_VALUE)
@@ -53,7 +53,7 @@ public class Task implements Serializable {
     @Column
     private Boolean isDeleted;
 
-    @Column(length = 30)
+    @Column(length = 20)
     private String type;
 
     @ManyToOne

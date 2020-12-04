@@ -38,7 +38,7 @@ public class Parent implements Serializable {
     @Column(length = Integer.MAX_VALUE)
     private String pushToken;
 
-    @Column(length = 100)
+    @Column(length = 50)
     private String email;
 
     @Column
