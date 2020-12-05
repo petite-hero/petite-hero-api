@@ -9,6 +9,7 @@ import capstone.petitehero.dtos.request.parent.ParentRegisterRequestDTO;
 import capstone.petitehero.dtos.request.parent.ParentUpdateProfileRequestDTO;
 import capstone.petitehero.dtos.request.parent.UpdatePushTokenRequestDTO;
 import capstone.petitehero.dtos.request.parent.payment.ParentPaymentCreateRequestDTO;
+import capstone.petitehero.dtos.response.account.ParentDetailResponseDTO;
 import capstone.petitehero.dtos.response.child.AddChildResponseDTO;
 import capstone.petitehero.dtos.response.collaborator.AddCollaboratorResponseDTO;
 import capstone.petitehero.dtos.response.collaborator.ListCollaboratorResponseDTO;
@@ -697,20 +698,31 @@ public class ParentController {
         return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @RequestMapping(value = "/{phone}", method = RequestMethod.GET)
+    @RequestMapping(value = "/{parentPhone}", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<Object> searchCollaboratorName(@PathVariable("phone") String phoneNumber) {
+    public ResponseEntity<Object> getCollaboratorInformation(@PathVariable("parentPhone") String phoneNumber,
+                                                                @RequestParam(value = "collaboratorPhone") String collaboratorPhoneNumber) {
         ResponseObject responseObject;
 
-        String collaboratorName = parentService.searchCollaboratorName(phoneNumber, Boolean.FALSE);
-        if (collaboratorName == null) {
-            responseObject = new ResponseObject(Constants.CODE_404, "Cannot found that collaborator account in the system");
+        Parent parentAccount = parentService.findParentByPhoneNumber(phoneNumber, Boolean.FALSE);
+        if (parentAccount == null) {
+            responseObject = new ResponseObject(Constants.CODE_404, "Cannot found parent account in the system");
             return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
-        } else {
-            responseObject = new ResponseObject(Constants.CODE_200, "OK");
-            responseObject.setData(collaboratorName);
+        }
+
+        ParentDetailResponseDTO result = parentService.getCollaboratorDetails(phoneNumber, collaboratorPhoneNumber);
+        if (result != null) {
+            if (!result.getChildInformationList().isEmpty()) {
+                responseObject = new ResponseObject(Constants.CODE_200, "OK");
+            } else {
+                responseObject = new ResponseObject(Constants.CODE_200, "Collaborator doesn't collaborate with any child yet");
+            }
+            responseObject.setData(result);
             return new ResponseEntity<>(responseObject, HttpStatus.OK);
         }
+
+        responseObject = new ResponseObject(Constants.CODE_500, "Cannot get collaborator information");
+        return new ResponseEntity<>(responseObject, HttpStatus.OK);
     }
 
 }

@@ -2,7 +2,9 @@ package capstone.petitehero.services;
 
 import capstone.petitehero.config.common.Constants;
 import capstone.petitehero.dtos.ResponseObject;
+import capstone.petitehero.dtos.common.ChildInformation;
 import capstone.petitehero.dtos.request.parent.UpdatePushTokenRequestDTO;
+import capstone.petitehero.dtos.response.account.ParentDetailResponseDTO;
 import capstone.petitehero.dtos.response.parent.DisableParentResponseDTO;
 import capstone.petitehero.dtos.response.parent.ParentProfileRegisterResponseDTO;
 import capstone.petitehero.dtos.response.parent.ParentRegisterResponseDTO;
@@ -11,12 +13,14 @@ import capstone.petitehero.entities.Child;
 import capstone.petitehero.entities.Parent;
 import capstone.petitehero.entities.Parent_Child;
 import capstone.petitehero.repositories.AccountRepository;
+import capstone.petitehero.repositories.ParentChildRepository;
 import capstone.petitehero.repositories.ParentRepository;
 import capstone.petitehero.utilities.Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class ParentService {
@@ -27,17 +31,20 @@ public class ParentService {
     @Autowired
     private AccountRepository accountRepository;
 
+    @Autowired
+    private ParentChildRepository parentChildRepository;
+
     public ParentRegisterResponseDTO registerByParent(Parent parentHaveOnlyPhoneNumber) {
         Parent parentResult = parentRepository.save(parentHaveOnlyPhoneNumber);
         if (parentResult != null) {
-             ParentRegisterResponseDTO result = new ParentRegisterResponseDTO();
-             result.setPhoneNumber(parentResult.getAccount().getUsername());
+            ParentRegisterResponseDTO result = new ParentRegisterResponseDTO();
+            result.setPhoneNumber(parentResult.getAccount().getUsername());
 
-             result.setMaxChildAllow(parentResult.getSubscription().getSubscriptionType().getMaxChildren());
-             result.setMaxCollaboratorAllow(parentResult.getSubscription().getSubscriptionType().getMaxCollaborator());
-             result.setAccountType("Free Trial");
+            result.setMaxChildAllow(parentResult.getSubscription().getSubscriptionType().getMaxChildren());
+            result.setMaxCollaboratorAllow(parentResult.getSubscription().getSubscriptionType().getMaxCollaborator());
+            result.setAccountType("Free Trial");
 
-             result.setExpiredDate(Util.formatTimestampToDateTime(parentResult.getSubscription().getExpiredDate()));
+            result.setExpiredDate(Util.formatTimestampToDateTime(parentResult.getSubscription().getExpiredDate()));
             return result;
         }
         return null;
@@ -101,7 +108,7 @@ public class ParentService {
             result.setMsg("Server Error: " + e.toString());
             result.setCode(Constants.CODE_500);
         }
-        return  result;
+        return result;
     }
 
     public ParentUpdateProfileResponseDTO updateParentProfile(Parent parent) {
@@ -159,11 +166,42 @@ public class ParentService {
     public String searchCollaboratorName(String phoneNumber, Boolean isDisable) {
         Parent collaborator =
                 parentRepository.findParentByAccount_UsernameAndIsDisabled(phoneNumber, isDisable);
+
         if (collaborator != null) {
             String result = collaborator.getName();
 
             return result;
         }
+        return null;
+    }
+
+    public ParentDetailResponseDTO getCollaboratorDetails(String parentPhoneNumber, String collaboratorPhoneNumber) {
+        List<Parent_Child> parentChildrenResult =
+                parentChildRepository.findParent_ChildrenByCollaborator_Account_UsernameAndAndParent_Account_Username(collaboratorPhoneNumber, parentPhoneNumber);
+
+        if (parentChildrenResult != null) {
+            ParentDetailResponseDTO result = new ParentDetailResponseDTO();
+            result.setChildInformationList(new ArrayList<>());
+            if (!parentChildrenResult.isEmpty()) {
+                for (Parent_Child parentChild : parentChildrenResult) {
+                    ChildInformation childInformation = new ChildInformation();
+
+                    childInformation.setChildId(parentChild.getChild().getChildId());
+                    childInformation.setName(parentChild.getChild().getName());
+                    if (parentChild.getChild().getGender().booleanValue()) {
+                        childInformation.setGender("Male");
+                    } else {
+                        childInformation.setGender("Female");
+                    }
+                    childInformation.setIsConfirm(parentChild.getIsCollaboratorConfirm());
+                    childInformation.setAndroidId(parentChild.getChild().getAndroidId());
+
+                    result.getChildInformationList().add(childInformation);
+                }
+            }
+            return result;
+        }
+
         return null;
     }
 }
