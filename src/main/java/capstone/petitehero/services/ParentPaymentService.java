@@ -102,7 +102,7 @@ public class ParentPaymentService {
         if (status != null) {
             listParentPaymentResult = parentPaymentRepository.findParentPaymentsByParent_Account_UsernameAndStatusOrderByDateDesc(phoneNumber, status);
         } else {
-            listParentPaymentResult = parentPaymentRepository.findParentPaymentsByParent_Account_UsernameOrderByDateDesc((phoneNumber));
+            listParentPaymentResult = parentPaymentRepository.findParentPaymentsByParent_Account_UsernameOrderByDateDesc(phoneNumber);
         }
 
         if (listParentPaymentResult != null) {
@@ -111,6 +111,7 @@ public class ParentPaymentService {
                 ListPaymentTransactionResponseDTO dataResult = new ListPaymentTransactionResponseDTO();
 
                 dataResult.setTransactionId(payment.getTransactionId());
+                dataResult.setContent(payment.getContent());
                 dataResult.setPhoneNumber(payment.getParent().getAccount().getUsername());
                 dataResult.setStatus(payment.getStatus());
                 if (payment.getStatus().equals(Constants.status.PENDING.toString())) {
