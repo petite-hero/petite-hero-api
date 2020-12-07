@@ -14,7 +14,7 @@ import java.io.Serializable;
 public class Account implements Serializable {
 
     @Id
-    @Column(length = 30)
+    @Column(length = 11)
     private String username;
 
     @Column(length = 100)

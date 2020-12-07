@@ -301,6 +301,17 @@ public class ParentController {
             responseObject = new ResponseObject(Constants.CODE_400, "List children for collaborator take care is empty");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
+        if (parentPhoneNumber.equals(addCollaboratorRequestDTO.getCollaboratorPhoneNumber())) {
+            responseObject = new ResponseObject(Constants.CODE_400, "You cannot collaborate with yourself");
+            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+        }
+        for (Long childId : addCollaboratorRequestDTO.getListChildId()) {
+            Child child = childService.findChildByChildId(childId, Boolean.FALSE);
+            if (child == null) {
+                responseObject = new ResponseObject(Constants.CODE_404, "Cannot found that child id: " + childId);
+                return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
+            }
+        }
 
         Parent parentAccount = parentService.findParentByPhoneNumber(parentPhoneNumber, Boolean.FALSE);
         if (parentAccount != null) {
