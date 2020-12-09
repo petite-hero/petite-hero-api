@@ -4,6 +4,7 @@ import capstone.petitehero.config.common.Constants;
 import capstone.petitehero.dtos.ResponseObject;
 import capstone.petitehero.dtos.request.child.AddChildRequestDTO;
 import capstone.petitehero.dtos.request.child.VerifyParentRequestDTO;
+import capstone.petitehero.dtos.request.location.PushNotiSWDTO;
 import capstone.petitehero.dtos.request.quest.QuestCreateRequestDTO;
 import capstone.petitehero.dtos.request.task.TaskCreateRequestDTO;
 import capstone.petitehero.dtos.response.child.ChildDetailResponseDTO;
@@ -71,7 +72,19 @@ public class ChildController {
 
             child.setPushToken(verifyParentRequestDTO.getPushToken());
             child.setDeviceName(verifyParentRequestDTO.getDeviceName());
-            child.setAndroidId(verifyParentRequestDTO.getAndroidId());
+            if (child.getAndroidId() == null && child.getAndroidId().isEmpty()) {
+                child.setAndroidId(verifyParentRequestDTO.getAndroidId());
+            } else {
+                if (!child.getAndroidId().equals(verifyParentRequestDTO.getAndroidId())) {
+                    child.setAndroidId(verifyParentRequestDTO.getAndroidId());
+
+                    PushNotiSWDTO noti = new PushNotiSWDTO(Constants.SILENT_NOTI, Constants.LOGOUT, new Object());
+
+                    if (child.getPushToken() != null && !child.getPushToken().isEmpty()) {
+                        notiService.pushNotificationSW(noti, child.getPushToken());
+                    }
+                }
+            }
 
             if (childParent != null) {
 
