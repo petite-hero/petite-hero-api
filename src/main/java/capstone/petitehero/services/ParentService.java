@@ -187,14 +187,9 @@ public class ParentService {
                     ChildInformation childInformation = new ChildInformation();
 
                     childInformation.setChildId(parentChild.getChild().getChildId());
-                    childInformation.setName(parentChild.getChild().getName());
-                    if (parentChild.getChild().getGender().booleanValue()) {
-                        childInformation.setGender("Male");
-                    } else {
-                        childInformation.setGender("Female");
+                    if (parentChild.getChild().getPhoto() != null && !parentChild.getChild().getPhoto().isEmpty()) {
+                        childInformation.setPhoto(Util.fromImageFileToBase64String(parentChild.getChild().getPhoto()));
                     }
-                    childInformation.setIsConfirm(parentChild.getIsCollaboratorConfirm());
-                    childInformation.setAndroidId(parentChild.getChild().getAndroidId());
 
                     result.getChildInformationList().add(childInformation);
                 }
