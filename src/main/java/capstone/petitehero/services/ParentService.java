@@ -177,10 +177,10 @@ public class ParentService {
 
     public ParentDetailResponseDTO getCollaboratorDetails(String parentPhoneNumber, String collaboratorPhoneNumber) {
         List<Parent_Child> parentChildrenResult =
-                parentChildRepository.findParent_ChildrenByCollaborator_Account_UsernameAndAndParent_Account_Username(collaboratorPhoneNumber, parentPhoneNumber);
+                parentChildRepository.findParent_ChildrenByCollaborator_Account_UsernameAndAndParent_Account_UsernameAndChild_IsDisabled(collaboratorPhoneNumber, parentPhoneNumber, Boolean.FALSE);
+        ParentDetailResponseDTO result = new ParentDetailResponseDTO();
 
         if (parentChildrenResult != null) {
-            ParentDetailResponseDTO result = new ParentDetailResponseDTO();
             result.setChildInformationList(new ArrayList<>());
             if (!parentChildrenResult.isEmpty()) {
                 for (Parent_Child parentChild : parentChildrenResult) {
@@ -194,9 +194,8 @@ public class ParentService {
                     result.getChildInformationList().add(childInformation);
                 }
             }
-            return result;
         }
 
-        return null;
+        return result;
     }
 }
