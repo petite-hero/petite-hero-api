@@ -9,7 +9,7 @@ import java.util.List;
 @Repository
 public interface AccountRepository extends JpaRepository<Account, Long> {
 
-    Account findAdminByUsernameEqualsAndPasswordEquals(String username, String password);
+    Account findAccountByUsernameAndPassword(String username, String password);
 
     List<Account> findAccountsByRole(String role);
 

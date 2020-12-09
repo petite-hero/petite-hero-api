@@ -10,7 +10,6 @@ import capstone.petitehero.dtos.response.account.ListParentAccountResponseDTO;
 import capstone.petitehero.dtos.response.account.LoginResponseDTO;
 import capstone.petitehero.dtos.response.account.ParentDetailResponseDTO;
 import capstone.petitehero.entities.Account;
-import capstone.petitehero.entities.Child;
 import capstone.petitehero.entities.Parent_Child;
 import capstone.petitehero.exceptions.DuplicateKeyException;
 import capstone.petitehero.repositories.AccountRepository;
@@ -83,7 +82,7 @@ public class AccountService {
     }
 
     public LoginResponseDTO loginAccount(AccountLoginDTO accountLoginDTO) {
-        Account account = accountRepository.findAdminByUsernameEqualsAndPasswordEquals(accountLoginDTO.getUsername(), accountLoginDTO.getPassword());
+        Account account = accountRepository.findAccountByUsernameAndPassword(accountLoginDTO.getUsername(), accountLoginDTO.getPassword());
         if (account != null) {
             try {
                 authenticationManager.authenticate(
