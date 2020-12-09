@@ -162,7 +162,7 @@ public class ParentController {
         return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @RequestMapping(value = "/{phone}", method = RequestMethod.PUT, consumes = ALL_VALUE)
+    @RequestMapping(value = "/{phone}", method = RequestMethod.PUT)
     @ResponseBody
     //updated profile for parent
     public ResponseEntity<Object> updateParentProfile(@PathVariable("phone") String parentPhoneNumber,
@@ -742,4 +742,26 @@ public class ParentController {
         return new ResponseEntity<>(responseObject, HttpStatus.OK);
     }
 
+
+    @RequestMapping(value = "/reset-device", method = RequestMethod.PUT)
+    @ResponseBody
+    public ResponseEntity<Object> resetParentDevice(@RequestParam("parentPhoneNumber") String parentPhoneNumber) {
+        ResponseObject responseObject;
+
+        Parent parent = parentService.findParentByPhoneNumber(parentPhoneNumber, Boolean.FALSE);
+        if (parent == null) {
+            responseObject = new ResponseObject(Constants.CODE_404, "Cannot found parent account in the system");
+            return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
+        }
+
+        DisableParentResponseDTO result = parentService.resetParentDevice(parent);
+        if (result != null) {
+            responseObject = new ResponseObject(Constants.CODE_200, "OK");
+            responseObject.setData(result);
+            return new ResponseEntity<>(responseObject, HttpStatus.OK);
+        }
+
+        responseObject = new ResponseObject(Constants.CODE_500, "Cannot disable parent device in the system");
+        return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 }

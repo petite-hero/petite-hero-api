@@ -202,4 +202,20 @@ public class ParentService {
 
         return result;
     }
+
+    public DisableParentResponseDTO resetParentDevice(Parent parent) {
+        parent.setDeviceId(null);
+
+        Parent parentResult = parentRepository.save(parent);
+        if (parentResult != null) {
+            DisableParentResponseDTO result = new DisableParentResponseDTO();
+
+            result.setPhoneNumber(parentResult.getAccount().getUsername());
+            result.setStatus(Constants.UPDATED);
+
+            return result;
+        }
+
+        return null;
+    }
 }
