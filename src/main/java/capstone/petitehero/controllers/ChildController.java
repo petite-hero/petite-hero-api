@@ -70,8 +70,6 @@ public class ChildController {
             Parent_Child childParent =
                     parentChildService.findChildParentByChildId(verifyParentRequestDTO.getChildId());
 
-            child.setPushToken(verifyParentRequestDTO.getPushToken());
-            child.setDeviceName(verifyParentRequestDTO.getDeviceName());
             if (child.getAndroidId() == null && child.getAndroidId().isEmpty()) {
                 child.setAndroidId(verifyParentRequestDTO.getAndroidId());
             } else {
@@ -85,6 +83,8 @@ public class ChildController {
                     }
                 }
             }
+            child.setPushToken(verifyParentRequestDTO.getPushToken());
+            child.setDeviceName(verifyParentRequestDTO.getDeviceName());
 
             if (childParent != null) {
 
