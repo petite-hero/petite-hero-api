@@ -712,7 +712,7 @@ public class ParentController {
     @RequestMapping(value = "/{parentPhone}", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<Object> getCollaboratorInformation(@PathVariable("parentPhone") String phoneNumber,
-                                                                @RequestParam(value = "collaboratorPhone") String collaboratorPhoneNumber) {
+                                                             @RequestParam(value = "collaboratorPhone") String collaboratorPhoneNumber) {
         ResponseObject responseObject;
 
         Parent parentAccount = parentService.findParentByPhoneNumber(phoneNumber, Boolean.FALSE);
@@ -721,7 +721,13 @@ public class ParentController {
             return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
         }
 
-        ParentDetailResponseDTO result = parentService.getCollaboratorDetails(phoneNumber, collaboratorPhoneNumber);
+        Parent collaboratorAccount = parentService.findParentByPhoneNumber(phoneNumber, Boolean.FALSE);
+        if (collaboratorAccount == null) {
+            responseObject = new ResponseObject(Constants.CODE_404, "Cannot found collaborator account in the system");
+            return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
+        }
+
+        ParentDetailResponseDTO result = parentService.getCollaboratorDetails(parentAccount, collaboratorAccount);
         if (result != null) {
             if (!result.getChildInformationList().isEmpty()) {
                 responseObject = new ResponseObject(Constants.CODE_200, "OK");

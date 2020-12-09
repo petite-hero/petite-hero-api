@@ -18,6 +18,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ChildService {
@@ -131,6 +133,30 @@ public class ChildService {
 
     public DeleteChildResponseDTO disableChildById(Child child) {
         child.setIsDisabled(Boolean.TRUE);
+
+        List<Parent_Child> parentChildList = new ArrayList<>(child.getChild_parentCollection());
+        if (parentChildList != null && !parentChildList.isEmpty()) {
+            Parent parent = parentChildList.stream().findAny().orElse(null).getParent();
+
+            List<Parent_Child> collaboratorList = parentChildList
+                    .stream()
+                    .filter(parent_child -> parent_child.getCollaborator() != null)
+                    .filter(Util.distinctByKey(Parent_Child::getCollaborator))
+                    .collect(Collectors.toList());
+            if (collaboratorList != null && !collaboratorList.isEmpty()) {
+                for (Parent_Child parentChild : collaboratorList) {
+                    List<Parent_Child> result = parentChildRepository.findParent_ChildrenByCollaborator_Account_UsernameAndParent_Account_Username(
+                            parentChild.getCollaborator().getAccount().getUsername(),
+                            parent.getAccount().getUsername());
+                    if (result != null) {
+                        if (result.size() == 1) {
+                            parentChild.setCollaborator(null);
+                            parentChild.setIsCollaboratorConfirm(null);
+                        }
+                    }
+                }
+            }
+        }
 
         Child childResult = childRepository.save(child);
         if (childResult != null) {
