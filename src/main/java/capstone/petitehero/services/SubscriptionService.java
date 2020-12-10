@@ -1,21 +1,22 @@
 package capstone.petitehero.services;
 
 import capstone.petitehero.config.common.Constants;
+import capstone.petitehero.dtos.common.ParentInformation;
+import capstone.petitehero.dtos.response.subscription.ListSubscriptionResponseDTO;
 import capstone.petitehero.dtos.response.subscription.type.SubscriptionTypeStatusResponseDTO;
-import capstone.petitehero.dtos.response.subscription.type.ModifySubscriptionTypeResponseDTO;
 import capstone.petitehero.dtos.response.subscription.type.SubscriptionTypeDetailResponseDTO;
+import capstone.petitehero.entities.Parent;
 import capstone.petitehero.entities.Subscription;
 import capstone.petitehero.entities.SubscriptionType;
+import capstone.petitehero.repositories.ParentRepository;
 import capstone.petitehero.repositories.SubscriptionRepository;
 import capstone.petitehero.repositories.SubscriptionTypeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,6 +27,9 @@ public class SubscriptionService {
 
     @Autowired
     private SubscriptionRepository subscriptionRepository;
+
+    @Autowired
+    private ParentRepository parentRepository;
 
     @Autowired
     private NotificationService notiService;
@@ -91,32 +95,25 @@ public class SubscriptionService {
         return null;
     }
 
-    public ModifySubscriptionTypeResponseDTO modifySubscriptionType(SubscriptionType subscriptionType) {
-        SubscriptionType subscriptionTypeResult = subscriptionTypeRepository.save(subscriptionType);
-        if (subscriptionTypeResult != null) {
-            ModifySubscriptionTypeResponseDTO result = new ModifySubscriptionTypeResponseDTO();
-
-            result.setSubscriptionTypeId(subscriptionType.getSubscriptionTypeId());
-            result.setName(subscriptionType.getName());
-            result.setDescription(subscriptionType.getDescription());
-            result.setMaxChildren(subscriptionType.getMaxChildren());
-            result.setMaxCollaborator(subscriptionType.getMaxCollaborator());
-            result.setPrice(subscriptionType.getPrice());
-            result.setDurationDay(subscriptionType.getDurationDay());
-            result.setStatus(Constants.status.UPDATED.toString());
-
-            return result;
-        }
-
-        return null;
-    }
-
     public SubscriptionType findSubscriptionTypeById(Long subscriptionTypeId) {
         return subscriptionTypeRepository.findSubscriptionTypeBySubscriptionTypeId(subscriptionTypeId);
     }
 
-    public Subscription createFreeTrialSubscriptionForParentAccount(Subscription subscription) {
+    public Subscription saveSubscriptionForParent(Subscription subscription) {
         return subscriptionRepository.save(subscription);
+    }
+
+    @Transactional
+    public Subscription disableOldSubscriptionAndSaveNewSubscriptionForParent(Subscription oldSubscription, Subscription newSubscription) {
+        Subscription newSubscriptionResult = subscriptionRepository.save(newSubscription);
+        if (newSubscriptionResult != null) {
+            Subscription oldSubscriptionResult = subscriptionRepository.save(oldSubscription);
+            if (oldSubscriptionResult != null) {
+                return newSubscriptionResult;
+            }
+            return null;
+        }
+        return null;
     }
 
     @Transactional
@@ -213,6 +210,74 @@ public class SubscriptionService {
                                 , result, pushToken);
                     }
                     result.setStatus("UPDATED");
+                }
+            }
+            return result;
+        }
+        return null;
+    }
+
+    public Subscription findParentCurrentSubscription(Parent parent) {
+        Subscription result = subscriptionRepository.findSubscriptionByParent_Account_UsernameAndIsDisabledAndAndExpiredDateAfter(
+                parent.getAccount().getUsername(),
+                Boolean.FALSE,
+                new Date().getTime());
+
+        if (result != null) {
+            return result;
+        }
+
+        return null;
+    }
+
+    public Parent updateParentSubscription(Parent parent, Subscription parentCurrentSubscription, SubscriptionType subscriptionType) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        calendar.add(Calendar.DATE, subscriptionType.getDurationDay());
+
+        if (parentCurrentSubscription.getSubscriptionType().getSubscriptionTypeId().longValue() ==
+                subscriptionType.getSubscriptionTypeId().longValue()) {
+
+            parentCurrentSubscription.setExpiredDate(calendar.getTime().getTime());
+        } else {
+            parentCurrentSubscription.setIsDisabled(Boolean.TRUE);
+            Subscription subscription = new Subscription();
+
+            subscription.setStartDate(new Date().getTime());
+            subscription.setExpiredDate(calendar.getTime().getTime());
+            subscription.setIsDisabled(Boolean.FALSE);
+            subscription.setSubscriptionType(subscriptionType);
+            subscription.setParent(parent);
+        }
+
+        Parent parentResult = parentRepository.save(parent);
+        if (parentResult != null) {
+            return parentResult;
+        }
+        return null;
+    }
+
+    public List<ListSubscriptionResponseDTO> getAllSubscriptionForAdmin() {
+        List<Subscription> listSubscription = subscriptionRepository.findAll();
+        if (listSubscription != null) {
+            List<ListSubscriptionResponseDTO> result = new ArrayList<>();
+            if (!listSubscription.isEmpty()) {
+                for (Subscription subscription : listSubscription) {
+                    ListSubscriptionResponseDTO dataResult = new ListSubscriptionResponseDTO();
+                    dataResult.setSubscriptionId(subscription.getSubscriptionId());
+                    dataResult.setExpiredDate(subscription.getExpiredDate());
+                    dataResult.setIsDisabled(subscription.getIsDisabled());
+                    dataResult.setStartDate(subscription.getStartDate());
+                    dataResult.setName(subscription.getSubscriptionType().getName());
+
+                    ParentInformation parentInformation = new ParentInformation();
+                    parentInformation.setName(subscription.getParent().getName());
+                    parentInformation.setPhoneNumber(subscription.getParent().getAccount().getUsername());
+                    parentInformation.setEmail(subscription.getParent().getEmail());
+
+                    dataResult.setParentInformation(parentInformation);
+
+                    result.add(dataResult);
                 }
             }
             return result;

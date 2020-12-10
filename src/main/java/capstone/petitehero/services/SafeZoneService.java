@@ -147,7 +147,7 @@ public class SafeZoneService {
                         safezone.getIsDisabled(),
                         safezone.getType(),
                         safezone.getChild().getChildId(),
-                        safezone.getParent().getId(),
+                        safezone.getParent().getParentId(),
                         safezone.getLatA(),
                         safezone.getLngA(),
                         safezone.getLatB(),

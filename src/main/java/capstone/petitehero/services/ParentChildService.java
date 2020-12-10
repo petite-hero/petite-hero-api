@@ -137,8 +137,8 @@ public class ParentChildService {
         if (!childNeedToCollab.isEmpty()) {
             for (Long childId : childNeedToCollab) {
                 parent_child =
-                        parentChildRepository.findDistinctFirstByChild_ChildIdAndParent_IdAndCollaboratorIsNull(
-                                childId, parent.getId());
+                        parentChildRepository.findDistinctFirstByChild_ChildIdAndParent_ParentIdAndCollaboratorIsNull(
+                                childId, parent.getParentId());
                 if (parent_child != null) {
                     parent_child.setIsCollaboratorConfirm(Boolean.FALSE);
                     parent_child.setCollaborator(collaboratorAccount);

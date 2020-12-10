@@ -3,6 +3,7 @@ package capstone.petitehero.controllers;
 import capstone.petitehero.config.common.Constants;
 import capstone.petitehero.dtos.ResponseObject;
 import capstone.petitehero.dtos.request.subscription.type.CreateSubscriptionTypeRequestDTO;
+import capstone.petitehero.dtos.response.subscription.ListSubscriptionResponseDTO;
 import capstone.petitehero.dtos.response.subscription.type.SubscriptionTypeStatusResponseDTO;
 import capstone.petitehero.dtos.response.subscription.type.SubscriptionTypeDetailResponseDTO;
 import capstone.petitehero.entities.SubscriptionType;
@@ -257,6 +258,26 @@ public class SubscriptionController {
         }
 
         responseObject = new ResponseObject(Constants.CODE_500, "Cannot replace subscription type for parent accounts in the system");
+        return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @RequestMapping(value = "/list", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<Object> getAllListSubscriptionForAdmin() {
+        ResponseObject responseObject;
+
+        List<ListSubscriptionResponseDTO> result = subscriptionService.getAllSubscriptionForAdmin();
+        if (result != null) {
+            if (!result.isEmpty()) {
+                responseObject = new ResponseObject(Constants.CODE_200, "OK");
+            } else {
+                responseObject = new ResponseObject(Constants.CODE_200, "List subscriptions in the system is empty");
+            }
+            responseObject.setData(result);
+            return new ResponseEntity<>(responseObject, HttpStatus.OK);
+        }
+
+        responseObject = new ResponseObject(Constants.CODE_500, "Cannot get list subscription in the system");
         return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

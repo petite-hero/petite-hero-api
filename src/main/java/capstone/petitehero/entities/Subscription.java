@@ -9,6 +9,7 @@ import lombok.ToString;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Collection;
 
 @Getter
 @Setter
@@ -20,11 +21,18 @@ public class Subscription implements Serializable {
     private Long subscriptionId;
 
     @Column
+    private Long startDate;
+
+    @Column
     private Long expiredDate;
 
-    @OneToOne(fetch = FetchType.LAZY,
-            cascade = CascadeType.ALL,
-            mappedBy = "subscription")
+    @Column
+    private Boolean isDisabled;
+
+    @ManyToOne
+    @JoinColumn(name = "parent_id")
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     @JsonManagedReference
     private Parent parent;
 
@@ -34,4 +42,10 @@ public class Subscription implements Serializable {
     @ToString.Exclude
     @JsonManagedReference
     private SubscriptionType subscriptionType;
+
+    @OneToMany(mappedBy = "subscription", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Exclude // không sử dụng trường này trong equals và hashcode
+    @ToString.Exclude // Không sử dụng trong toString()
+    @JsonBackReference
+    private Collection<ParentPayment> subscription_Parent_paymentCollection;
 }

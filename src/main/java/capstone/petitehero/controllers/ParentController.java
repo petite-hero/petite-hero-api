@@ -17,7 +17,7 @@ import capstone.petitehero.dtos.response.parent.DisableParentResponseDTO;
 import capstone.petitehero.dtos.response.parent.ParentProfileRegisterResponseDTO;
 import capstone.petitehero.dtos.response.parent.ParentUpdateProfileResponseDTO;
 import capstone.petitehero.dtos.response.parent.payment.ListPaymentTransactionResponseDTO;
-import capstone.petitehero.dtos.response.parent.payment.ParentPaymentCompledResponseDTO;
+import capstone.petitehero.dtos.response.parent.payment.ParentPaymentCompleteResponseDTO;
 import capstone.petitehero.entities.*;
 import capstone.petitehero.services.*;
 import capstone.petitehero.utilities.Util;
@@ -33,9 +33,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -86,23 +83,6 @@ public class ParentController {
                 return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
             }
         }
-        if (parentRegisterRequestDTO.getPassword() == null || parentRegisterRequestDTO.getPassword().isEmpty()) {
-            responseObject = new ResponseObject(Constants.CODE_400, "Password cannot be missing or be empty");
-            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
-        }
-        if (parentRegisterRequestDTO.getConfirmPassword() == null || parentRegisterRequestDTO.getConfirmPassword().isEmpty()) {
-            responseObject = new ResponseObject(Constants.CODE_400, "Confirm password cannot be missing or be empty");
-            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
-        } else {
-            if (!parentRegisterRequestDTO.getPassword().equals(parentRegisterRequestDTO.getConfirmPassword())) {
-                responseObject = new ResponseObject(Constants.CODE_400, "Password and confirm password is not match");
-                return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
-            }
-        }
-        if (parentRegisterRequestDTO.getGender() == null || parentRegisterRequestDTO.getGender().isEmpty()) {
-            responseObject = new ResponseObject(Constants.CODE_400, "Gender cannot be missing or be empty");
-            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
-        }
         if (parentRegisterRequestDTO.getLanguage() == null || parentRegisterRequestDTO.getLanguage().isEmpty()) {
             responseObject = new ResponseObject(Constants.CODE_400, "Language cannot be missing or be empty");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
@@ -112,46 +92,34 @@ public class ParentController {
         if (parentRegisterRequestDTO.getPhoneNumber() != null && !parentRegisterRequestDTO.getPhoneNumber().isEmpty()) {
             Parent parent = parentService.findParentByPhoneNumber(parentRegisterRequestDTO.getPhoneNumber(), Boolean.FALSE);
             if (parent != null) {
-                try {
-                    // add basic parent information
-                    parent.setName(parentRegisterRequestDTO.getName());
-                    parent.getAccount().setPassword(Util.encodePassword(parentRegisterRequestDTO.getPassword()));
-                    parent.setEmail(parentRegisterRequestDTO.getEmail());
+                // add basic parent information
+                parent.setName(parentRegisterRequestDTO.getName());
+//                    parent.getAccount().setPassword(Util.encodePassword(parentRegisterRequestDTO.getPassword()));
+                parent.setEmail(parentRegisterRequestDTO.getEmail());
 
-                    if (parentRegisterRequestDTO.getGender().equalsIgnoreCase("Male")) {
-                        parent.setGender(Boolean.TRUE);
-                    } else {
-                        parent.setGender(Boolean.FALSE);
-                    }
+                if (parentRegisterRequestDTO.getGender().equalsIgnoreCase("Male")) {
+                    parent.setGender(Boolean.TRUE);
+                } else {
+                    parent.setGender(Boolean.FALSE);
+                }
 
-                    if (parentRegisterRequestDTO.getLanguage().equalsIgnoreCase("Vietnamese")) {
-                        parent.setLanguage(Boolean.TRUE);
-                    } else {
-                        parent.setLanguage(Boolean.FALSE);
-                    }
-                    // end add basic parent information
+                if (parentRegisterRequestDTO.getLanguage().equalsIgnoreCase("Vietnamese")) {
+                    parent.setLanguage(Boolean.TRUE);
+                } else {
+                    parent.setLanguage(Boolean.FALSE);
+                }
+                // end add basic parent information
 
-                    // save avatar for parent
-                    if (uploadFile != null && !uploadFile.isEmpty()) {
-                        parent.setPhoto(Util.saveImageToSystem(parentRegisterRequestDTO.getPhoneNumber(), "Avatar Added", uploadFile));
-                    }
+                // save avatar for parent
+                if (uploadFile != null && !uploadFile.isEmpty()) {
+                    parent.setPhoto(Util.saveImageToSystem(parentRegisterRequestDTO.getPhoneNumber(), "Avatar Added", uploadFile));
+                }
 
-                    ParentProfileRegisterResponseDTO result = parentService.saveParentInformationToSystem(parent);
-                    if (result != null) {
-                        responseObject = new ResponseObject(Constants.CODE_200, "OK");
-                        responseObject.setData(result);
-                        return new ResponseEntity<>(responseObject, HttpStatus.OK);
-                    }
-                } catch (NoSuchAlgorithmException noSuchAlgorithmException) {
-                    responseObject = new ResponseObject(Constants.CODE_500,
-                            "Has something wrong in encoded password. Reason: "
-                                    + noSuchAlgorithmException.getMessage());
-                    return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
-                } catch (InvalidKeySpecException invalidKeySpecException) {
-                    responseObject = new ResponseObject(Constants.CODE_500,
-                            "Has something wrong in encoded password. Reason: "
-                                    + invalidKeySpecException.getMessage());
-                    return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+                ParentProfileRegisterResponseDTO result = parentService.saveParentInformationToSystem(parent);
+                if (result != null) {
+                    responseObject = new ResponseObject(Constants.CODE_200, "OK");
+                    responseObject.setData(result);
+                    return new ResponseEntity<>(responseObject, HttpStatus.OK);
                 }
             } else {
                 responseObject = new ResponseObject(Constants.CODE_404, "Cannot find your account in the system");
@@ -236,17 +204,19 @@ public class ParentController {
             responseObject = new ResponseObject(Constants.CODE_400, "Gender cannot be missing or be empty");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
-        if (addChildRequestDTO.getLanguage() == null || addChildRequestDTO.getLanguage().isEmpty()) {
-            responseObject = new ResponseObject(Constants.CODE_400, "Language cannot be missing or be empty");
-            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
-        }
         // end validate mandatory fields
 
         Parent parentAccount = parentService.findParentByPhoneNumber(parentPhoneNumber, Boolean.FALSE);
         if (parentAccount != null) {
-            if (Util.checkSubscriptionWhenParentAddChild(parentAccount)) {
+            Subscription parentCurrentSubscription = subscriptionService.findParentCurrentSubscription(parentAccount);
+            if (parentCurrentSubscription == null) {
+                responseObject = new ResponseObject(Constants.CODE_404, "Cannot found parent current subscription in the system");
+                return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
+            }
+
+            if (Util.checkSubscriptionWhenParentAddChild(parentAccount, parentCurrentSubscription.getSubscriptionType())) {
                 responseObject = new ResponseObject(Constants.CODE_400, "Your subscription only support max "
-                        + parentAccount.getSubscription().getSubscriptionType().getMaxChildren() +
+                        + parentCurrentSubscription.getSubscriptionType().getMaxChildren() +
                         " child and you already full");
                 return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
             }
@@ -264,10 +234,12 @@ public class ParentController {
                 child.setGender(Boolean.FALSE);
             }
 
-            if (addChildRequestDTO.getLanguage().equalsIgnoreCase("Vietnamese")) {
-                child.setLanguage(Boolean.TRUE);
-            } else {
-                child.setLanguage(Boolean.FALSE);
+            if (addChildRequestDTO.getLanguage() != null && !addChildRequestDTO.getLanguage().isEmpty()) {
+                if (addChildRequestDTO.getLanguage().equalsIgnoreCase("Vietnamese")) {
+                    child.setLanguage(Boolean.TRUE);
+                } else {
+                    child.setLanguage(Boolean.FALSE);
+                }
             }
             child.setIsDisabled(Boolean.FALSE);
             child.setCreatedDate(new Date().getTime());
@@ -315,9 +287,15 @@ public class ParentController {
 
         Parent parentAccount = parentService.findParentByPhoneNumber(parentPhoneNumber, Boolean.FALSE);
         if (parentAccount != null) {
-            if (Util.checkSubscriptionWhenParentAddCollaborator(parentAccount)) {
+            Subscription parentCurrentSubscription = subscriptionService.findParentCurrentSubscription(parentAccount);
+            if (parentCurrentSubscription == null) {
+                responseObject = new ResponseObject(Constants.CODE_404, "Cannot found parent current subscription in the system");
+                return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
+            }
+
+            if (Util.checkSubscriptionWhenParentAddCollaborator(parentAccount, parentCurrentSubscription.getSubscriptionType())) {
                 responseObject = new ResponseObject(Constants.CODE_400, "Your subscription only support max "
-                        + parentAccount.getSubscription().getSubscriptionType().getMaxCollaborator() +
+                        + parentCurrentSubscription.getSubscriptionType().getMaxCollaborator() +
                         " collaborator and you already full");
                 return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
             }
@@ -495,6 +473,27 @@ public class ParentController {
                 return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
             }
 
+            // check parent account constraint when buying new subscription
+            Parent parent = parentService.findParentByPhoneNumber(phoneNumber, Boolean.FALSE);
+            if (parent == null) {
+                responseObject = new ResponseObject(Constants.CODE_404, "Cannot found your account in the system");
+                return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
+            }
+
+            if (Util.checkSubscriptionWhenParentAddChild(parent, subscriptionType)) {
+                responseObject = new ResponseObject(Constants.CODE_400, "You cannot buy this subscription because your account has been more than "
+                        + subscriptionType.getMaxChildren() +
+                        " child");
+                return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+            }
+
+            if (Util.checkSubscriptionWhenParentAddCollaborator(parent, subscriptionType)) {
+                responseObject = new ResponseObject(Constants.CODE_400, "You cannot buy this subscription because your account has been more than "
+                        + subscriptionType.getMaxCollaborator() +
+                        " collaborator");
+                return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+            }
+
             // price in database is VND but paypal api doesn't support for VND
             // change VND to USD
             // VND currency is in application.properties;
@@ -516,24 +515,50 @@ public class ParentController {
                     parentPayment.setAmount(subscriptionType.getPrice());
                     parentPayment.setStatus(Constants.status.PENDING.toString());
 
-                    Parent parent = parentService.findParentByPhoneNumber(phoneNumber, Boolean.FALSE);
-                    if (parent == null) {
-                        responseObject = new ResponseObject(Constants.CODE_404, "Cannot found your account in the system");
-                        return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
+                    parentPayment.setLink(links.getHref());
+                    Subscription parentCurrentSubscription = subscriptionService.findParentCurrentSubscription(parent);
+
+                    if (parentCurrentSubscription != null) {
+                        if (parentCurrentSubscription.getSubscriptionType().getSubscriptionTypeId().longValue() ==
+                                subscriptionType.getSubscriptionTypeId().longValue()) {
+                            parentPayment.setSubscription(parentCurrentSubscription);
+
+                            parentPayment.setCreateDate(currentTimeStamp);
+                            ParentPayment result = parentPaymentService.insertParentPaymentToSystem(parentPayment);
+                            if (result != null) {
+                                responseObject = new ResponseObject(Constants.CODE_200, "OK");
+                                responseObject.setData(links.getHref());
+                                return new ResponseEntity<>(responseObject, HttpStatus.OK);
+                            } else {
+                                responseObject = new ResponseObject(Constants.CODE_500, "Cannot create your payment in the system");
+                                return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+                            }
+                        }
                     }
 
-                    parentPayment.setLink(links.getHref());
-                    parentPayment.setParent(parent);
-                    parentPayment.setDate(currentTimeStamp);
-                    ParentPayment result = parentPaymentService.insertParentPaymentToSystem(parentPayment);
-                    if (result != null) {
-                        responseObject = new ResponseObject(Constants.CODE_200, "OK");
-                        responseObject.setData(links.getHref());
-                        return new ResponseEntity<>(responseObject, HttpStatus.OK);
-                    } else {
-                        responseObject = new ResponseObject(Constants.CODE_500, "Cannot connect to petite hero pls come back again");
-                        return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+                    // create new subscription but no start date and is expired and not active
+                    Subscription newSubscription = new Subscription();
+                    newSubscription.setParent(parent);
+                    newSubscription.setSubscriptionType(subscriptionType);
+                    newSubscription.setIsDisabled(Boolean.TRUE);
+
+                    Subscription subscription = subscriptionService.saveSubscriptionForParent(newSubscription);
+
+                    if (subscription != null) {
+                        parentPayment.setSubscription(newSubscription);
+                        parentPayment.setCreateDate(currentTimeStamp);
+                        ParentPayment result = parentPaymentService.insertParentPaymentToSystem(parentPayment);
+                        if (result != null) {
+                            responseObject = new ResponseObject(Constants.CODE_200, "OK");
+                            responseObject.setData(links.getHref());
+                            return new ResponseEntity<>(responseObject, HttpStatus.OK);
+                        } else {
+                            responseObject = new ResponseObject(Constants.CODE_500, "Cannot create your payment in the system");
+                            return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+                        }
                     }
+                    responseObject = new ResponseObject(Constants.CODE_500, "Cannot create new subscription for parent in the system");
+                    return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
                 }
             }
             responseObject = new ResponseObject(Constants.CODE_500, "Cannot connect to paypal");
@@ -605,35 +630,37 @@ public class ParentController {
                     return mav;
                 }
 
-                ParentPayment recentParentPayment = parentPaymentService.findParentPaymentToCompletePayment(parentPhoneNumber, createdDateTimeStamp);
+                Subscription parentCurrentSubscription = subscriptionService.findParentCurrentSubscription(parent);
+                if (parentCurrentSubscription == null) {
+                    responseObject = new ResponseObject(Constants.CODE_404, "Cannot found parent current subscription in the system");
+                    mav.addObject("response", responseObject);
+                    return mav;
+                }
+
+                ParentPayment recentParentPayment = parentPaymentService.findParentPaymentToCompletePayment(parent.getAccount().getUsername(), createdDateTimeStamp);
 
                 if (recentParentPayment != null) {
                     recentParentPayment.setStatus(Constants.status.SUCCESS.toString());
                     recentParentPayment.setPayerId(payerId);
+                    recentParentPayment.setPayDate(new Date().getTime());
                     recentParentPayment.setPaymentId(paymentId);
 
-                    ParentPaymentCompledResponseDTO result = parentPaymentService.completedSuccessParentPayment(recentParentPayment);
-                    if (result != null) {
-                        // refresh day when parent buy a subscription
-                        Calendar calendar = Calendar.getInstance();
-                        calendar.setTime(new Date());
-                        calendar.add(Calendar.DATE, subscriptionType.getDurationDay());
-                        parent.getSubscription().setExpiredDate(calendar.getTime().getTime());
-                        // update subscription type
-                        parent.getSubscription().setSubscriptionType(subscriptionType);
+                    ParentPaymentCompleteResponseDTO paymentCompleteResponseDTO = parentPaymentService.completedSuccessParentPayment(recentParentPayment);
+                    if (paymentCompleteResponseDTO != null) {
+                        Parent parentSubscription =
+                                subscriptionService.updateParentSubscription(parent, parentCurrentSubscription, subscriptionType);
 
-                        // update parent subscription in the system
-                        if (parentService.saveParentInformationToSystem(parent) == null) {
-                            responseObject = new ResponseObject(Constants.CODE_500, "Cannot updated your account in the system. Please come back later");
+                        if (parentSubscription != null) {
+                            responseObject = new ResponseObject(Constants.CODE_200, "SUCCESS");
                             mav.addObject("response", responseObject);
                             return mav;
                         }
 
-                        responseObject = new ResponseObject(Constants.CODE_200, "OK");
+                        responseObject = new ResponseObject(Constants.CODE_500, "Your payment is completed but cannot update your subscription");
                         mav.addObject("response", responseObject);
                         return mav;
                     } else {
-                        responseObject = new ResponseObject(Constants.CODE_500, "Cannot connect to server pls come back again");
+                        responseObject = new ResponseObject(Constants.CODE_500, "Cannot complete your payment");
                         mav.addObject("response", responseObject);
                         return mav;
                     }

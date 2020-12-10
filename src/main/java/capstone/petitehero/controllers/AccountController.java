@@ -141,44 +141,47 @@ public class AccountController {
             Account accountResult = accountService.registerByParent(account);
             if (accountResult != null) {
                 // create new subscription type free trial for parent account
-                Subscription subscription = new Subscription();
-                subscription.setSubscriptionType(subscriptionType);
 
-                Calendar calendar = Calendar.getInstance();
-                calendar.setTime(new Date());
-                calendar.add(Calendar.DATE, subscriptionType.getDurationDay());
-                subscription.setExpiredDate(calendar.getTime().getTime());
+                // create user for authy application for sending otp
+                AuthyApiClient authyApiClient = new AuthyApiClient(AUTHY_KEY);
+                Users users = authyApiClient.getUsers();
+                User user;
 
-                Subscription subscriptionResult = subscriptionService.createFreeTrialSubscriptionForParentAccount(subscription);
-
-                if (subscriptionResult != null) {
-                    // create user for authy application for sending otp
-                    AuthyApiClient authyApiClient = new AuthyApiClient(AUTHY_KEY);
-                    Users users = authyApiClient.getUsers();
-                    User user;
-
-                    try {
-                        user = users.createUser(
-                                "petite-hero-clone@gmail.com",
-                                parentRegisterDTO.getPhoneNumber(),
-                                "84");
-                        if (user == null) {
-                            responseObject = new ResponseObject(Constants.CODE_500, "Cannot create authy account for you. " +
-                                    "Please contact with petite hero supporter");
-                            return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
-                        }
-                    } catch (AuthyException authyException) {
-                        responseObject = new ResponseObject(Constants.CODE_400,
-                                "Cannot create your account because of " + authyException.getMessage());
-                        return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+                try {
+                    user = users.createUser(
+                            "petite-hero-clone@gmail.com",
+                            parentRegisterDTO.getPhoneNumber(),
+                            "84");
+                    if (user == null) {
+                        responseObject = new ResponseObject(Constants.CODE_500, "Cannot create authy account for you. " +
+                                "Please contact with petite hero supporter");
+                        return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
                     }
+                } catch (AuthyException authyException) {
+                    responseObject = new ResponseObject(Constants.CODE_400,
+                            "Cannot create your account because of " + authyException.getMessage());
+                    return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+                }
 
-                    parent.setAuthyId(user.getId());
-                    parent.setSubscription(subscriptionResult);
-                    parent.setAccount(accountResult);
+                parent.setAuthyId(user.getId());
+                parent.setAccount(accountResult);
 
-                    ParentRegisterResponseDTO parentResult = parentService.registerByParent(parent);
-                    if (parentResult != null) {
+                Parent parentResult = parentService.saveParentAccount(parent);
+                if (parentResult != null) {
+                    Subscription subscription = new Subscription();
+                    subscription.setSubscriptionType(subscriptionType);
+
+
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.setTime(new Date());
+                    calendar.add(Calendar.DATE, subscriptionType.getDurationDay());
+                    subscription.setStartDate(new Date().getTime());
+                    subscription.setExpiredDate(calendar.getTime().getTime());
+                    subscription.setIsDisabled(Boolean.FALSE);
+                    subscription.setParent(parentResult);
+
+                    Subscription subscriptionResult = subscriptionService.saveSubscriptionForParent(subscription);
+                    if (subscriptionResult != null) {
                         try {
                             Hash response = users.requestSms(user.getId());
                             if (response.isOk()) {
@@ -199,23 +202,8 @@ public class AccountController {
                             return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
                         }
                     }
-                    try {
-                        Hash response = users.deleteUser(user.getId());
-                        if (response.isOk()) {
-                            responseObject = new ResponseObject(Constants.CODE_200,
-                                    "Cannot create petite hero account for you and we have" +
-                                            "delete authy account successfully because petite hero cannot save your account in the system");
-                            return new ResponseEntity<>(responseObject, HttpStatus.OK);
-                        } else {
-                            responseObject = new ResponseObject(Constants.CODE_200,
-                                    "Cannot create petite hero account for you and we have" +
-                                            "deleted authy account failed contact with petite hero supporter to delete authy account for you");
-                            return new ResponseEntity<>(responseObject, HttpStatus.OK);
-                        }
-                    } catch (AuthyException authyException) {
-                        responseObject = new ResponseObject(Constants.CODE_500, "Cannot save your account to the system");
-                        return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
-                    }
+                    responseObject = new ResponseObject(Constants.CODE_500, "Cannot create free trial subscription for your account in the system");
+                    return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
                 }
                 responseObject = new ResponseObject(Constants.CODE_500, "Cannot save your account to the system");
                 return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);

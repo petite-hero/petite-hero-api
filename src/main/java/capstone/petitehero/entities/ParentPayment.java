@@ -17,7 +17,7 @@ public class ParentPayment implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long transactionId;
+    private Long parentPaymentId;
 
     @Column
     private String content;
@@ -26,7 +26,10 @@ public class ParentPayment implements Serializable {
     private Double amount;
 
     @Column
-    private Long date;
+    private Long createDate;
+
+    @Column
+    private Long payDate;
 
     @Column(length = 20)
     private String status;
@@ -41,9 +44,9 @@ public class ParentPayment implements Serializable {
     private String payerId;
 
     @ManyToOne
-    @JoinColumn(name = "parent_id")
+    @JoinColumn(name = "subscription_id")
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     @JsonManagedReference
-    private Parent parent;
+    private Subscription subscription;
 }

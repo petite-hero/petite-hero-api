@@ -11,8 +11,10 @@ import capstone.petitehero.dtos.response.account.LoginResponseDTO;
 import capstone.petitehero.dtos.response.account.ParentDetailResponseDTO;
 import capstone.petitehero.entities.Account;
 import capstone.petitehero.entities.Parent_Child;
+import capstone.petitehero.entities.Subscription;
 import capstone.petitehero.exceptions.DuplicateKeyException;
 import capstone.petitehero.repositories.AccountRepository;
+import capstone.petitehero.repositories.SubscriptionRepository;
 import capstone.petitehero.utilities.JWTUtil;
 import capstone.petitehero.utilities.Util;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +42,9 @@ public class AccountService {
 
     @Autowired
     private AuthenticationManager authenticationManager;
+
+    @Autowired
+    private SubscriptionRepository subscriptionRepository;
 
     public AccountLoginResponseDTO registerByAdmin(Account account) throws DuplicateKeyException {
         if (accountRepository.existsAccountByUsername(account.getUsername())) {
@@ -97,10 +102,16 @@ public class AccountService {
                 LoginResponseDTO result = new LoginResponseDTO();
                 if (account.getRole().equals(Constants.PARENT)) {
                     // check account is expired or disabled.
-                    if (account.getParent().getSubscription().getExpiredDate() < new Date().getTime()) {
-                        result.setIsExpired(Boolean.TRUE);
-                    } else {
-                        result.setIsExpired(Boolean.FALSE);
+                    Subscription parentCurrentSubscription = subscriptionRepository.findSubscriptionByParent_Account_UsernameAndIsDisabledAndAndExpiredDateAfter(
+                            account.getUsername(),
+                            Boolean.FALSE,
+                            new Date().getTime());
+                    if (parentCurrentSubscription != null) {
+                        if (parentCurrentSubscription.getExpiredDate() < new Date().getTime()) {
+                            result.setIsExpired(Boolean.TRUE);
+                        } else {
+                            result.setIsExpired(Boolean.FALSE);
+                        }
                     }
                     if (!account.getParent().getIsDisabled().booleanValue()) {
                         result.setJwt(token);
@@ -138,11 +149,18 @@ public class AccountService {
                 for (Account account : parentAccountList) {
                     ListParentAccountResponseDTO resultData = new ListParentAccountResponseDTO();
 
+                    Subscription parentCurrentSubscription = subscriptionRepository.findSubscriptionByParent_Account_UsernameAndIsDisabledAndAndExpiredDateAfter(
+                            account.getUsername(),
+                            Boolean.FALSE,
+                            new Date().getTime());
+
                     resultData.setName(account.getParent().getName());
                     resultData.setEmail(account.getParent().getEmail());
                     resultData.setPhoneNumber(account.getUsername());
-                    resultData.setExpiredDate(account.getParent().getSubscription().getExpiredDate());
-                    resultData.setSubscriptionType(account.getParent().getSubscription().getSubscriptionType().getName());
+                    if (parentCurrentSubscription != null) {
+                        resultData.setExpiredDate(parentCurrentSubscription.getExpiredDate());
+                        resultData.setSubscriptionType(parentCurrentSubscription.getSubscriptionType().getName());
+                    }
                     resultData.setIsDisable(account.getParent().getIsDisabled());
 
                     result.add(resultData);
@@ -162,8 +180,15 @@ public class AccountService {
             result.setEmail(account.getParent().getEmail());
             result.setAvatar(Util.fromImageFileToBase64String(account.getParent().getPhoto()));
             result.setPhoneNumber(account.getUsername());
-            result.setExpiredDate(account.getParent().getSubscription().getExpiredDate());
-            result.setSubscriptionType(account.getParent().getSubscription().getSubscriptionType().getName());
+            Subscription parentCurrentSubscription = subscriptionRepository.findSubscriptionByParent_Account_UsernameAndIsDisabledAndAndExpiredDateAfter(
+                    account.getUsername(),
+                    Boolean.FALSE,
+                    new Date().getTime());
+
+            if (parentCurrentSubscription != null) {
+                result.setExpiredDate(parentCurrentSubscription.getExpiredDate());
+                result.setSubscriptionType(parentCurrentSubscription.getSubscriptionType().getName());
+            }
             if (account.getParent().getPhoto() != null && !account.getParent().getPhoto().isEmpty()) {
                 result.setAvatar(Util.fromImageFileToBase64String(account.getParent().getPhoto()));
             }

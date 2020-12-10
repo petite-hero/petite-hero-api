@@ -11,8 +11,6 @@ import java.io.Serializable;
 public class ParentRegisterRequestDTO implements Serializable {
 
     private String phoneNumber;
-    private String password;
-    private String confirmPassword;
     private String name;
     private String gender;
     private String language;

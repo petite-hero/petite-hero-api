@@ -13,6 +13,7 @@ public class ListPaymentTransactionResponseDTO implements Serializable {
     private Long transactionId;
     private String phoneNumber;
     private Long date;
+    private Long payDate;
     private Double amount;
     private String content;
     private String link;

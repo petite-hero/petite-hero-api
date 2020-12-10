@@ -9,13 +9,15 @@ import java.util.List;
 @Repository
 public interface ParentPaymentRepository extends JpaRepository<ParentPayment, Long> {
 
-    ParentPayment findParentPaymentByParent_Account_UsernameAndDate(String phoneNumber, Long createdDateTimeStamp);
+    ParentPayment findParentPaymentBySubscription_Parent_Account_UsernameAndCreateDate(String phoneNumber, Long createdDateTimeStamp);
 
-    List<ParentPayment> findAllByOrderByDateDesc();
+    List<ParentPayment> findAllByOrderByCreateDateDesc();
 
-    List<ParentPayment> findParentPaymentsByParent_Account_UsernameAndStatusOrderByDateDesc(String phoneNumber, String status);
+    List<ParentPayment> findParentPaymentsBySubscription_Parent_Account_UsernameAndStatusOrderByCreateDateDesc(String phoneNumber, String status);
 
-    List<ParentPayment> findParentPaymentsByParent_Account_UsernameOrderByDateDesc(String phoneNumber);
+    List<ParentPayment> findParentPaymentsBySubscription_Parent_Account_UsernameOrderByCreateDateDesc(String phoneNumber);
 
-    ParentPayment findParentPaymentByTransactionId(Long transactionId);
+    ParentPayment findParentPaymentByParentPaymentId(Long transactionId);
+
+    List<ParentPayment> findParentPaymentsBySubscription_SubscriptionId(Long subscriptionId);
 }

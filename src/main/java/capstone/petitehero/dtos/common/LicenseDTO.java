@@ -13,6 +13,7 @@ public class LicenseDTO implements Serializable {
     private String task_cron_time;
     private String quest_cron_time;
     private String parent_subscription_cron_time;
+    private String failed_task_cron_time;
     private Integer expired_date_subscription_noti;
     private Integer total_hour_task_education;
     private Integer total_hour_task_skills;
@@ -99,6 +100,15 @@ public class LicenseDTO implements Serializable {
 
     public void setExpired_date_subscription_noti(Integer expired_date_subscription_noti) {
         this.expired_date_subscription_noti = expired_date_subscription_noti;
+    }
+
+    @XmlElement
+    public String getFailed_task_cron_time() {
+        return failed_task_cron_time;
+    }
+
+    public void setFailed_task_cron_time(String failed_task_cron_time) {
+        this.failed_task_cron_time = failed_task_cron_time;
     }
 
     @XmlElement

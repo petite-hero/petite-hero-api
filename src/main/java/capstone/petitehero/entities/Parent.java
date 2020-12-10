@@ -18,7 +18,7 @@ public class Parent implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long parentId;
 
     @Column(length = 50)
     private String name;
@@ -66,12 +66,6 @@ public class Parent implements Serializable {
     @EqualsAndHashCode.Exclude // không sử dụng trường này trong equals và hashcode
     @ToString.Exclude // Không sử dụng trong toString()
     @JsonBackReference
-    private Collection<ParentPayment> parent_Parent_paymentCollection;
-
-    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
-    @EqualsAndHashCode.Exclude // không sử dụng trường này trong equals và hashcode
-    @ToString.Exclude // Không sử dụng trong toString()
-    @JsonBackReference
     private Collection<Quest> parent_questCollection;
 
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
@@ -85,8 +79,9 @@ public class Parent implements Serializable {
     @JsonManagedReference
     private Account account;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "subscription_id")
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Exclude // không sử dụng trường này trong equals và hashcode
+    @ToString.Exclude // Không sử dụng trong toString()
     @JsonBackReference
-    private Subscription subscription;
+    private Collection<Subscription> parent_subscriptionCollection;
 }

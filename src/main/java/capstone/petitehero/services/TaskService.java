@@ -297,8 +297,8 @@ public class TaskService {
                 if (!taskResult.getChild().getChild_parentCollection()
                         .stream()
                         .anyMatch(pc ->
-                                pc.getParent().getId().longValue() ==
-                                        taskResult.getParent().getId().longValue())) {
+                                pc.getParent().getParentId().longValue() ==
+                                        taskResult.getParent().getParentId().longValue())) {
 //                    // send noti to collaborator's mobile (creator of the task)
 //                    notiService.pushNotificationMobile(
 //                            taskResult.getChild().getFirstName() + " " + taskResult.getChild().getLastName() +
@@ -413,8 +413,10 @@ public class TaskService {
         return null;
     }
 
-    public SummaryListTaskResponseDTO summaryChildrenListTask(Long childId) {
-        List<Task> listTaskResult = taskRepository.findTasksByChildChildIdAndIsDeleted(childId, Boolean.FALSE);
+    public SummaryListTaskResponseDTO summaryChildrenListTask(Long childId, Long startDay, Long endDay) {
+        Long start = Util.getStartDay(startDay);
+        Long end = Util.getEndDay(endDay);
+        List<Task> listTaskResult = taskRepository.findTasksByChildChildIdAndIsDeletedAndAssignDateIsBetween(childId, Boolean.FALSE, start, end);
 
         if (listTaskResult != null) {
             SummaryListTaskResponseDTO result = null;

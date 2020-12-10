@@ -183,7 +183,9 @@ public class TaskController {
 
     @RequestMapping(value = "/{childId}/summary", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<Object> summaryChildrenListTaskForParent(@PathVariable("childId") Long childId) {
+    public ResponseEntity<Object> summaryChildrenListTaskForParent(@PathVariable("childId") Long childId,
+                                                                   @RequestParam("start") Long startDay,
+                                                                   @RequestParam("end") Long endDay) {
         ResponseObject responseObject;
 
         Child child = childService.findChildByChildId(childId, Boolean.FALSE);
@@ -191,8 +193,26 @@ public class TaskController {
             responseObject = new ResponseObject(Constants.CODE_404, "Cannot found that child in the system");
             return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
         }
+        if (startDay == null || startDay.toString().isEmpty()) {
+            responseObject = new ResponseObject(Constants.CODE_404, "Missing start day");
+            return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
+        } else {
+            if (!Util.validateLongNumber(startDay.toString())) {
+                responseObject = new ResponseObject(Constants.CODE_404, "Start day not in right format");
+                return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
+            }
+        }
+        if (endDay == null || endDay.toString().isEmpty()) {
+            responseObject = new ResponseObject(Constants.CODE_404, "Missing end day");
+            return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
+        } else {
+            if (!Util.validateLongNumber(endDay.toString())) {
+                responseObject = new ResponseObject(Constants.CODE_404, "End day not in right format");
+                return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
+            }
+        }
 
-        SummaryListTaskResponseDTO result = taskService.summaryChildrenListTask(childId);
+        SummaryListTaskResponseDTO result = taskService.summaryChildrenListTask(childId, startDay, endDay);
         if (result != null) {
             responseObject = new ResponseObject(Constants.CODE_200, "OK");
             responseObject.setData(result);
@@ -200,7 +220,8 @@ public class TaskController {
         }
 
         responseObject = new ResponseObject(Constants.CODE_200, "Child don't have any task to summarize");
-        return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+        responseObject.setData(result);
+        return new ResponseEntity<>(responseObject, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/{childId}/summary-hour", method = RequestMethod.GET)

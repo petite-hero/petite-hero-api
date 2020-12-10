@@ -49,10 +49,10 @@ public class ConfigService {
             Boolean changeOuterRadius = Boolean.FALSE, changeReportDelay = Boolean.FALSE;
             LicenseDTO licenseDTO = getLicenseForAdmin();
             if (licenseDTO != null) {
-                if (licenseDTO.getOuter_radius().intValue() == modifyLicenseDTO.getOuter_radius().intValue()) {
+                if (licenseDTO.getOuter_radius().intValue() != modifyLicenseDTO.getOuter_radius().intValue()) {
                     changeOuterRadius = Boolean.TRUE;
                 }
-                if (licenseDTO.getReport_delay().intValue() == modifyLicenseDTO.getReport_delay().intValue()) {
+                if (licenseDTO.getReport_delay().intValue() != modifyLicenseDTO.getReport_delay().intValue()) {
                     changeReportDelay = Boolean.TRUE;
                 }
             }

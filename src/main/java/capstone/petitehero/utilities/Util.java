@@ -20,10 +20,10 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -319,7 +319,7 @@ public class Util {
         return map.get(weekday);
     }
 
-    public static Boolean checkSubscriptionWhenParentAddChild(Parent parentAccount) {
+    public static Boolean checkSubscriptionWhenParentAddChild(Parent parentAccount, SubscriptionType parentCurrentSubscriptionType) {
         int countMaxChildParentAccount = 0;
         // get data from table parent_child so the data about child of parent will be duplicated
         // filter
@@ -335,13 +335,13 @@ public class Util {
             }
         }
         if (countMaxChildParentAccount >=
-                parentAccount.getSubscription().getSubscriptionType().getMaxChildren()) {
+                parentCurrentSubscriptionType.getMaxChildren()) {
             return Boolean.TRUE;
         }
         return Boolean.FALSE;
     }
 
-    public static Boolean checkSubscriptionWhenParentAddCollaborator(Parent parentAccount) {
+    public static Boolean checkSubscriptionWhenParentAddCollaborator(Parent parentAccount, SubscriptionType parentCurrentSubscriptionType) {
         int maxCollaborator = 0;
         List<Parent_Child> filterCollaboratorForParent =
                 parentAccount.getParent_collaboratorCollection().stream()
@@ -355,7 +355,7 @@ public class Util {
         }
 
         if (maxCollaborator ==
-                parentAccount.getSubscription().getSubscriptionType().getMaxCollaborator().intValue()) {
+                parentCurrentSubscriptionType.getMaxCollaborator().intValue()) {
             return Boolean.TRUE;
         }
         return Boolean.FALSE;
@@ -418,7 +418,7 @@ public class Util {
                         safezone.getToTime(),
                         safezone.getType(),
                         safezone.getChild().getChildId(),
-                        safezone.getParent().getId(),
+                        safezone.getParent().getParentId(),
                         safezone.getLatA(),
                         safezone.getLngA(),
                         safezone.getLatB(),
@@ -538,13 +538,39 @@ public class Util {
         return null;
     }
 
-    public static String formatTimeCronjob(String timeCronjob) {
+    public static String formatTimeCronjob(String cronjobTime) {
+        SimpleDateFormat sdf = new SimpleDateFormat("kk:mm:ss");
+        Date runTime;
         String result = "";
-        String[] tempStr = timeCronjob.split(":");
-        for (int i = 0; i < tempStr.length; i++) {
-            result += tempStr[i];
+        try {
+            runTime = sdf.parse(cronjobTime);
+        } catch (Exception e) {
+            runTime = new Date();
         }
-        return result + " * * ?";
+        Calendar calendar = Calendar.getInstance();
+        if (runTime != null) {
+            calendar.setTime(runTime);
+
+            if (calendar.get(Calendar.SECOND) == 0) {
+                result += "0 ";
+            } else {
+                result += calendar.get(Calendar.SECOND) + " ";
+            }
+            if (calendar.get(Calendar.MINUTE) == 0) {
+                result += "0 ";
+            } else {
+                result += calendar.get(Calendar.MINUTE) + " ";
+            }
+            if (calendar.get(Calendar.HOUR_OF_DAY) == 0) {
+                result += "0 ";
+            } else {
+                result += calendar.get(Calendar.HOUR_OF_DAY) + " ";
+            }
+            result += "* * ?";
+
+            return result;
+        }
+        return result;
     }
 
     public static SafeZoneChangedResponseDTO convertSafeZoneToReponseObj(Safezone input, String status) {
@@ -593,8 +619,8 @@ public class Util {
             if (input.getChild().getChildId() != null) {
                 result.setChild(input.getChild().getChildId());
             }
-            if (input.getParent().getId() != null) {
-                result.setParent(input.getParent().getId());
+            if (input.getParent().getParentId() != null) {
+                result.setParent(input.getParent().getParentId());
             }
 
             if (input.getLatA() != null) {

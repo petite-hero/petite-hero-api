@@ -117,6 +117,13 @@ public class ConfigController {
             }
             licenseDTO.setExpired_date_subscription_noti(modifyLicenseDTO.getExpired_date_subscription_noti());
         }
+        if (modifyLicenseDTO.getFailed_task_cron_time() != null && !modifyLicenseDTO.getFailed_task_cron_time().toString().isEmpty()) {
+            if (!modifyLicenseDTO.getFailed_task_cron_time().matches("^(?:(?:([01]?\\d|2[0-3]):)?([0-5]?\\d):)?([0-5]?\\d)$")) {
+                responseObject = new ResponseObject(Constants.CODE_400, "Quest cron time should in format HH:MM:ss");
+                return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+            }
+            licenseDTO.setFailed_task_cron_time(modifyLicenseDTO.getFailed_task_cron_time());
+        }
         if (modifyLicenseDTO.getLicense_EN() != null && !modifyLicenseDTO.getLicense_EN().isEmpty()) {
             licenseDTO.setLicense_EN(modifyLicenseDTO.getLicense_EN());
         }

@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class WelcomeController {
 
     @RequestMapping(value = "welcome", method = RequestMethod.GET)
-    public static String welcomeAPI() {
+    public String welcomeAPI() {
         return "You have started Petite Hero server successfully.";
     }
 }

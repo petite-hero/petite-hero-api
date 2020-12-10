@@ -3,11 +3,11 @@ package capstone.petitehero.services;
 import capstone.petitehero.config.common.Constants;
 import capstone.petitehero.dtos.common.ParentInformation;
 import capstone.petitehero.dtos.response.parent.payment.ListPaymentTransactionResponseDTO;
-import capstone.petitehero.dtos.response.parent.payment.ParentPaymentCompledResponseDTO;
+import capstone.petitehero.dtos.response.parent.payment.ParentPaymentCompleteResponseDTO;
 import capstone.petitehero.dtos.response.parent.payment.ParentPaymentDetailResponseDTO;
 import capstone.petitehero.entities.ParentPayment;
 import capstone.petitehero.repositories.ParentPaymentRepository;
-import capstone.petitehero.utilities.Util;
+import capstone.petitehero.repositories.SubscriptionRepository;
 import com.paypal.api.payments.*;
 import com.paypal.base.rest.APIContext;
 import com.paypal.base.rest.PayPalRESTException;
@@ -15,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -22,6 +24,9 @@ public class ParentPaymentService {
 
     @Autowired
     private ParentPaymentRepository parentPaymentRepository;
+
+    @Autowired
+    private SubscriptionRepository subscriptionRepository;
 
     @Autowired
     private APIContext apiContext;
@@ -76,20 +81,32 @@ public class ParentPaymentService {
     }
 
     public ParentPayment findParentPaymentToCompletePayment(String parentPhoneNumber, Long createdDateTimeStamp) {
-        return parentPaymentRepository.findParentPaymentByParent_Account_UsernameAndDate(parentPhoneNumber, createdDateTimeStamp);
+        return parentPaymentRepository.findParentPaymentBySubscription_Parent_Account_UsernameAndCreateDate(parentPhoneNumber, createdDateTimeStamp);
     }
 
-    public ParentPaymentCompledResponseDTO completedSuccessParentPayment(ParentPayment parentPayment) {
+    public ParentPaymentCompleteResponseDTO completedSuccessParentPayment(ParentPayment parentPayment) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        calendar.add(Calendar.DATE, parentPayment.getSubscription().getSubscriptionType().getDurationDay().intValue());
+        parentPayment.getSubscription().setExpiredDate(calendar.getTimeInMillis());
+        if (parentPayment.getSubscription().getStartDate() == null || parentPayment.getSubscription().getStartDate().toString().isEmpty()) {
+            parentPayment.getSubscription().setStartDate(new Date().getTime());
+        }
+        if (parentPayment.getSubscription().getIsDisabled().booleanValue()) {
+            parentPayment.getSubscription().setIsDisabled(Boolean.FALSE);
+        }
+
         ParentPayment parentPaymentResult = parentPaymentRepository.save(parentPayment);
 
         if (parentPaymentResult != null) {
-            ParentPaymentCompledResponseDTO result = new ParentPaymentCompledResponseDTO();
+            ParentPaymentCompleteResponseDTO result = new ParentPaymentCompleteResponseDTO();
 
             result.setAmount(parentPaymentResult.getAmount());
             result.setDescription(parentPaymentResult.getContent());
+            result.setPayDate(parentPayment.getPayDate());
             result.setPaymentId(parentPaymentResult.getPaymentId());
             result.setStatus(parentPaymentResult.getStatus());
-            result.setPhoneNumber(parentPaymentResult.getParent().getAccount().getUsername());
+            result.setPhoneNumber(parentPaymentResult.getSubscription().getParent().getAccount().getUsername());
 
             return result;
         }
@@ -100,9 +117,9 @@ public class ParentPaymentService {
         List<ParentPayment> listParentPaymentResult;
 
         if (status != null) {
-            listParentPaymentResult = parentPaymentRepository.findParentPaymentsByParent_Account_UsernameAndStatusOrderByDateDesc(phoneNumber, status);
+            listParentPaymentResult = parentPaymentRepository.findParentPaymentsBySubscription_Parent_Account_UsernameAndStatusOrderByCreateDateDesc(phoneNumber, status);
         } else {
-            listParentPaymentResult = parentPaymentRepository.findParentPaymentsByParent_Account_UsernameOrderByDateDesc(phoneNumber);
+            listParentPaymentResult = parentPaymentRepository.findParentPaymentsBySubscription_Parent_Account_UsernameOrderByCreateDateDesc(phoneNumber);
         }
 
         if (listParentPaymentResult != null) {
@@ -110,16 +127,17 @@ public class ParentPaymentService {
             for (ParentPayment payment : listParentPaymentResult) {
                 ListPaymentTransactionResponseDTO dataResult = new ListPaymentTransactionResponseDTO();
 
-                dataResult.setTransactionId(payment.getTransactionId());
+                dataResult.setTransactionId(payment.getParentPaymentId());
                 dataResult.setContent(payment.getContent());
-                dataResult.setPhoneNumber(payment.getParent().getAccount().getUsername());
+                dataResult.setPhoneNumber(payment.getSubscription().getParent().getAccount().getUsername());
                 dataResult.setStatus(payment.getStatus());
                 if (payment.getStatus().equals(Constants.status.PENDING.toString())) {
                     dataResult.setLink(payment.getLink());
                 }
                 dataResult.setAmount(payment.getAmount());
 
-                dataResult.setDate(payment.getDate());
+                dataResult.setDate(payment.getCreateDate());
+                dataResult.setPayDate(payment.getPayDate());
 
                 result.add(dataResult);
             }
@@ -128,27 +146,33 @@ public class ParentPaymentService {
         return null;
     }
 
-    public List<ListPaymentTransactionResponseDTO> getListParentPaymentForAdmin() {
-        List<ParentPayment> listParentPaymentResult = parentPaymentRepository.findAllByOrderByDateDesc();
+    public List<ListPaymentTransactionResponseDTO> getListParentPaymentForAdmin(Long subscriptionId) {
+        List<ParentPayment> listParentPaymentResult;
+        if (subscriptionId != null && !subscriptionId.toString().isEmpty()) {
+            listParentPaymentResult = parentPaymentRepository.findParentPaymentsBySubscription_SubscriptionId(subscriptionId);
+        } else {
+            listParentPaymentResult = parentPaymentRepository.findAllByOrderByCreateDateDesc();
+        }
         if (listParentPaymentResult != null) {
             List<ListPaymentTransactionResponseDTO> result = new ArrayList<>();
             if (!listParentPaymentResult.isEmpty()) {
                 for (ParentPayment payment : listParentPaymentResult) {
                     ListPaymentTransactionResponseDTO dataResult = new ListPaymentTransactionResponseDTO();
 
-                    dataResult.setTransactionId(payment.getTransactionId());
+                    dataResult.setTransactionId(payment.getParentPaymentId());
                     dataResult.setStatus(payment.getStatus());
                     dataResult.setAmount(payment.getAmount());
                     dataResult.setPayerId(payment.getPayerId());
                     dataResult.setPaymentID(payment.getPaymentId());
                     dataResult.setContent(payment.getContent());
-                    dataResult.setDate(payment.getDate());
+                    dataResult.setDate(payment.getCreateDate());
+                    dataResult.setPayDate(payment.getPayDate());
                     dataResult.setLink(payment.getLink());
 
                     ParentInformation parentInformation = new ParentInformation();
-                    parentInformation.setPhoneNumber(payment.getParent().getAccount().getUsername());
-                    parentInformation.setName(payment.getParent().getName());
-                    parentInformation.setEmail(payment.getParent().getEmail());
+                    parentInformation.setPhoneNumber(payment.getSubscription().getParent().getAccount().getUsername());
+                    parentInformation.setName(payment.getSubscription().getParent().getName());
+                    parentInformation.setEmail(payment.getSubscription().getParent().getEmail());
 
                     dataResult.setParentInformation(parentInformation);
 
@@ -161,12 +185,12 @@ public class ParentPaymentService {
     }
 
     public ParentPaymentDetailResponseDTO getDetailParentPayment(Long transactionId, String role) {
-        ParentPayment paymentResult = parentPaymentRepository.findParentPaymentByTransactionId(transactionId);
+        ParentPayment paymentResult = parentPaymentRepository.findParentPaymentByParentPaymentId(transactionId);
 
         if (paymentResult != null) {
             ParentPaymentDetailResponseDTO result = new ParentPaymentDetailResponseDTO();
 
-            result.setPhoneNumber(paymentResult.getParent().getAccount().getUsername());
+            result.setPhoneNumber(paymentResult.getSubscription().getParent().getAccount().getUsername());
             result.setContent(paymentResult.getContent());
             result.setAmount(paymentResult.getAmount());
             result.setStatus(paymentResult.getStatus());
@@ -176,7 +200,8 @@ public class ParentPaymentService {
                 result.setLink(paymentResult.getLink());
             }
 
-            result.setDate(Util.formatTimestampToDateTime(paymentResult.getDate()));
+            result.setDate(paymentResult.getCreateDate());
+            result.setPayDate(paymentResult.getPayDate());
 
             return result;
         }

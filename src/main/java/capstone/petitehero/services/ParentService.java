@@ -7,12 +7,9 @@ import capstone.petitehero.dtos.request.parent.UpdatePushTokenRequestDTO;
 import capstone.petitehero.dtos.response.account.ParentDetailResponseDTO;
 import capstone.petitehero.dtos.response.parent.DisableParentResponseDTO;
 import capstone.petitehero.dtos.response.parent.ParentProfileRegisterResponseDTO;
-import capstone.petitehero.dtos.response.parent.ParentRegisterResponseDTO;
 import capstone.petitehero.dtos.response.parent.ParentUpdateProfileResponseDTO;
-import capstone.petitehero.entities.Child;
 import capstone.petitehero.entities.Parent;
 import capstone.petitehero.entities.Parent_Child;
-import capstone.petitehero.repositories.AccountRepository;
 import capstone.petitehero.repositories.ParentChildRepository;
 import capstone.petitehero.repositories.ParentRepository;
 import capstone.petitehero.utilities.Util;
@@ -29,26 +26,31 @@ public class ParentService {
     private ParentRepository parentRepository;
 
     @Autowired
-    private AccountRepository accountRepository;
-
-    @Autowired
     private ParentChildRepository parentChildRepository;
 
-    public ParentRegisterResponseDTO registerByParent(Parent parentHaveOnlyPhoneNumber) {
-        Parent parentResult = parentRepository.save(parentHaveOnlyPhoneNumber);
-        if (parentResult != null) {
-            ParentRegisterResponseDTO result = new ParentRegisterResponseDTO();
-            result.setPhoneNumber(parentResult.getAccount().getUsername());
-
-            result.setMaxChildAllow(parentResult.getSubscription().getSubscriptionType().getMaxChildren());
-            result.setMaxCollaboratorAllow(parentResult.getSubscription().getSubscriptionType().getMaxCollaborator());
-            result.setAccountType("Free Trial");
-
-            result.setExpiredDate(Util.formatTimestampToDateTime(parentResult.getSubscription().getExpiredDate()));
+    public Parent saveParentAccount(Parent parent) {
+        Parent result = parentRepository.save(parent);
+        if (result != null) {
             return result;
         }
         return null;
     }
+
+//    public ParentRegisterResponseDTO registerByParent(Parent parentHaveOnlyPhoneNumber) {
+//        Parent parentResult = parentRepository.save(parentHaveOnlyPhoneNumber);
+//        if (parentResult != null) {
+//            ParentRegisterResponseDTO result = new ParentRegisterResponseDTO();
+//            result.setPhoneNumber(parentResult.getAccount().getUsername());
+//
+//            result.setMaxChildAllow(parentResult.getSubscription().getSubscriptionType().getMaxChildren());
+//            result.setMaxCollaboratorAllow(parentResult.getSubscription().getSubscriptionType().getMaxCollaborator());
+//            result.setAccountType("Free Trial");
+//
+//            result.setExpiredDate(Util.formatTimestampToDateTime(parentResult.getSubscription().getExpiredDate()));
+//            return result;
+//        }
+//        return null;
+//    }
 
     public ParentProfileRegisterResponseDTO saveParentInformationToSystem(Parent parentProfile) {
         Parent parentResult = parentRepository.save(parentProfile);

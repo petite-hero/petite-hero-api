@@ -22,10 +22,15 @@ public class ParentPaymentController {
 
     @RequestMapping(value = "/list", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<Object> getParentPaymentForAdmin() {
+    public ResponseEntity<Object> getParentPaymentForAdmin(@RequestParam(value = "subscriptionId", required = false) Long subscriptionId) {
         ResponseObject responseObject;
+        List<ListPaymentTransactionResponseDTO> result;
 
-        List<ListPaymentTransactionResponseDTO> result = parentPaymentService.getListParentPaymentForAdmin();
+        if (subscriptionId != null && !subscriptionId.toString().isEmpty()) {
+            result = parentPaymentService.getListParentPaymentForAdmin(subscriptionId);
+        } else {
+            result = parentPaymentService.getListParentPaymentForAdmin(null);
+        }
 
         if (result != null) {
             if (result.isEmpty()) {

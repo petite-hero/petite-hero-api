@@ -34,6 +34,6 @@ public interface LocationRepository extends JpaRepository<LocationHistory, Long>
             "\t(SELECT pc.parent_id\n" +
             "\tFROM parent_child pc \n" +
             "\tWHERE pc.child_id = :childId) pc\n" +
-            "WHERE pc.parent_id = p.id")
+            "WHERE pc.parent_id = p.parent_id")
     ArrayList<String> getParentPushToken(@Param("childId") Long childId);
 }
