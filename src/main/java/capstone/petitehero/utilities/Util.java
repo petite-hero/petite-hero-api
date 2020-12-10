@@ -650,4 +650,10 @@ public class Util {
         }
         return result;
     }
+
+    public static boolean checkChildYoB(Integer yob) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        return 4 <= (calendar.get(Calendar.YEAR) - yob.intValue()) && (calendar.get(Calendar.YEAR) - yob) <= 11;
+    }
 }

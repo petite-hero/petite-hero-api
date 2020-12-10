@@ -339,6 +339,7 @@ public class CRONJobService implements SchedulingConfigurer {
             }
         });
 
+        // cronjob for updating assigned task to failed task
         scheduledTaskRegistrar.addTriggerTask(new Runnable() {
             @Override
             public void run() {

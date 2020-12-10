@@ -199,6 +199,11 @@ public class ParentController {
         if (addChildRequestDTO.getYob() == null || addChildRequestDTO.getYob().toString().isEmpty()) {
             responseObject = new ResponseObject(Constants.CODE_400, "Child's year of birth cannot be missing or empty");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+        } else {
+            if (!Util.checkChildYoB(addChildRequestDTO.getYob())) {
+                responseObject = new ResponseObject(Constants.CODE_400, "Child's must be in 4-11 years old");
+                return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+            }
         }
         if (addChildRequestDTO.getGender() == null || addChildRequestDTO.getGender().isEmpty()) {
             responseObject = new ResponseObject(Constants.CODE_400, "Gender cannot be missing or be empty");

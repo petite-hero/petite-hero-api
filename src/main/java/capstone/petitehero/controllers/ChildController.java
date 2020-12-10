@@ -162,6 +162,11 @@ public class ChildController {
         }
         if (updateChildProfileRequestDTO.getYob() != null && !updateChildProfileRequestDTO.getYob().toString().isEmpty()) {
             child.setYob(updateChildProfileRequestDTO.getYob());
+        } else {
+            if (!Util.checkChildYoB(updateChildProfileRequestDTO.getYob())) {
+                responseObject = new ResponseObject(Constants.CODE_400, "Child's must be in 4-11 years old");
+                return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+            }
         }
         if (updateChildProfileRequestDTO.getNickName() != null && !updateChildProfileRequestDTO.getNickName().isEmpty()) {
             child.setNickName(updateChildProfileRequestDTO.getNickName());
