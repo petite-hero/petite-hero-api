@@ -218,6 +218,7 @@ public class TaskController {
             responseObject.setData(result);
             return new ResponseEntity<>(responseObject, HttpStatus.OK);
         }
+        result = new SummaryListTaskResponseDTO();
 
         responseObject = new ResponseObject(Constants.CODE_200, "Child don't have any task to summarize");
         responseObject.setData(result);
