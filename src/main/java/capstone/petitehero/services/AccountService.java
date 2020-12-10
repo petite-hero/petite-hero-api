@@ -10,10 +10,12 @@ import capstone.petitehero.dtos.response.account.ListParentAccountResponseDTO;
 import capstone.petitehero.dtos.response.account.LoginResponseDTO;
 import capstone.petitehero.dtos.response.account.ParentDetailResponseDTO;
 import capstone.petitehero.entities.Account;
+import capstone.petitehero.entities.Parent;
 import capstone.petitehero.entities.Parent_Child;
 import capstone.petitehero.entities.Subscription;
 import capstone.petitehero.exceptions.DuplicateKeyException;
 import capstone.petitehero.repositories.AccountRepository;
+import capstone.petitehero.repositories.ParentRepository;
 import capstone.petitehero.repositories.SubscriptionRepository;
 import capstone.petitehero.utilities.JWTUtil;
 import capstone.petitehero.utilities.Util;
@@ -24,6 +26,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 
 import java.util.Date;
@@ -42,6 +46,9 @@ public class AccountService {
 
     @Autowired
     private AuthenticationManager authenticationManager;
+
+    @Autowired
+    private ParentRepository parentRepository;
 
     @Autowired
     private SubscriptionRepository subscriptionRepository;
@@ -249,6 +256,18 @@ public class AccountService {
                 }
                 result.setMaxCollaborator(result.getCollaboratorInformationList().size());
             }
+
+            return result;
+        }
+        return null;
+    }
+
+    public String resetPasswordForParentAccount(Parent parent, String password) throws InvalidKeySpecException, NoSuchAlgorithmException {
+        parent.getAccount().setPassword(Util.encodePassword(password));
+
+        Parent parentResult = parentRepository.save(parent);
+        if (parentResult != null) {
+            String result = Constants.status.UPDATED.toString();
 
             return result;
         }

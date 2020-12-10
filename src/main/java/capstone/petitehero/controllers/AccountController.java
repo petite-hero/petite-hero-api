@@ -3,6 +3,7 @@ package capstone.petitehero.controllers;
 import capstone.petitehero.config.common.Constants;
 import capstone.petitehero.dtos.ResponseObject;
 import capstone.petitehero.dtos.request.parent.AccountChangePasswordRequestDTO;
+import capstone.petitehero.dtos.request.parent.ResetPasswordRequestDTO;
 import capstone.petitehero.dtos.response.account.ListParentAccountResponseDTO;
 import capstone.petitehero.dtos.response.account.LoginResponseDTO;
 import capstone.petitehero.dtos.request.admin.AccountLoginDTO;
@@ -402,11 +403,11 @@ public class AccountController {
             }
         }
 
-        responseObject = new ResponseObject(Constants.CODE_500, "Cannot reset password for your account");
+        responseObject = new ResponseObject(Constants.CODE_500, "Cannot send otp to your account");
         return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @RequestMapping(value = "verify-otp", method = RequestMethod.POST)
+    @RequestMapping(value = "/verify-otp", method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<Object> verifyOTPToken(@RequestParam("username") String username,
                                                  @RequestParam("token") Integer token) {
@@ -414,7 +415,7 @@ public class AccountController {
 
         Parent parent = parentService.findParentByPhoneNumber(username, Boolean.FALSE);
         if (parent == null) {
-            responseObject = new ResponseObject(Constants.CODE_404, "Cannot found your account in the systen");
+            responseObject = new ResponseObject(Constants.CODE_404, "Cannot found your account in the system");
             return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
         }
 
@@ -453,6 +454,54 @@ public class AccountController {
         }
 
         responseObject = new ResponseObject(Constants.CODE_500, "Cannot verify otp token for your account");
+        return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @RequestMapping(value = "/{user}/reset-password", method = RequestMethod.PUT)
+    @ResponseBody
+    public ResponseEntity<Object> resetPasswordForParentAccount(@PathVariable("user") String phoneNumber,
+                                                                @RequestBody ResetPasswordRequestDTO resetPasswordRequestDTO) {
+        ResponseObject responseObject;
+        if (resetPasswordRequestDTO.getPassword() == null || resetPasswordRequestDTO.getPassword().isEmpty()) {
+            responseObject = new ResponseObject(Constants.CODE_400, "New password cannot be null");
+            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+        }
+        if (resetPasswordRequestDTO.getConfirmPassword() == null || resetPasswordRequestDTO.getConfirmPassword().isEmpty()) {
+            responseObject = new ResponseObject(Constants.CODE_400, "Confirm password cannot be null");
+            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+        } else {
+            if (!resetPasswordRequestDTO.getConfirmPassword().equals(resetPasswordRequestDTO.getPassword())) {
+                responseObject = new ResponseObject(Constants.CODE_400, "Password and confirm password is not match");
+                return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+            }
+        }
+
+        Parent parent = parentService.findParentByPhoneNumber(phoneNumber, Boolean.FALSE);
+        if (parent == null) {
+            responseObject = new ResponseObject(Constants.CODE_404, "Cannot found that parent account in the system");
+            return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
+        }
+
+        try {
+            String result = accountService.resetPasswordForParentAccount(parent, resetPasswordRequestDTO.getPassword());
+            if (result != null) {
+                responseObject = new ResponseObject(Constants.CODE_200, "OK");
+                responseObject.setData(result);
+                return new ResponseEntity<>(responseObject, HttpStatus.OK);
+            }
+        }  catch (NoSuchAlgorithmException noSuchAlgorithmException) {
+            responseObject = new ResponseObject(Constants.CODE_500,
+                    "Has something wrong in encoded password. Reason: "
+                            + noSuchAlgorithmException.getMessage());
+            return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (InvalidKeySpecException invalidKeySpecException) {
+            responseObject = new ResponseObject(Constants.CODE_500,
+                    "Has something wrong in encoded password. Reason: "
+                            + invalidKeySpecException.getMessage());
+            return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        responseObject = new ResponseObject(Constants.CODE_500, "Cannot reset password for parent account");
         return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
