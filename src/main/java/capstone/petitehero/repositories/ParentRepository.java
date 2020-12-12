@@ -18,6 +18,6 @@ public interface ParentRepository extends JpaRepository<Parent, Long> {
 
     @Query(nativeQuery = true, value = "SELECT p.* \n" +
             "FROM petite_hero.child c, petite_hero.parent_child pc, petite_hero.parent p\n" +
-            "WHERE c.child_id = :childId AND pc.child_id = c.child_id AND p.parent.id = pc.parent_id")
+            "WHERE c.child_id = :childId AND pc.child_id = c.child_id AND p.parent_id = pc.parent_id")
     Parent getParentByChildID(@Param("childId") Long childId);
 }
