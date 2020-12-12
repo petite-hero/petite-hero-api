@@ -753,7 +753,7 @@ public class ParentController {
             return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
         }
 
-        Parent collaboratorAccount = parentService.findParentByPhoneNumber(phoneNumber, Boolean.FALSE);
+        Parent collaboratorAccount = parentService.findParentByPhoneNumber(collaboratorPhoneNumber, Boolean.FALSE);
         if (collaboratorAccount == null) {
             responseObject = new ResponseObject(Constants.CODE_404, "Cannot found collaborator account in the system");
             return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);

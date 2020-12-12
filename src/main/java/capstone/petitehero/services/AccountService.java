@@ -9,6 +9,7 @@ import capstone.petitehero.dtos.response.account.AccountLoginResponseDTO;
 import capstone.petitehero.dtos.response.account.ListParentAccountResponseDTO;
 import capstone.petitehero.dtos.response.account.LoginResponseDTO;
 import capstone.petitehero.dtos.response.account.ParentDetailResponseDTO;
+import capstone.petitehero.dtos.response.subscription.ListSubscriptionResponseDTO;
 import capstone.petitehero.entities.Account;
 import capstone.petitehero.entities.Parent;
 import capstone.petitehero.entities.Parent_Child;
@@ -185,7 +186,6 @@ public class AccountService {
 
             result.setName(account.getParent().getName());
             result.setEmail(account.getParent().getEmail());
-            result.setAvatar(Util.fromImageFileToBase64String(account.getParent().getPhoto()));
             result.setPhoneNumber(account.getUsername());
             Subscription parentCurrentSubscription = subscriptionRepository.findSubscriptionByParent_Account_UsernameAndIsDisabledAndAndExpiredDateAfter(
                     account.getUsername(),
@@ -196,9 +196,9 @@ public class AccountService {
                 result.setExpiredDate(parentCurrentSubscription.getExpiredDate());
                 result.setSubscriptionType(parentCurrentSubscription.getSubscriptionType().getName());
             }
-            if (account.getParent().getPhoto() != null && !account.getParent().getPhoto().isEmpty()) {
-                result.setAvatar(Util.fromImageFileToBase64String(account.getParent().getPhoto()));
-            }
+//            if (account.getParent().getPhoto() != null && !account.getParent().getPhoto().isEmpty()) {
+//                result.setAvatar(Util.fromImageFileToBase64String(account.getParent().getPhoto()));
+//            }
 
             //get list children active of active parent
             if (account.getParent().getParent_childCollection() != null) {
@@ -255,6 +255,27 @@ public class AccountService {
                     result.setCollaboratorInformationList(collaboratorInformationList);
                 }
                 result.setMaxCollaborator(result.getCollaboratorInformationList().size());
+            }
+
+            // get all subscriptions of parent account
+            if (account.getParent().getParent_subscriptionCollection() != null) {
+                ArrayList<ListSubscriptionResponseDTO> subscriptionHistoryList = new ArrayList<>();
+                if (!account.getParent().getParent_subscriptionCollection().isEmpty()) {
+                    for (Subscription historySubscription : account.getParent().getParent_subscriptionCollection()) {
+                        ListSubscriptionResponseDTO dataResult = new ListSubscriptionResponseDTO();
+
+                        dataResult.setSubscriptionId(historySubscription.getSubscriptionId());
+                        dataResult.setStartDate(historySubscription.getStartDate());
+                        dataResult.setIsDisabled(historySubscription.getIsDisabled());
+                        dataResult.setExpiredDate(historySubscription.getExpiredDate());
+                        dataResult.setName(historySubscription.getSubscriptionType().getName());
+
+                        subscriptionHistoryList.add(dataResult);
+                    }
+                    result.setSubscriptionHistoryList(subscriptionHistoryList);
+                } else {
+                    result.setSubscriptionHistoryList(subscriptionHistoryList);
+                }
             }
 
             return result;

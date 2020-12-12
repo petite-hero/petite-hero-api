@@ -656,4 +656,36 @@ public class Util {
         calendar.setTime(new Date());
         return 4 <= (calendar.get(Calendar.YEAR) - yob.intValue()) && (calendar.get(Calendar.YEAR) - yob) <= 11;
     }
+
+    public static ArrayList<Parent> checkDuplicateParentNotiList(ArrayList<Parent> resultList, ArrayList<Parent_Child> requestList) {
+        if (resultList == null) {
+            resultList = new ArrayList<>();
+            return resultList;
+        } else {
+            if (requestList != null) {
+                if (!requestList.isEmpty()) {
+                    Parent getParent = requestList.stream().findFirst().orElse(null).getParent();
+                    if (getParent != null) {
+                        boolean existed = resultList.stream().anyMatch(existedParent ->
+                                existedParent.getAccount().getUsername().equals(
+                                        getParent.getAccount().getUsername()));
+                        if (!existed)
+                            resultList.add(getParent);
+                    }
+                    for (Parent_Child requestData : requestList) {
+                        if (requestData.getCollaborator() != null) {
+                            Parent getCollaborator = requestData.getCollaborator();
+                            boolean existed = resultList.stream().anyMatch(existedParent ->
+                                    existedParent.getAccount().getUsername().equals(
+                                            getCollaborator.getAccount().getUsername()));
+                            if (!existed)
+                                resultList.add(getParent);
+                        }
+                    }
+                }
+                return resultList;
+            }
+            return null;
+        }
+    }
 }

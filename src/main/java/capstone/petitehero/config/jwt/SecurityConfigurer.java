@@ -33,6 +33,7 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
                 .antMatchers("/v2/api-docs", "/configuration/**", "/swagger*/**", "/webjars/**").permitAll()
                 .antMatchers("/config").permitAll()
                 .antMatchers("/welcome").permitAll()
+                .antMatchers("/test/dump-database").permitAll()
                 .antMatchers("/account/login").permitAll()
                 .antMatchers("/account/admin/register").permitAll()
                 .antMatchers("/account/verify-otp").permitAll()

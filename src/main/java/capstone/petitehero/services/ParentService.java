@@ -198,8 +198,8 @@ public class ParentService {
 
                     result.getChildInformationList().add(childInformation);
                 }
-                result.setName(collaboratorAccount.getName());
             }
+            result.setName(collaboratorAccount.getName());
         }
 
         return result;

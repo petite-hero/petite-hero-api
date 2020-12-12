@@ -2,6 +2,7 @@ package capstone.petitehero.dtos.response.account;
 
 import capstone.petitehero.dtos.common.ChildInformation;
 import capstone.petitehero.dtos.common.ParentInformation;
+import capstone.petitehero.dtos.response.subscription.ListSubscriptionResponseDTO;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,4 +18,5 @@ public class ParentDetailResponseDTO extends ListParentAccountResponseDTO implem
     private Integer maxCollaborator;
     private List<ChildInformation> childInformationList;
     private List<ParentInformation> collaboratorInformationList;
+    private List<ListSubscriptionResponseDTO> subscriptionHistoryList;
 }

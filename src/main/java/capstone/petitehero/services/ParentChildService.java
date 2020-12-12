@@ -112,7 +112,7 @@ public class ParentChildService {
     }
 
     public Parent_Child findChildParentByChildId(Long childId) {
-        return parentChildRepository.findParent_ChildByChild_ChildIdAndChild_IsDisabled(childId, Boolean.FALSE);
+        return parentChildRepository.findFirstByChild_ChildIdAndChild_IsDisabled(childId, Boolean.FALSE);
     }
 
     public AddCollaboratorResponseDTO addNewCollaborator(List<Long> listChildId, Parent parent, Parent collaboratorAccount) {

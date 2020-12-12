@@ -3,13 +3,19 @@ package capstone.petitehero.controllers;
 import capstone.petitehero.config.common.Constants;
 import capstone.petitehero.dtos.ResponseObject;
 import capstone.petitehero.dtos.common.LicenseDTO;
+import capstone.petitehero.repositories.LocationRepository;
 import capstone.petitehero.services.ConfigService;
 import capstone.petitehero.utilities.Util;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
@@ -24,6 +30,24 @@ public class ConfigController {
 
     @Autowired
     private ConfigService configService;
+
+    @Autowired
+    private LocationRepository locationRepository;
+
+    @Value("${spring.datasource.database}")
+    private String database;
+
+    @Value("${spring.datasource.username}")
+    private String username;
+
+    @Value("${spring.datasource.password}")
+    private String password;
+
+    @Value("${spring.datasource.host}")
+    private String host;
+
+    @Value("${spring.datasource.port}")
+    private String port;
 
     @RequestMapping(value = "/config", method = RequestMethod.GET)
     @ResponseBody
@@ -140,5 +164,71 @@ public class ConfigController {
 
         responseObject = new ResponseObject(Constants.CODE_500, "Cannot modify license in the system");
         return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @RequestMapping(value = "welcome", method = RequestMethod.GET)
+    public String welcomeAPI() {
+        return "You have started Petite Hero server successfully.";
+    }
+
+    @RequestMapping(value = "/test/dump-database", method = RequestMethod.POST)
+    public ResponseEntity<Object> dumpDatabase() {
+        ResponseObject responseObject;
+        File file = new File("log-" + new Date().getTime() + ".txt");
+        try {
+            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
+
+            String outputFile = "backup-database-" + new Date().getTime() + ".sql";
+            int processComplete = 0;
+            Process process;
+            try {
+                // -u for database username
+                // -p for database password
+                // -P for database port
+                // -h for database host (ip address)
+                // --databases for choosing database to dump
+                // -r output file
+                String command = String.format("mysqldump -u %s -p%s -P %s -h %s --add-drop-table --databases %s -r %s",
+                        username, password, port, host, database, outputFile);
+                process = Runtime.getRuntime().exec(command);
+            } catch (IOException ioException) {
+                bufferedWriter.write(ioException.getMessage());
+                bufferedWriter.close();
+
+                responseObject = new ResponseObject(Constants.CODE_500,
+                        "Has problem when backup database. Reason: " + ioException.getMessage());
+                return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+            try {
+                if (process != null) {
+                    processComplete = process.waitFor();
+                }
+            } catch (InterruptedException interruptedException) {
+                bufferedWriter.write(interruptedException.getMessage());
+                bufferedWriter.close();
+
+                responseObject = new ResponseObject(Constants.CODE_500,
+                        "Has problem when backup database. Reason: " + interruptedException.getMessage());
+                return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+            if (processComplete == 0) {
+                locationRepository.deleteAll();
+                locationRepository.resetGeneratedIdInLocationHistoryTable();
+                bufferedWriter.write("Backup database successfully.");
+                bufferedWriter.close();
+
+                responseObject = new ResponseObject(Constants.CODE_200, "Backup database successfully.");
+                return new ResponseEntity<>(responseObject, HttpStatus.OK);
+            } else {
+                bufferedWriter.write("Cannot backup database");
+                bufferedWriter.close();
+
+                responseObject = new ResponseObject(Constants.CODE_500, "Cannot backup database.");
+                return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } catch (IOException ioException) {
+            responseObject = new ResponseObject(Constants.CODE_500, "Cannot write log file.");
+            return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

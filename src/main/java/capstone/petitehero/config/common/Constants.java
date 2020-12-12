@@ -18,6 +18,7 @@ public class Constants {
     // role values
     public static final String PARENT = "Parent";
     public static final String ADMIN = "Admin";
+    public static final String COLLABORATOR = "Collaborator";
     public static final String CHILD = "Child";
 
     // provider

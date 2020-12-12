@@ -1,14 +1,14 @@
 package capstone.petitehero.repositories;
 
-import capstone.petitehero.dtos.ParentChildPushTokenDTO;
 import capstone.petitehero.entities.LocationHistory;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import javax.transaction.Transactional;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 @Repository
@@ -36,4 +36,9 @@ public interface LocationRepository extends JpaRepository<LocationHistory, Long>
             "\tWHERE pc.child_id = :childId) pc\n" +
             "WHERE pc.parent_id = p.parent_id")
     ArrayList<String> getParentPushToken(@Param("childId") Long childId);
+
+    @Transactional
+    @Modifying
+    @Query(value = "Alter Table location_history Auto_Increment = 1", nativeQuery = true)
+    void resetGeneratedIdInLocationHistoryTable();
 }

@@ -4,6 +4,7 @@ import capstone.petitehero.config.common.Constants;
 import capstone.petitehero.dtos.ResponseObject;
 import capstone.petitehero.dtos.common.CRONJobChildDTO;
 import capstone.petitehero.dtos.common.LicenseDTO;
+import capstone.petitehero.dtos.common.NotificationDTO;
 import capstone.petitehero.dtos.request.location.PushNotiSWDTO;
 import capstone.petitehero.dtos.response.location.GetListSafeZoneByDateResponseDTO;
 import capstone.petitehero.dtos.response.quest.ListQuestResponseDTO;
@@ -12,16 +13,18 @@ import capstone.petitehero.entities.*;
 import capstone.petitehero.repositories.*;
 import capstone.petitehero.utilities.Util;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.Trigger;
 import org.springframework.scheduling.TriggerContext;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.scheduling.annotation.SchedulingConfigurer;
 import org.springframework.scheduling.config.ScheduledTaskRegistrar;
-import org.springframework.scheduling.config.TriggerTask;
 import org.springframework.scheduling.support.CronTrigger;
 
-import java.text.SimpleDateFormat;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -50,6 +53,21 @@ public class CRONJobService implements SchedulingConfigurer {
 
     @Autowired
     private QuestRepository questRepository;
+
+    @Autowired
+    private LocationRepository locationRepository;
+
+    @Autowired
+    private ParentChildRepository parentChildRepository;
+
+    @Value("${spring.datasource.database}")
+    private String database;
+
+    @Value("${spring.datasource.username}")
+    private String username;
+
+    @Value("${spring.datasource.password}")
+    private String password;
 
     ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
@@ -350,28 +368,38 @@ public class CRONJobService implements SchedulingConfigurer {
                         Constants.status.ASSIGNED.toString());
 
                 if (taskList != null && !taskList.isEmpty()) {
+                    for (Task taskNeedToFailed : taskList) {
+//                        taskNeedToFailed.setStatus(Constants.status.FAILED.toString());
+                    }
+
+//                    taskRepository.saveAll(taskList);
+
                     List<Task> distinctChildList = taskList
                             .stream()
                             .filter(Util.distinctByKey(Task::getChild))
                             .collect(Collectors.toList());
 
-                    PushNotiSWDTO noti = new PushNotiSWDTO(Constants.SILENT_NOTI, Constants.NEW_TASKS, null);
+                    ArrayList<Parent> parentArrayList = new ArrayList<>();
+                    for (Task task : distinctChildList) {
+                        List<Parent_Child> parentChildList = parentChildRepository.findParent_ChildrenByChild_ChildIdAndChild_IsDisabled(
+                                task.getChild().getChildId(), Boolean.FALSE);
 
-                    //cron job for all children
-                    for (Task childHasTaskAssignedAtEndDay : distinctChildList) {
-                        if (childHasTaskAssignedAtEndDay.getChild().getPushToken() != null
-                                && !childHasTaskAssignedAtEndDay.getChild().getPushToken().isEmpty()) {
-                            String pushToken = childHasTaskAssignedAtEndDay.getChild().getPushToken();
-
-                            List<ListTaskResponseDTO> listTask = Util.notiTasksAtCurrentDateForChild(taskList.stream()
-                                    .filter(task ->
-                                            task.getChild().getChildId().longValue()
-                                                    == childHasTaskAssignedAtEndDay.getChild().getChildId().longValue())
-                                    .collect(Collectors.toList()));
-
-                            if (!listTask.isEmpty()) {
-                                noti.setData(listTask);
-                                notiService.pushNotificationSW(noti, pushToken);
+                        if (parentChildList != null) {
+                            if (!parentChildList.isEmpty()) {
+                                parentArrayList =
+                                        Util.checkDuplicateParentNotiList(
+                                                parentArrayList, new ArrayList<>(parentChildList));
+                            }
+                        }
+                    }
+                    if (!parentArrayList.isEmpty()) {
+                        for (Parent parentGetNoti : parentArrayList) {
+                            System.out.println("Parent account: " + parentGetNoti.getAccount().getUsername());
+                            if (parentGetNoti.getPushToken() != null && !parentGetNoti.getPushToken().isEmpty()) {
+                                NotificationDTO notificationDTO = new NotificationDTO();
+                                ArrayList<String> pushTokenList = new ArrayList<>();
+                                pushTokenList.add(parentGetNoti.getPushToken());
+                                notiService.pushNotificationMobile(null, notificationDTO, pushTokenList);
                             }
                         }
                     }
@@ -392,6 +420,54 @@ public class CRONJobService implements SchedulingConfigurer {
                     return null; // return null when the cron changed so the trigger will stop.
                 }
                 CronTrigger crontrigger = new CronTrigger(failedTaskCronExpression);
+                return crontrigger.nextExecutionTime(triggerContext);
+            }
+        });
+
+        // cronjob for backup database
+        scheduledTaskRegistrar.addTriggerTask(new Runnable() {
+            @Override
+            public void run() {
+                File file = new File("log " + Util.formatTimestampToDate(new Date().getTime()) + ".txt");
+                try {
+                    BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
+
+                    String outputFile = "backup-database-" + new Date().getTime() + ".sql";
+                    int processComplete = 0;
+                    Process process = null;
+                    try {
+                        String command = String.format("mysqldump -u %s -p%s --add-drop-table --databases %s -r %s",
+                                username, password, database, outputFile);
+                        process = Runtime.getRuntime().exec(command);
+                    } catch (IOException ioException) {
+                        bufferedWriter.write("Has problem when backup database. Reason: " + ioException.getMessage());
+                        bufferedWriter.close();
+                    }
+                    try {
+                        if (process != null) {
+                            processComplete = process.waitFor();
+                        }
+                    } catch (InterruptedException interruptedException) {
+                        bufferedWriter.write("Has problem when backup database. Reason: " + interruptedException.getMessage());
+                        bufferedWriter.close();
+                    }
+                    if (processComplete == 0) {
+                        locationRepository.deleteAll();
+                        locationRepository.resetGeneratedIdInLocationHistoryTable();
+                        bufferedWriter.write("Backup database successfully.");
+                        bufferedWriter.close();
+                    } else {
+                        bufferedWriter.write("Cannot backup database");
+                        bufferedWriter.close();
+                    }
+                } catch (IOException ioException) {
+
+                }
+            }
+        }, new Trigger() {
+            @Override
+            public Date nextExecutionTime(TriggerContext triggerContext) {
+                CronTrigger crontrigger = new CronTrigger("00 30 00 15 * ?");
                 return crontrigger.nextExecutionTime(triggerContext);
             }
         });
