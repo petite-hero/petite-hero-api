@@ -196,9 +196,9 @@ public class AccountService {
                 result.setExpiredDate(parentCurrentSubscription.getExpiredDate());
                 result.setSubscriptionType(parentCurrentSubscription.getSubscriptionType().getName());
             }
-//            if (account.getParent().getPhoto() != null && !account.getParent().getPhoto().isEmpty()) {
-//                result.setAvatar(Util.fromImageFileToBase64String(account.getParent().getPhoto()));
-//            }
+            if (account.getParent().getPhoto() != null && !account.getParent().getPhoto().isEmpty()) {
+                result.setAvatar(Util.fromImageFileToBase64String(account.getParent().getPhoto()));
+            }
 
             //get list children active of active parent
             if (account.getParent().getParent_childCollection() != null) {

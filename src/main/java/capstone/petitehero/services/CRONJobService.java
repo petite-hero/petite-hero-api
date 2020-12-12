@@ -369,10 +369,10 @@ public class CRONJobService implements SchedulingConfigurer {
 
                 if (taskList != null && !taskList.isEmpty()) {
                     for (Task taskNeedToFailed : taskList) {
-//                        taskNeedToFailed.setStatus(Constants.status.FAILED.toString());
+                        taskNeedToFailed.setStatus(Constants.status.FAILED.toString());
                     }
 
-//                    taskRepository.saveAll(taskList);
+                    taskRepository.saveAll(taskList);
 
                     List<Task> distinctChildList = taskList
                             .stream()
