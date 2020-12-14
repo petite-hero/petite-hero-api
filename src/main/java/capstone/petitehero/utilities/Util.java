@@ -395,7 +395,9 @@ public class Util {
             Object[] line = (Object[]) it.next();
             CRONJobChildDTO cronJobChildDTO = new CRONJobChildDTO();
             cronJobChildDTO.setChildId(Long.parseLong(line[0].toString()));
-            cronJobChildDTO.setPushToken(line[1].toString());
+            if (line[1] != null && !line[1].toString().isEmpty()) {
+                cronJobChildDTO.setPushToken(line[1].toString());
+            }
             result.add(cronJobChildDTO);
         }
         return result;
