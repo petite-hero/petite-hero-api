@@ -7,7 +7,7 @@
     <license_VN>&lt;p&gt;Đây là dữ liệu mẫu tiếng&amp;nbsp;&lt;span style="font-weight: bolder;"&gt;Việt&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;i&gt;Phải
         chi mấy thằng trong team biết phải viết cái gì vô đây thì&amp;nbsp; tốt quá rồi :(&lt;/i&gt;&lt;/p&gt;
     </license_VN>
-    <outer_radius>100</outer_radius>
+    <outer_radius>3000</outer_radius>
     <parent_subscription_cron_time>00:20:00</parent_subscription_cron_time>
     <quest_cron_time>00:15:00</quest_cron_time>
     <report_delay>40000</report_delay>
