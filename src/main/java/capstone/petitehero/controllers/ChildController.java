@@ -69,22 +69,22 @@ public class ChildController {
 
             Parent_Child childParent =
                     parentChildService.findChildParentByChildId(verifyParentRequestDTO.getChildId());
-
-            if (child.getAndroidId() == null && child.getAndroidId().isEmpty()) {
-                child.setAndroidId(verifyParentRequestDTO.getAndroidId());
-            } else {
+//
+            if (child.getAndroidId() != null) {
                 if (!child.getAndroidId().equals(verifyParentRequestDTO.getAndroidId())) {
                     child.setAndroidId(verifyParentRequestDTO.getAndroidId());
-
+                    child.setDeviceName(verifyParentRequestDTO.getDeviceName());
                     PushNotiSWDTO noti = new PushNotiSWDTO(Constants.SILENT_NOTI, Constants.LOGOUT, new Object());
 
                     if (child.getPushToken() != null && !child.getPushToken().isEmpty()) {
                         notiService.pushNotificationSW(noti, child.getPushToken());
                     }
                 }
+            } else {
+                child.setAndroidId(verifyParentRequestDTO.getAndroidId());
+                child.setDeviceName(verifyParentRequestDTO.getDeviceName());
             }
             child.setPushToken(verifyParentRequestDTO.getPushToken());
-            child.setDeviceName(verifyParentRequestDTO.getDeviceName());
 
             if (childParent != null) {
 

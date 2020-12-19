@@ -428,9 +428,14 @@ public class CRONJobService implements SchedulingConfigurer {
         scheduledTaskRegistrar.addTriggerTask(new Runnable() {
             @Override
             public void run() {
-                File file = new File("log " + Util.formatTimestampToDate(new Date().getTime()) + ".txt");
+//                File file = new File("log " + Util.formatTimestampToDate(new Date().getTime()) + ".txt");
+                File file = new File("log.txt");
                 try {
-                    BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
+                    if (!file.exists()) {
+                        return;
+                    }
+
+                    BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file, true));
 
                     String outputFile = "backup-database-" + new Date().getTime() + ".sql";
                     int processComplete = 0;
@@ -440,7 +445,8 @@ public class CRONJobService implements SchedulingConfigurer {
                                 username, password, database, outputFile);
                         process = Runtime.getRuntime().exec(command);
                     } catch (IOException ioException) {
-                        bufferedWriter.write("Has problem when backup database. Reason: " + ioException.getMessage());
+                        bufferedWriter.append("Has problem when backup database. Reason: " + ioException.getMessage() +
+                                "Date: " + Util.formatTimestampToDateTime(new Date().getTime()) + "\n");
                         bufferedWriter.close();
                     }
                     try {
@@ -448,16 +454,22 @@ public class CRONJobService implements SchedulingConfigurer {
                             processComplete = process.waitFor();
                         }
                     } catch (InterruptedException interruptedException) {
-                        bufferedWriter.write("Has problem when backup database. Reason: " + interruptedException.getMessage());
+                        bufferedWriter.append("Has problem when backup database. Reason: " + interruptedException.getMessage() +
+                                "Date: " + Util.formatTimestampToDateTime(new Date().getTime()) + "\n");
                         bufferedWriter.close();
                     }
                     if (processComplete == 0) {
-                        locationRepository.deleteAll();
-                        locationRepository.resetGeneratedIdInLocationHistoryTable();
-                        bufferedWriter.write("Backup database successfully.");
+                        Date currentDay = new Date();
+                        Calendar calendar = Calendar.getInstance();
+                        calendar.setTime(currentDay);
+                        calendar.add(Calendar.DATE, -Constants.DATE_FOR_CRONJOB_LOCATION);
+
+                        locationRepository.deleteLocationHistoriesByTimeBefore(Util.getEndDay(calendar.getTimeInMillis()));
+
+                        bufferedWriter.append("Backup database successfully - " + Util.formatTimestampToDateTime(new Date().getTime()) + "\n");
                         bufferedWriter.close();
                     } else {
-                        bufferedWriter.write("Cannot backup database");
+                        bufferedWriter.append("Cannot backup database - " + Util.formatTimestampToDateTime(new Date().getTime()) + "\n");
                         bufferedWriter.close();
                     }
                 } catch (IOException ioException) {

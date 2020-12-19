@@ -122,6 +122,16 @@ public class AccountService {
                         }
                     }
                     if (!account.getParent().getIsDisabled().booleanValue()) {
+                        if (account.getParent().getDeviceId() == null || account.getParent().getDeviceId().isEmpty()) {
+                            account.getParent().setDeviceId(accountLoginDTO.getDeviceId());
+                            result.setIsChangedDevice(Boolean.FALSE);
+                        } else {
+                            if (!account.getParent().getDeviceId().equalsIgnoreCase(accountLoginDTO.getDeviceId())) {
+                                result.setIsChangedDevice(Boolean.TRUE);
+                            } else {
+                                result.setIsChangedDevice(Boolean.FALSE);
+                            }
+                        }
                         result.setJwt(token);
                         result.setRole(account.getRole());
                         result.setPhoneNumber(account.getUsername());
@@ -140,6 +150,8 @@ public class AccountService {
                     result.setPhoneNumber(account.getUsername());
                     result.setJwt(token);
                 }
+
+                accountRepository.save(account);
                 return result;
             } catch (UsernameNotFoundException usernameNotFoundException) {
                 return null;

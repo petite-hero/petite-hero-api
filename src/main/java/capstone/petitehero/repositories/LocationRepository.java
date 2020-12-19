@@ -41,4 +41,10 @@ public interface LocationRepository extends JpaRepository<LocationHistory, Long>
     @Modifying
     @Query(value = "Alter Table location_history Auto_Increment = 1", nativeQuery = true)
     void resetGeneratedIdInLocationHistoryTable();
+
+    @Transactional
+    void deleteLocationHistoriesByTimeBetween(Long startTime, Long endTime);
+
+    @Transactional
+    void deleteLocationHistoriesByTimeBefore(Long time);
 }

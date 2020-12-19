@@ -16,4 +16,5 @@ public class LoginResponseDTO implements Serializable {
     private Boolean isDisabled;
     private Boolean isExpired;
     private Boolean isVerify;
+    private Boolean isChangedDevice;
 }

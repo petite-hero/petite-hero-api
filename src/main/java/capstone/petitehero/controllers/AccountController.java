@@ -254,9 +254,14 @@ public class AccountController {
 
             LoginResponseDTO result = accountService.loginAccount(accountLoginDTO);
             if (result != null) {
-                responseObject = new ResponseObject(Constants.CODE_200, "OK");
-                responseObject.setData(result);
-                return new ResponseEntity<>(responseObject, HttpStatus.OK);
+                if (!result.getIsChangedDevice()) {
+                    responseObject = new ResponseObject(Constants.CODE_200, "OK");
+                    responseObject.setData(result);
+                    return new ResponseEntity<>(responseObject, HttpStatus.OK);
+                } else {
+                    responseObject = new ResponseObject(Constants.CODE_400, "Your device has changed cannot login");
+                    return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+                }
             }
         } catch (NoSuchAlgorithmException noSuchAlgorithmException) {
             responseObject = new ResponseObject(Constants.CODE_500,
@@ -390,7 +395,7 @@ public class AccountController {
                             "An OTP token has sent to your phone number");
                     return new ResponseEntity<>(responseObject, HttpStatus.OK);
                 } else {
-                    responseObject = new ResponseObject(Constants.CODE_200,
+                    responseObject = new ResponseObject(Constants.CODE_500,
                             "Has problem when sending OTP to your phone number. " +
                                     "Please connect with petite-hero supporter");
                     return new ResponseEntity<>(responseObject, HttpStatus.OK);
@@ -418,6 +423,12 @@ public class AccountController {
             responseObject = new ResponseObject(Constants.CODE_404, "Cannot found your account in the system");
             return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
         }
+        if (token != null && !token.toString().isEmpty()) {
+            if (token.toString().length() != 6) {
+                responseObject = new ResponseObject(Constants.CODE_400, "Token must contain 6 digits");
+                return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+            }
+        }
 
         AuthyApiClient authyApiClient = new AuthyApiClient(AUTHY_KEY);
 
@@ -435,12 +446,12 @@ public class AccountController {
                                 "Verify OTP for your phone number successfully.");
                         return new ResponseEntity<>(responseObject, HttpStatus.OK);
                     }
-                    responseObject = new ResponseObject(Constants.CODE_200,
+                    responseObject = new ResponseObject(Constants.CODE_400,
                             "Has problem when verifying OTP for your phone number. " +
                                     "Please connect with petite-hero supporter");
                     return new ResponseEntity<>(responseObject, HttpStatus.OK);
                 } else {
-                    responseObject = new ResponseObject(Constants.CODE_200,
+                    responseObject = new ResponseObject(Constants.CODE_400,
                             "Has problem when verifying OTP for your phone number. " +
                                     "Please connect with petite-hero supporter");
                     return new ResponseEntity<>(responseObject, HttpStatus.OK);

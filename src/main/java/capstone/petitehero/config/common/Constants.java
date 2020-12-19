@@ -107,5 +107,5 @@ public class Constants {
 //    public static final int CHILD_SAFE = 3;
     public static final String CONFIG_FILE = "petite-hero-config.xml";
 
-
+    public static final int DATE_FOR_CRONJOB_LOCATION = 60;
 }
