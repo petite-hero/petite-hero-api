@@ -14,7 +14,4 @@
     <safezone_cron_time>00:05:00</safezone_cron_time>
     <task_cron_time>00:10:00</task_cron_time>
     <failed_task_cron_time>13:57:00</failed_task_cron_time>
-    <total_hour_task_education>1</total_hour_task_education>
-    <total_hour_task_housework>2</total_hour_task_housework>
-    <total_hour_task_skills>3</total_hour_task_skills>
 </config>

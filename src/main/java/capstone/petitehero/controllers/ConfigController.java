@@ -16,11 +16,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.time.Clock;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.temporal.TemporalUnit;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -85,27 +80,27 @@ public class ConfigController {
             }
             licenseDTO.setReport_delay(modifyLicenseDTO.getReport_delay());
         }
-        if (modifyLicenseDTO.getTotal_hour_task_education() != null && !modifyLicenseDTO.getTotal_hour_task_education().toString().isEmpty()) {
-            if (!Util.validateLongNumber(modifyLicenseDTO.getTotal_hour_task_education().toString())) {
-                responseObject = new ResponseObject(Constants.CODE_400, "Total hour task education should only contain number");
-                return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
-            }
-            licenseDTO.setTotal_hour_task_education(modifyLicenseDTO.getTotal_hour_task_education());
-        }
-        if (modifyLicenseDTO.getTotal_hour_task_housework() != null && !modifyLicenseDTO.getTotal_hour_task_housework().toString().isEmpty()) {
-            if (!Util.validateLongNumber(modifyLicenseDTO.getTotal_hour_task_housework().toString())) {
-                responseObject = new ResponseObject(Constants.CODE_400, "Total hour task housework should only contain number");
-                return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
-            }
-            licenseDTO.setTotal_hour_task_housework(modifyLicenseDTO.getTotal_hour_task_housework());
-        }
-        if (modifyLicenseDTO.getTotal_hour_task_skills() != null && !modifyLicenseDTO.getTotal_hour_task_skills().toString().isEmpty()) {
-            if (!Util.validateLongNumber(modifyLicenseDTO.getTotal_hour_task_skills().toString())) {
-                responseObject = new ResponseObject(Constants.CODE_400, "Total hour task skills should only contain number");
-                return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
-            }
-            licenseDTO.setTotal_hour_task_skills(modifyLicenseDTO.getTotal_hour_task_skills());
-        }
+//        if (modifyLicenseDTO.getTotal_hour_task_education() != null && !modifyLicenseDTO.getTotal_hour_task_education().toString().isEmpty()) {
+//            if (!Util.validateLongNumber(modifyLicenseDTO.getTotal_hour_task_education().toString())) {
+//                responseObject = new ResponseObject(Constants.CODE_400, "Total hour task education should only contain number");
+//                return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+//            }
+//            licenseDTO.setTotal_hour_task_education(modifyLicenseDTO.getTotal_hour_task_education());
+//        }
+//        if (modifyLicenseDTO.getTotal_hour_task_housework() != null && !modifyLicenseDTO.getTotal_hour_task_housework().toString().isEmpty()) {
+//            if (!Util.validateLongNumber(modifyLicenseDTO.getTotal_hour_task_housework().toString())) {
+//                responseObject = new ResponseObject(Constants.CODE_400, "Total hour task housework should only contain number");
+//                return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+//            }
+//            licenseDTO.setTotal_hour_task_housework(modifyLicenseDTO.getTotal_hour_task_housework());
+//        }
+//        if (modifyLicenseDTO.getTotal_hour_task_skills() != null && !modifyLicenseDTO.getTotal_hour_task_skills().toString().isEmpty()) {
+//            if (!Util.validateLongNumber(modifyLicenseDTO.getTotal_hour_task_skills().toString())) {
+//                responseObject = new ResponseObject(Constants.CODE_400, "Total hour task skills should only contain number");
+//                return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+//            }
+//            licenseDTO.setTotal_hour_task_skills(modifyLicenseDTO.getTotal_hour_task_skills());
+//        }
         if (modifyLicenseDTO.getSafezone_cron_time() != null && !modifyLicenseDTO.getSafezone_cron_time().isEmpty()) {
             if (!modifyLicenseDTO.getSafezone_cron_time().matches("^(?:(?:([01]?\\d|2[0-3]):)?([0-5]?\\d):)?([0-5]?\\d)$")) {
                 responseObject = new ResponseObject(Constants.CODE_400, "Safezone cron time should in format HH:MM:ss");
@@ -174,9 +169,9 @@ public class ConfigController {
     @RequestMapping(value = "/test/dump-database", method = RequestMethod.POST)
     public ResponseEntity<Object> dumpDatabase() {
         ResponseObject responseObject;
-        File file = new File("log-" + new Date().getTime() + ".txt");
+        File file = new File("log.txt");
         try {
-            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
+            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file, true));
 
             String outputFile = "backup-database-" + new Date().getTime() + ".sql";
             int processComplete = 0;
@@ -192,11 +187,12 @@ public class ConfigController {
                         username, password, port, host, database, outputFile);
                 process = Runtime.getRuntime().exec(command);
             } catch (IOException ioException) {
-                bufferedWriter.write(ioException.getMessage());
+                bufferedWriter.write("Has problem when backup database. Reason: " + ioException.getMessage() +
+                        "Date: " + Util.formatTimestampToDateTime(new Date().getTime()) + "\n");
                 bufferedWriter.close();
 
                 responseObject = new ResponseObject(Constants.CODE_500,
-                        "Has problem when backup database. Reason: " + ioException.getMessage());
+                        "Has problem when backup database. Reason: " + ioException.getMessage() + "\n");
                 return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
             }
             try {
@@ -204,30 +200,46 @@ public class ConfigController {
                     processComplete = process.waitFor();
                 }
             } catch (InterruptedException interruptedException) {
-                bufferedWriter.write(interruptedException.getMessage());
+                bufferedWriter.append("Has problem when backup database. Reason: " + interruptedException.getMessage() +
+                        "Date: " + Util.formatTimestampToDateTime(new Date().getTime()) + "\n");
                 bufferedWriter.close();
 
                 responseObject = new ResponseObject(Constants.CODE_500,
-                        "Has problem when backup database. Reason: " + interruptedException.getMessage());
+                        "Has problem when backup database. Reason: " + interruptedException.getMessage() +
+                                "Date: " + Util.formatTimestampToDateTime(new Date().getTime()) + "\n");
                 return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
             }
             if (processComplete == 0) {
-                locationRepository.deleteAll();
-                locationRepository.resetGeneratedIdInLocationHistoryTable();
-                bufferedWriter.write("Backup database successfully.");
+                Date currentDay = new Date();
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTime(currentDay);
+                calendar.add(Calendar.DATE, -Constants.DATE_FOR_CRONJOB_LOCATION);
+                System.out.println("Start time: " + new Date().getTime());
+
+//                locationRepository.deleteLocationHistoriesByTimeBetween(Util.getStartDay(startDate.getTime()),
+//                        currentDay.getTime());
+
+                locationRepository.deleteLocationHistoriesByTimeBefore(Util.getEndDay(calendar.getTimeInMillis()));
+
+                System.out.println("End time: " + new Date().getTime());
+                bufferedWriter.append("Backup database successfully. " +
+                        "Date: " + Util.formatTimestampToDateTime(new Date().getTime()) + "\n");
                 bufferedWriter.close();
 
                 responseObject = new ResponseObject(Constants.CODE_200, "Backup database successfully.");
                 return new ResponseEntity<>(responseObject, HttpStatus.OK);
             } else {
-                bufferedWriter.write("Cannot backup database");
+                bufferedWriter.append("Cannot backup database. " +
+                        "Date: " + Util.formatTimestampToDateTime(new Date().getTime()) + "\n");
                 bufferedWriter.close();
 
-                responseObject = new ResponseObject(Constants.CODE_500, "Cannot backup database.");
+                responseObject = new ResponseObject(Constants.CODE_500, "Cannot backup database. " +
+                        "Date: " + Util.formatTimestampToDateTime(new Date().getTime()) + "\n");
                 return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
             }
         } catch (IOException ioException) {
-            responseObject = new ResponseObject(Constants.CODE_500, "Cannot write log file.");
+            responseObject = new ResponseObject(Constants.CODE_500, "Cannot write log file. " +
+                    "Date: " + Util.formatTimestampToDateTime(new Date().getTime()) + "\n");
             return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
