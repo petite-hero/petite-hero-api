@@ -254,13 +254,19 @@ public class AccountController {
 
             LoginResponseDTO result = accountService.loginAccount(accountLoginDTO);
             if (result != null) {
-                if (!result.getIsChangedDevice()) {
+                if (result.getRole().equalsIgnoreCase(Constants.PARENT)) {
+                    if (!result.getIsChangedDevice()) {
+                        responseObject = new ResponseObject(Constants.CODE_200, "OK");
+                        responseObject.setData(result);
+                        return new ResponseEntity<>(responseObject, HttpStatus.OK);
+                    } else {
+                        responseObject = new ResponseObject(Constants.CODE_400, "Your device has changed cannot login");
+                        return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+                    }
+                } else {
                     responseObject = new ResponseObject(Constants.CODE_200, "OK");
                     responseObject.setData(result);
                     return new ResponseEntity<>(responseObject, HttpStatus.OK);
-                } else {
-                    responseObject = new ResponseObject(Constants.CODE_400, "Your device has changed cannot login");
-                    return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
                 }
             }
         } catch (NoSuchAlgorithmException noSuchAlgorithmException) {
