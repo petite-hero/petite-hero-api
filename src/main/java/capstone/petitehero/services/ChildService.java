@@ -4,6 +4,7 @@ import capstone.petitehero.config.common.Constants;
 import capstone.petitehero.dtos.ResponseObject;
 import capstone.petitehero.dtos.common.ChildInformation;
 import capstone.petitehero.dtos.common.ParentInformation;
+import capstone.petitehero.dtos.request.location.PushNotiSWDTO;
 import capstone.petitehero.dtos.response.child.*;
 import capstone.petitehero.entities.Child;
 import capstone.petitehero.entities.Parent;
@@ -133,6 +134,8 @@ public class ChildService {
 
     public DeleteChildResponseDTO disableChildById(Child child) {
         child.setIsDisabled(Boolean.TRUE);
+        child.setAndroidId(null);
+        child.setDeviceName(null);
 
         List<Parent_Child> parentChildList = new ArrayList<>(child.getChild_parentCollection());
         if (parentChildList != null && !parentChildList.isEmpty()) {
@@ -160,6 +163,11 @@ public class ChildService {
 
         Child childResult = childRepository.save(child);
         if (childResult != null) {
+            PushNotiSWDTO noti = new PushNotiSWDTO(Constants.SILENT_NOTI, Constants.LOGOUT, new Object());
+
+            if (child.getPushToken() != null && !child.getPushToken().isEmpty()) {
+                notiService.pushNotificationSW(noti, child.getPushToken());
+            }
             DeleteChildResponseDTO result = new DeleteChildResponseDTO();
             result.setStatus(Constants.status.DELETED.toString());
             return result;
@@ -259,7 +267,7 @@ public class ChildService {
                 }
             }
             if (childResult.getAndroidId() != null && !childResult.getAndroidId().isEmpty()) {
-                result.setAndroidId(childResult.getAndroidId());
+                result.setAndroidId(childResult.getDeviceName());
             }
 
             return result;

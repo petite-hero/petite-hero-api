@@ -219,7 +219,7 @@ public class ConfigController {
 //                locationRepository.deleteLocationHistoriesByTimeBetween(Util.getStartDay(startDate.getTime()),
 //                        currentDay.getTime());
 
-                locationRepository.deleteLocationHistoriesByTimeBefore(Util.getEndDay(calendar.getTimeInMillis()));
+                locationRepository.deleteLocationHistoriesByTimeBefore(Util.getEndDay(currentDay.getTime()));
 
                 System.out.println("End time: " + new Date().getTime());
                 bufferedWriter.append("Backup database successfully. " +

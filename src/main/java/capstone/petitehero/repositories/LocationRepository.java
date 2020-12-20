@@ -37,14 +37,16 @@ public interface LocationRepository extends JpaRepository<LocationHistory, Long>
             "WHERE pc.parent_id = p.parent_id OR pc.collaborator_id = p.parent_id")
     ArrayList<String> getParentPushToken(@Param("childId") Long childId);
 
+//    @Transactional
+//    @Modifying
+//    @Query(value = "Alter Table location_history Auto_Increment = 1", nativeQuery = true)
+//    void resetGeneratedIdInLocationHistoryTable();
+//
+//    @Transactional
+//    void deleteLocationHistoriesByTimeBetween(Long startTime, Long endTime);
+
     @Transactional
     @Modifying
-    @Query(value = "Alter Table location_history Auto_Increment = 1", nativeQuery = true)
-    void resetGeneratedIdInLocationHistoryTable();
-
-    @Transactional
-    void deleteLocationHistoriesByTimeBetween(Long startTime, Long endTime);
-
-    @Transactional
-    void deleteLocationHistoriesByTimeBefore(Long time);
+    @Query(value = "DELETE FROM location_history lh WHERE lh.time < :time", nativeQuery = true)
+    void deleteLocationHistoriesByTimeBefore(@Param("time") Long time);
 }

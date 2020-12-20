@@ -382,7 +382,7 @@ public class ParentController {
             AddCollaboratorResponseDTO result = parentChildService.deleteCollaboratorByParent(
                     addCollaboratorRequestDTO.getListChildId(), parentAccount, addCollaboratorRequestDTO.getCollaboratorPhoneNumber());
 
-            if (!result.getListChildren().isEmpty()) {
+            if (result.getStatus().equalsIgnoreCase(Constants.DELETED)) {
                 responseObject = new ResponseObject(Constants.CODE_200, "OK");
                 responseObject.setData(result);
                 return new ResponseEntity<>(responseObject, HttpStatus.OK);

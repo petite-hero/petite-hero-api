@@ -4,6 +4,7 @@ import capstone.petitehero.config.common.Constants;
 import capstone.petitehero.dtos.common.ChildInformation;
 import capstone.petitehero.dtos.response.collaborator.AddCollaboratorResponseDTO;
 import capstone.petitehero.dtos.response.collaborator.ListCollaboratorResponseDTO;
+import capstone.petitehero.entities.Child;
 import capstone.petitehero.entities.Parent;
 import capstone.petitehero.entities.Parent_Child;
 import capstone.petitehero.repositories.ChildRepository;
@@ -119,7 +120,6 @@ public class ParentChildService {
         AddCollaboratorResponseDTO result = new AddCollaboratorResponseDTO();
         result.setParentPhoneNumber(parent.getAccount().getUsername());
         result.setListChildren(new ArrayList<>());
-        Parent_Child parent_child;
         List<Long> childNeedToCollab = new ArrayList<>();
 
         // checking is this collaborator has collab with this child
@@ -136,41 +136,74 @@ public class ParentChildService {
 
         if (!childNeedToCollab.isEmpty()) {
             for (Long childId : childNeedToCollab) {
-                parent_child =
-                        parentChildRepository.findDistinctFirstByChild_ChildIdAndParent_ParentIdAndCollaboratorIsNull(
-                                childId, parent.getParentId());
-                if (parent_child != null) {
+                Child child = childRepository.findChildByChildIdEqualsAndIsDisabled(childId, Boolean.FALSE);
+                if (child != null) {
+                    Parent_Child parent_child = new Parent_Child();
                     parent_child.setIsCollaboratorConfirm(Boolean.FALSE);
                     parent_child.setCollaborator(collaboratorAccount);
-                } else {
-                    parent_child = new Parent_Child();
-
                     parent_child.setParent(parent);
-                    parent_child.setIsCollaboratorConfirm(Boolean.FALSE);
-                    parent_child.setCollaborator(collaboratorAccount);
-                    parent_child.setChild(childRepository.findChildByChildIdEqualsAndIsDisabled(childId, Boolean.FALSE));
-                }
-                Parent_Child parentChildResult = parentChildRepository.save(parent_child);
-                if (parentChildResult != null) {
-                    ChildInformation childInformation = new ChildInformation();
 
-                    childInformation.setChildId(parentChildResult.getChild().getChildId());
-                    childInformation.setName(parentChildResult.getChild().getName());
-                    if (parentChildResult.getChild().getGender() != null) {
-                        if (parentChildResult.getChild().getGender().booleanValue()) {
-                            childInformation.setGender("Male");
-                        } else {
-                            childInformation.setGender("Female");
+                    parent_child.setChild(child);
+                    Parent_Child parentChildResult = parentChildRepository.save(parent_child);
+                    if (parentChildResult != null) {
+                        ChildInformation childInformation = new ChildInformation();
+
+                        childInformation.setChildId(parentChildResult.getChild().getChildId());
+                        childInformation.setName(parentChildResult.getChild().getName());
+                        if (parentChildResult.getChild().getGender() != null) {
+                            if (parentChildResult.getChild().getGender().booleanValue()) {
+                                childInformation.setGender("Male");
+                            } else {
+                                childInformation.setGender("Female");
+                            }
                         }
-                    }
-                    Calendar calendar = Calendar.getInstance();
-                    int year = calendar.get(Calendar.YEAR);
-                    childInformation.setAge(year - parentChildResult.getChild().getYob());
+                        Calendar calendar = Calendar.getInstance();
+                        int year = calendar.get(Calendar.YEAR);
+                        childInformation.setAge(year - parentChildResult.getChild().getYob());
 
-                    result.getListChildren().add(childInformation);
+                        result.getListChildren().add(childInformation);
+                    }
                 }
             }
         }
+
+//        if (!childNeedToCollab.isEmpty()) {
+//            for (Long childId : childNeedToCollab) {
+//                parent_child =
+//                        parentChildRepository.findDistinctFirstByChild_ChildIdAndParent_ParentIdAndCollaboratorIsNull(
+//                                childId, parent.getParentId());
+//                if (parent_child != null) {
+//                    parent_child.setIsCollaboratorConfirm(Boolean.FALSE);
+//                    parent_child.setCollaborator(collaboratorAccount);
+//                } else {
+//                    parent_child = new Parent_Child();
+//
+//                    parent_child.setParent(parent);
+//                    parent_child.setIsCollaboratorConfirm(Boolean.FALSE);
+//                    parent_child.setCollaborator(collaboratorAccount);
+//                    parent_child.setChild(childRepository.findChildByChildIdEqualsAndIsDisabled(childId, Boolean.FALSE));
+//                }
+//                Parent_Child parentChildResult = parentChildRepository.save(parent_child);
+//                if (parentChildResult != null) {
+//                    ChildInformation childInformation = new ChildInformation();
+//
+//                    childInformation.setChildId(parentChildResult.getChild().getChildId());
+//                    childInformation.setName(parentChildResult.getChild().getName());
+//                    if (parentChildResult.getChild().getGender() != null) {
+//                        if (parentChildResult.getChild().getGender().booleanValue()) {
+//                            childInformation.setGender("Male");
+//                        } else {
+//                            childInformation.setGender("Female");
+//                        }
+//                    }
+//                    Calendar calendar = Calendar.getInstance();
+//                    int year = calendar.get(Calendar.YEAR);
+//                    childInformation.setAge(year - parentChildResult.getChild().getYob());
+//
+//                    result.getListChildren().add(childInformation);
+//                }
+//            }
+//        }
         if (result.getListChildren() != null) {
             if (!result.getListChildren().isEmpty()) {
                 result.setStatus(Constants.status.ADDED.toString());
@@ -264,24 +297,22 @@ public class ParentChildService {
 
         for (Long childId : listChildId) {
             Parent_Child parentChild =
-                    parentChildRepository.findParent_ChildByChild_ChildIdAndCollaborator_Account_Username(
-                            childId, collaboratorPhoneNumber);
+                    parentChildRepository.findParent_ChildByChild_ChildIdAndCollaborator_Account_UsernameAndParent_Account_Username(
+                            childId, collaboratorPhoneNumber, parent.getAccount().getUsername());
 
             if (parentChild != null) {
-                parentChild.setIsCollaboratorConfirm(null);
-                parentChild.setCollaborator(null);
-
-                Parent_Child parentChildResult = parentChildRepository.save(parentChild);
-                if (parentChildResult != null) {
-                    ChildInformation child = new ChildInformation();
-                    result.getListChildren().add(child);
-                }
+                parentChildRepository.delete(parentChild);
+//                parentChild.setIsCollaboratorConfirm(null);
+//                parentChild.setCollaborator(null);
+//
+//                Parent_Child parentChildResult = parentChildRepository.save(parentChild);
+//                if (parentChildResult != null) {
+//                    ChildInformation child = new ChildInformation();
+//                    result.getListChildren().add(child);
+//                }
+                result.setStatus(Constants.status.DELETED.toString());
             }
         }
-        if (!result.getListChildren().isEmpty()) {
-            result.setStatus(Constants.status.DELETED.toString());
-        }
-
         return result;
     }
 
@@ -300,10 +331,12 @@ public class ParentChildService {
 
                     collaboratorData.setPhoneNumber(collaborator.getCollaborator().getAccount().getUsername());
                     collaboratorData.setName(collaborator.getCollaborator().getName());
-                    if (collaborator.getCollaborator().getGender().booleanValue()) {
-                        collaboratorData.setGender("Male");
-                    } else {
-                        collaboratorData.setGender("Female");
+                    if (collaborator.getCollaborator().getGender() != null) {
+                        if (collaborator.getCollaborator().getGender().booleanValue()) {
+                            collaboratorData.setGender("Male");
+                        } else {
+                            collaboratorData.setGender("Female");
+                        }
                     }
 
                     result.add(collaboratorData);

@@ -249,6 +249,7 @@ public class ChildController {
                 task.setName(taskCreateRequestDTO.getName());
                 task.setDescription(taskCreateRequestDTO.getDescription());
                 task.setAssignDate(assignDate);
+
                 task.setFromTime(new Date(Util.setTimeForAssignDate(assignDate, taskCreateRequestDTO.getFromTime())));
                 task.setToTime(new Date(Util.setTimeForAssignDate(assignDate, taskCreateRequestDTO.getToTime())));
                 task.setCreatedDate(new Date().getTime());
