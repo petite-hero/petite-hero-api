@@ -63,8 +63,8 @@ public class NotificationService {
                 body.put("title", Constants.SILENT_NOTI);
             }
             body.put("data", new Gson().toJson(data));
-            body.put("to", pushTokens);
-
+            body.put("to", new Gson().toJson(pushTokens));
+            System.out.println(pushTokens);
             StringEntity bodyJson = new StringEntity(new Gson().toJson(body), "UTF-8");
 
             System.out.println("===> Body sent: " + new Gson().toJson(body));
@@ -80,6 +80,7 @@ public class NotificationService {
             HttpResponse response = httpClient.execute(request);
 
             // handle response here...
+            System.out.println(response);
             result = response.getStatusLine().getStatusCode();
             System.out.println(result);
 

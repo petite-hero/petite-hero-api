@@ -29,12 +29,12 @@ public interface LocationRepository extends JpaRepository<LocationHistory, Long>
 //    public List<ParentChildPushTokenDTO> getParentPushToken(@Param("childId") Long childId);
 
     @Query(nativeQuery = true, value = "" +
-            "SELECT p.push_token\n" +
+            "SELECT DISTINCT p.push_token\n" +
             "FROM parent p,\n" +
-            "\t(SELECT pc.parent_id\n" +
-            "\tFROM parent_child pc \n" +
-            "\tWHERE pc.child_id = :childId) pc\n" +
-            "WHERE pc.parent_id = p.parent_id")
+            " (SELECT pc.parent_id, pc.collaborator_id\n" +
+            " FROM parent_child pc\n" +
+            " WHERE pc.child_id = :childId) pc\n" +
+            "WHERE pc.parent_id = p.parent_id OR pc.collaborator_id = p.parent_id")
     ArrayList<String> getParentPushToken(@Param("childId") Long childId);
 
     @Transactional
