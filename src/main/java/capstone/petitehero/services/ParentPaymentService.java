@@ -159,26 +159,28 @@ public class ParentPaymentService {
             List<ListPaymentTransactionResponseDTO> result = new ArrayList<>();
             if (!listParentPaymentResult.isEmpty()) {
                 for (ParentPayment payment : listParentPaymentResult) {
-                    ListPaymentTransactionResponseDTO dataResult = new ListPaymentTransactionResponseDTO();
+                    if (!payment.getStatus().equalsIgnoreCase(Constants.status.PENDING.toString())) {
+                        ListPaymentTransactionResponseDTO dataResult = new ListPaymentTransactionResponseDTO();
 
-                    dataResult.setTransactionId(payment.getParentPaymentId());
-                    dataResult.setStatus(payment.getStatus());
-                    dataResult.setAmount(payment.getAmount());
-                    dataResult.setPayerId(payment.getPayerId());
-                    dataResult.setPaymentID(payment.getPaymentId());
-                    dataResult.setContent(payment.getContent());
-                    dataResult.setDate(payment.getCreateDate());
-                    dataResult.setPayDate(payment.getPayDate());
-                    dataResult.setLink(payment.getLink());
+                        dataResult.setTransactionId(payment.getParentPaymentId());
+                        dataResult.setStatus(payment.getStatus());
+                        dataResult.setAmount(payment.getAmount());
+                        dataResult.setPayerId(payment.getPayerId());
+                        dataResult.setPaymentID(payment.getPaymentId());
+                        dataResult.setContent(payment.getContent());
+                        dataResult.setDate(payment.getCreateDate());
+                        dataResult.setPayDate(payment.getPayDate());
+                        dataResult.setLink(payment.getLink());
 
-                    ParentInformation parentInformation = new ParentInformation();
-                    parentInformation.setPhoneNumber(payment.getSubscription().getParent().getAccount().getUsername());
-                    parentInformation.setName(payment.getSubscription().getParent().getName());
-                    parentInformation.setEmail(payment.getSubscription().getParent().getEmail());
+                        ParentInformation parentInformation = new ParentInformation();
+                        parentInformation.setPhoneNumber(payment.getSubscription().getParent().getAccount().getUsername());
+                        parentInformation.setName(payment.getSubscription().getParent().getName());
+                        parentInformation.setEmail(payment.getSubscription().getParent().getEmail());
 
-                    dataResult.setParentInformation(parentInformation);
+                        dataResult.setParentInformation(parentInformation);
 
-                    result.add(dataResult);
+                        result.add(dataResult);
+                    }
                 }
             }
             return result;
