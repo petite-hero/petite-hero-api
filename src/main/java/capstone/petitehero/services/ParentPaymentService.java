@@ -125,21 +125,23 @@ public class ParentPaymentService {
         if (listParentPaymentResult != null) {
             List<ListPaymentTransactionResponseDTO> result = new ArrayList<>();
             for (ParentPayment payment : listParentPaymentResult) {
-                ListPaymentTransactionResponseDTO dataResult = new ListPaymentTransactionResponseDTO();
+                if (!payment.getStatus().equalsIgnoreCase(Constants.status.PENDING.toString())) {
+                    ListPaymentTransactionResponseDTO dataResult = new ListPaymentTransactionResponseDTO();
 
-                dataResult.setTransactionId(payment.getParentPaymentId());
-                dataResult.setContent(payment.getContent());
-                dataResult.setPhoneNumber(payment.getSubscription().getParent().getAccount().getUsername());
-                dataResult.setStatus(payment.getStatus());
-                if (payment.getStatus().equals(Constants.status.PENDING.toString())) {
-                    dataResult.setLink(payment.getLink());
+                    dataResult.setTransactionId(payment.getParentPaymentId());
+                    dataResult.setContent(payment.getContent());
+                    dataResult.setPhoneNumber(payment.getSubscription().getParent().getAccount().getUsername());
+                    dataResult.setStatus(payment.getStatus());
+                    if (payment.getStatus().equals(Constants.status.PENDING.toString())) {
+                        dataResult.setLink(payment.getLink());
+                    }
+                    dataResult.setAmount(payment.getAmount());
+
+                    dataResult.setDate(payment.getCreateDate());
+                    dataResult.setPayDate(payment.getPayDate());
+
+                    result.add(dataResult);
                 }
-                dataResult.setAmount(payment.getAmount());
-
-                dataResult.setDate(payment.getCreateDate());
-                dataResult.setPayDate(payment.getPayDate());
-
-                result.add(dataResult);
             }
             return result;
         }
