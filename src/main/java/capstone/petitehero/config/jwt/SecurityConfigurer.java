@@ -73,6 +73,7 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
                 .antMatchers("/quest/list/{childId}/badges").permitAll()
                 .antMatchers("/quest/{questId}").permitAll()
                 .antMatchers("/child/{childId}").permitAll()
+                .antMatchers("/child/{childId}/delete-device").permitAll()
                 .antMatchers("/parent/{phone}/payment").permitAll()
                 .antMatchers("/parent/{phone}/payment/success").permitAll()
                 .antMatchers("/parent/{phone}/payment/cancel").permitAll()

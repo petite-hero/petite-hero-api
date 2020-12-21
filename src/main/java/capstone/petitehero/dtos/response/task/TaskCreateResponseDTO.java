@@ -22,4 +22,5 @@ public class TaskCreateResponseDTO implements Serializable {
     private String type;
     private Assignee assignee;
     private Assigner assigner;
+    private Boolean isOverlap;
 }

@@ -266,8 +266,22 @@ public class ChildController {
             List<TaskCreateResponseDTO> result = taskService.addTaskByParent(taskList);
 
             if (!result.isEmpty()) {
-                responseObject = new ResponseObject(Constants.CODE_200, "OK");
-                responseObject.setData(result);
+                String msg = "Your task on day ";
+                int countOverLapTask = 0;
+                for (TaskCreateResponseDTO taskResponse : result) {
+                    if (taskResponse.getIsOverlap().booleanValue()) {
+                        countOverLapTask++;
+                        msg += Util.formatTimestampToDate(taskResponse.getAssignDate()) + " ";
+                    }
+                }
+                msg += "overlap";
+                if (countOverLapTask == 0) {
+                    responseObject = new ResponseObject(Constants.CODE_200, "OK");
+                    responseObject.setData(result);
+                } else {
+                    responseObject = new ResponseObject(Constants.CODE_400, msg);
+                    responseObject.setData(result);
+                }
                 return new ResponseEntity<>(responseObject, HttpStatus.OK);
             }
 
@@ -351,5 +365,25 @@ public class ChildController {
     @ResponseBody
     public ResponseObject getSWTrackingStatus(@PathVariable(value = "child") Long child) {
         return childService.getSWTrackingStatus(child);
+    }
+
+    @RequestMapping(value = "/{childId}/delete-device", method = RequestMethod.DELETE)
+    @ResponseBody
+    public ResponseEntity<Object> deleteChildDevice(@PathVariable("childId") Long childId) {
+        ResponseObject responseObject;
+        Child child = childService.findChildByChildId(childId, Boolean.FALSE);
+        if (child == null) {
+            responseObject = new ResponseObject(Constants.CODE_404, "Cannot found that child in the system");
+            return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
+        }
+
+        DeleteChildResponseDTO result = childService.resetChildDevice(child);
+        if (result != null) {
+            responseObject = new ResponseObject(Constants.CODE_200, "OK");
+            return new ResponseEntity<>(responseObject, HttpStatus.OK);
+        }
+
+        responseObject = new ResponseObject(Constants.CODE_500, "Cannot reset child device in the system");
+        return new ResponseEntity<>(responseObject, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

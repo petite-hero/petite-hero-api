@@ -294,4 +294,24 @@ public class ChildService {
         }
         return result;
     }
+
+    public DeleteChildResponseDTO resetChildDevice(Child child) {
+        child.setAndroidId(null);
+        child.setDeviceName(null);
+
+        Child childResult = childRepository.save(child);
+        if (childResult != null) {
+            PushNotiSWDTO noti = new PushNotiSWDTO(Constants.SILENT_NOTI, Constants.LOGOUT, new Object());
+
+            if (child.getPushToken() != null && !child.getPushToken().isEmpty()) {
+                notiService.pushNotificationSW(noti, child.getPushToken());
+            }
+            DeleteChildResponseDTO result = new DeleteChildResponseDTO();
+            result.setStatus(Constants.DELETED);
+
+            return result;
+        }
+
+        return null;
+    }
 }

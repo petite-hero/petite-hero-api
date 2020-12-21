@@ -45,52 +45,64 @@ public class TaskService {
     public List<TaskCreateResponseDTO> addTaskByParent(List<Task> listTask) {
         List<TaskCreateResponseDTO> result = new ArrayList<>();
         for (Task task : listTask) {
-            Task taskResult = taskRepository.save(task);
-            if (taskResult != null) {
-                // add information of task
+            Task overlapTask = taskRepository.existsTaskInAssignDate(
+                    task.getChild().getChildId(), Boolean.FALSE,
+                    Util.getStartDay(task.getAssignDate()), Util.getEndDay(task.getAssignDate()),
+                    Util.formatTimestampToTime(task.getFromTime().getTime()),
+                    Util.formatTimestampToTime(task.getToTime().getTime()));
+            if (overlapTask != null) {
                 TaskCreateResponseDTO resultData = new TaskCreateResponseDTO();
-                resultData.setTaskId(taskResult.getTaskId());
-                resultData.setName(taskResult.getName());
-                resultData.setDescription(taskResult.getDescription());
+                resultData.setAssignDate(task.getAssignDate());
+                resultData.setIsOverlap(Boolean.TRUE);
+                result.add(resultData);
+            } else {
+                Task taskResult = taskRepository.save(task);
+                if (taskResult != null) {
+                    // add information of task
+                    TaskCreateResponseDTO resultData = new TaskCreateResponseDTO();
+                    resultData.setTaskId(taskResult.getTaskId());
+                    resultData.setName(taskResult.getName());
+                    resultData.setDescription(taskResult.getDescription());
 
-                resultData.setAssignDate(taskResult.getAssignDate());
-                resultData.setCreatedDate(taskResult.getCreatedDate());
+                    resultData.setAssignDate(taskResult.getAssignDate());
+                    resultData.setCreatedDate(taskResult.getCreatedDate());
 
-                resultData.setFromTime(Util.formatTimestampToTime(taskResult.getFromTime().getTime()));
-                resultData.setToTime(Util.formatTimestampToTime(taskResult.getToTime().getTime()));
+                    resultData.setFromTime(Util.formatTimestampToTime(taskResult.getFromTime().getTime()));
+                    resultData.setToTime(Util.formatTimestampToTime(taskResult.getToTime().getTime()));
 
-                resultData.setType(taskResult.getType());
-                resultData.setStatus(Constants.status.ASSIGNED.toString());
+                    resultData.setType(taskResult.getType());
+                    resultData.setStatus(Constants.status.ASSIGNED.toString());
 
-                // information of assigner (colaborator or parent)
-                Assigner assigner = new Assigner();
-                assigner.setPhoneNumber(taskResult.getParent().getAccount().getUsername());
-                assigner.setName(taskResult.getParent().getName());
-                if (taskResult.getParent().getGender().booleanValue()) {
-                    assigner.setGender("Male");
-                } else {
-                    assigner.setGender("Female");
-                }
-                resultData.setAssigner(assigner);
+                    // information of assigner (colaborator or parent)
+                    Assigner assigner = new Assigner();
+                    assigner.setPhoneNumber(taskResult.getParent().getAccount().getUsername());
+                    assigner.setName(taskResult.getParent().getName());
+                    if (taskResult.getParent().getGender().booleanValue()) {
+                        assigner.setGender("Male");
+                    } else {
+                        assigner.setGender("Female");
+                    }
+                    resultData.setAssigner(assigner);
 
-                // information of assignee (child)
-                Assignee assignee = new Assignee();
-                assignee.setChildId(taskResult.getChild().getChildId());
-                assignee.setName(taskResult.getChild().getName());
-                assignee.setNickName(taskResult.getChild().getNickName());
-                if (taskResult.getChild().getGender().booleanValue()) {
-                    assignee.setGender("Male");
-                } else {
-                    assignee.setGender("Female");
-                }
-                resultData.setAssignee(assignee);
+                    // information of assignee (child)
+                    Assignee assignee = new Assignee();
+                    assignee.setChildId(taskResult.getChild().getChildId());
+                    assignee.setName(taskResult.getChild().getName());
+                    assignee.setNickName(taskResult.getChild().getNickName());
+                    if (taskResult.getChild().getGender().booleanValue()) {
+                        assignee.setGender("Male");
+                    } else {
+                        assignee.setGender("Female");
+                    }
+                    resultData.setAssignee(assignee);
+                    resultData.setIsOverlap(Boolean.FALSE);
 
-                // send notification when a task is created in current day to parent's mobile
-                // and child' smart watch
-                if (Util.getStartDay(task.getAssignDate()).longValue()
-                        == Util.getStartDay(new Date().getTime()).longValue()) {
+                    // send notification when a task is created in current day to parent's mobile
+                    // and child' smart watch
+                    if (Util.getStartDay(task.getAssignDate()).longValue()
+                            == Util.getStartDay(new Date().getTime()).longValue()) {
 
-                    // send noti to parent's mobile when a collaborator create task to their children.
+                        // send noti to parent's mobile when a collaborator create task to their children.
 //                    if (!taskResult.getChild().getChild_parentCollection()
 //                            .stream()
 //                            .anyMatch(pc ->
@@ -113,15 +125,15 @@ public class TaskService {
 //                                , notificationDTO, pushTokenList);
 //                    }
 
-                    // send silent noty when a task is created in current day to child's smartwatch
-                    // send silent noty to children's smart watch
-                    if (taskResult.getChild().getPushToken() != null && !taskResult.getChild().getPushToken().isEmpty()) {
-                        PushNotiSWDTO noti = new PushNotiSWDTO(Constants.SILENT_NOTI, Constants.UPDATED_TASKS, resultData);
-                        notiService.pushNotificationSW(noti, taskResult.getChild().getPushToken());
+                        // send silent noty when a task is created in current day to child's smartwatch
+                        // send silent noty to children's smart watch
+                        if (taskResult.getChild().getPushToken() != null && !taskResult.getChild().getPushToken().isEmpty()) {
+                            PushNotiSWDTO noti = new PushNotiSWDTO(Constants.SILENT_NOTI, Constants.UPDATED_TASKS, resultData);
+                            notiService.pushNotificationSW(noti, taskResult.getChild().getPushToken());
+                        }
                     }
+                    result.add(resultData);
                 }
-
-                result.add(resultData);
             }
         }
         return result;
