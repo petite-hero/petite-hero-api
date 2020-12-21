@@ -298,6 +298,7 @@ public class ChildService {
     public DeleteChildResponseDTO resetChildDevice(Child child) {
         child.setAndroidId(null);
         child.setDeviceName(null);
+        child.setPushToken(null);
 
         Child childResult = childRepository.save(child);
         if (childResult != null) {
