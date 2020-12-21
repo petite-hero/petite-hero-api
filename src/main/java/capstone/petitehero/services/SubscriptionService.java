@@ -35,13 +35,23 @@ public class SubscriptionService {
     private NotificationService notiService;
 
     public SubscriptionTypeStatusResponseDTO createNewSubscriptionType(SubscriptionType subscriptionType) {
-        SubscriptionType subscriptionTypeResult = subscriptionTypeRepository.save(subscriptionType);
+        Integer countSubsType = subscriptionTypeRepository.countAllBySubscriptionTypeIdIsNotAndIsDeleted(Constants.FREE_TRAIL_TYPE, Boolean.FALSE);
 
-        if (subscriptionTypeResult != null) {
-            SubscriptionTypeStatusResponseDTO result = new SubscriptionTypeStatusResponseDTO();
-            result.setSubscriptionTypeId(subscriptionTypeResult.getSubscriptionTypeId());
-            result.setStatus(Constants.status.CREATED.toString());
-            return result;
+        if (countSubsType != null) {
+            if (countSubsType < 3 && countSubsType >= 0) {
+                SubscriptionType subscriptionTypeResult = subscriptionTypeRepository.save(subscriptionType);
+
+                if (subscriptionTypeResult != null) {
+                    SubscriptionTypeStatusResponseDTO result = new SubscriptionTypeStatusResponseDTO();
+                    result.setSubscriptionTypeId(subscriptionTypeResult.getSubscriptionTypeId());
+                    result.setStatus(Constants.status.CREATED.toString());
+                    return result;
+                }
+            } else {
+                SubscriptionTypeStatusResponseDTO result = new SubscriptionTypeStatusResponseDTO();
+                result.setStatus(Constants.status.FAILED.toString());
+                return result;
+            }
         }
 
         return null;
@@ -186,6 +196,7 @@ public class SubscriptionService {
 
             List<Subscription> subscriptionsList = oldSubsType.getSubscription().stream()
                     .filter(subs -> !subs.getParent().getIsDisabled().booleanValue())
+                    .filter(subs -> !subs.getIsDisabled().booleanValue())
                     .collect(Collectors.toList());
 
             ArrayList<String> pushToken = new ArrayList<>();

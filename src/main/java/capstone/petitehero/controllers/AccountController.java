@@ -165,6 +165,7 @@ public class AccountController {
                 }
 
                 parent.setAuthyId(user.getId());
+                parent.setIsVerify(Boolean.FALSE);
                 parent.setAccount(accountResult);
 
                 Parent parentResult = parentService.saveParentAccount(parent);

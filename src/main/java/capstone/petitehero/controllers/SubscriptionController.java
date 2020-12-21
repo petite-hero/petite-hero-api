@@ -90,8 +90,11 @@ public class SubscriptionController {
 
         SubscriptionTypeStatusResponseDTO result = subscriptionService.createNewSubscriptionType(subscriptionType);
         if (result != null) {
-
-            responseObject = new ResponseObject(Constants.CODE_200, "OK");
+            if (result.getStatus().equalsIgnoreCase(Constants.status.CREATED.toString())) {
+                responseObject = new ResponseObject(Constants.CODE_200, "OK");
+            } else {
+                responseObject = new ResponseObject(Constants.CODE_400, "Maximum is 3 subscription type in the system");
+            }
             responseObject.setData(result);
             return new ResponseEntity<>(responseObject, HttpStatus.OK);
         }

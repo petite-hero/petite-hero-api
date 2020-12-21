@@ -209,6 +209,10 @@ public class ChildController {
             responseObject = new ResponseObject(Constants.CODE_400, "Task's name cannot be missing or empty");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
+        if (taskCreateRequestDTO.getDescription() == null || taskCreateRequestDTO.getDescription().isEmpty()) {
+            responseObject = new ResponseObject(Constants.CODE_400, "Task's description cannot be missing or empty");
+            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+        }
         if (taskCreateRequestDTO.getFromTime() == null || taskCreateRequestDTO.getFromTime().toString().isEmpty()) {
             responseObject = new ResponseObject(Constants.CODE_400, "Task's start deadline time cannot be missing or empty");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
@@ -303,8 +307,16 @@ public class ChildController {
             responseObject = new ResponseObject(Constants.CODE_400, "Quest's name cannot be missing or empty");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
+        if (questCreateRequestDTO.getDescription() == null || questCreateRequestDTO.getDescription().isEmpty()) {
+            responseObject = new ResponseObject(Constants.CODE_400, "Quest's name cannot be missing or empty");
+            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+        }
         if (questCreateRequestDTO.getReward() == null || questCreateRequestDTO.getReward().toString().isEmpty()) {
             responseObject = new ResponseObject(Constants.CODE_400, "Quest's reward cannot be missing or empty");
+            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+        }
+        if (questCreateRequestDTO.getTitle() == null || questCreateRequestDTO.getTitle().isEmpty()) {
+            responseObject = new ResponseObject(Constants.CODE_400, "Quest's title cannot be missing or empty");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
         //end validate mandatory fields

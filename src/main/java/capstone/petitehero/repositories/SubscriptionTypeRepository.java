@@ -9,6 +9,8 @@ import java.util.List;
 @Repository
 public interface SubscriptionTypeRepository extends JpaRepository<SubscriptionType, Long> {
 
+    Integer countAllBySubscriptionTypeIdIsNotAndIsDeleted(Long subscriptionTypeId, Boolean isDeleted);
+
     SubscriptionType findSubscriptionTypeBySubscriptionTypeId(Long subscriptionTypeId);
 
     SubscriptionType findSubscriptionTypeBySubscriptionTypeIdAndIsDeleted(Long subscriptionTypeId, Boolean isDeleted);

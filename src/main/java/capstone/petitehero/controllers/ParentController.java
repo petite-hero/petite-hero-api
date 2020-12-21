@@ -97,16 +97,20 @@ public class ParentController {
 //                    parent.getAccount().setPassword(Util.encodePassword(parentRegisterRequestDTO.getPassword()));
                 parent.setEmail(parentRegisterRequestDTO.getEmail());
 
-                if (parentRegisterRequestDTO.getGender().equalsIgnoreCase("Male")) {
-                    parent.setGender(Boolean.TRUE);
-                } else {
-                    parent.setGender(Boolean.FALSE);
+                if (parentRegisterRequestDTO.getGender() != null) {
+                    if (parentRegisterRequestDTO.getGender().equalsIgnoreCase("Male")) {
+                        parent.setGender(Boolean.TRUE);
+                    } else {
+                        parent.setGender(Boolean.FALSE);
+                    }
                 }
 
-                if (parentRegisterRequestDTO.getLanguage().equalsIgnoreCase("Vietnamese")) {
-                    parent.setLanguage(Boolean.TRUE);
-                } else {
-                    parent.setLanguage(Boolean.FALSE);
+                if (parentRegisterRequestDTO.getLanguage() != null) {
+                    if (parentRegisterRequestDTO.getLanguage().equalsIgnoreCase("Vietnamese")) {
+                        parent.setLanguage(Boolean.TRUE);
+                    } else {
+                        parent.setLanguage(Boolean.FALSE);
+                    }
                 }
                 // end add basic parent information
 
