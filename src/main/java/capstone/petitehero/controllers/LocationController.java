@@ -10,6 +10,8 @@ import capstone.petitehero.services.SafeZoneService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping(value = "/location")
 public class LocationController {
@@ -28,6 +30,12 @@ public class LocationController {
     @ResponseBody
     public ResponseObject addNewLocationFromSW(@RequestBody AddLocationRequestDTO location, @PathVariable Boolean emergency) {
         return locationService.recordLocationFromSW(location, emergency);
+    }
+
+    @RequestMapping(value = "/locations/", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseObject addListLocationFromSW(@RequestBody List<AddLocationRequestDTO> locations) {
+        return locationService.recordListLocationFromSW(locations);
     }
 
     @RequestMapping(value = "/list/{child}/{from}/{to}", method = RequestMethod.GET)

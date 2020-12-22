@@ -92,6 +92,53 @@ public class LocationService {
         return result;
     }
 
+    public ResponseObject recordListLocationFromSW (List<AddLocationRequestDTO> sentLocations) {
+        ResponseObject result = Util.createResponse();
+        try {
+            if (sentLocations.size() > 0) {
+                Child child = childRepository.getOne(sentLocations.get(0).getChild());
+                System.out.println("===> ChildID: " + sentLocations.get(0).getChild());
+
+                if (child == null) {
+                    result.setData(null);
+                    result.setMsg("Bad request - Child doesn't exist");
+                    result.setCode(Constants.CODE_400);
+                } else {
+                    LocationHistory addedLoc = new LocationHistory();
+                    Iterable<LocationHistory> addedList = new ArrayList<>();
+                    for (AddLocationRequestDTO loc : sentLocations) {
+                        addedLoc.setLatitude(loc.getLatitude());
+                        addedLoc.setLongitude(loc.getLongitude());
+                        addedLoc.setTime(loc.getTime());
+                        addedLoc.setStatus(loc.getStatus());
+                        addedLoc.setProvider(loc.getProvider());
+                        addedLoc.setChild(child);
+                        ((ArrayList<LocationHistory>) addedList).add(addedLoc);
+                    }
+                    Iterable<LocationHistory> list = locationRepository.saveAll(addedList);
+                    if (list == null) {
+                        result.setData(null);
+                        result.setMsg("ERROR - ERROR occurred while adding");
+                        result.setCode(Constants.CODE_500);
+                    } else {
+                        result.setMsg(Constants.NO_ERROR);
+                        result.setData(sentLocations);
+                    }
+                }
+            } else {
+                result.setData(null);
+                result.setMsg("Bad request - No data provided");
+                result.setCode(Constants.CODE_400);
+            }
+        } catch (Exception e) {
+            result.setData(null);
+            result.setMsg(Constants.SERVER_ERROR + e.toString());
+            result.setCode(Constants.CODE_500);
+            e.printStackTrace();
+        }
+        return result;
+    }
+
 
 
     public ResponseObject getListByTime(Long childId, Long from, Long to) {
