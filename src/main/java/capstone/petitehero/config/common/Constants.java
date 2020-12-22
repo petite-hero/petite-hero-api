@@ -35,7 +35,7 @@ public class Constants {
         ASSIGNED, DELETED, CREATED,
         UPDATED, ADDED, CONFIRMED,
         SUCCESS, CANCELLED, PENDING,
-        ACTIVE, DEACTIVE
+        ACTIVE, DEACTIVE, NOT_CONFIRMED
     }
     public enum taskType {
         HOUSEWORK, SKILLS, EDUCATION

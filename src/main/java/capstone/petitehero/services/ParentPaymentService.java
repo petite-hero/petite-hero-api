@@ -113,6 +113,24 @@ public class ParentPaymentService {
         return null;
     }
 
+    public ParentPaymentCompleteResponseDTO completedFailedParentPayment(ParentPayment parentPayment) {
+        ParentPayment parentPaymentResult = parentPaymentRepository.save(parentPayment);
+
+        if (parentPaymentResult != null) {
+            ParentPaymentCompleteResponseDTO result = new ParentPaymentCompleteResponseDTO();
+
+            result.setAmount(parentPaymentResult.getAmount());
+            result.setDescription(parentPaymentResult.getContent());
+            result.setPayDate(parentPayment.getPayDate());
+            result.setPaymentId(parentPaymentResult.getPaymentId());
+            result.setStatus(parentPaymentResult.getStatus());
+            result.setPhoneNumber(parentPaymentResult.getSubscription().getParent().getAccount().getUsername());
+
+            return result;
+        }
+        return null;
+    }
+
     public List<ListPaymentTransactionResponseDTO> getParentTransaction(String phoneNumber, String status) {
         List<ParentPayment> listParentPaymentResult;
 

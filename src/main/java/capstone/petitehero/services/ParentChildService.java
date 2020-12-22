@@ -167,43 +167,6 @@ public class ParentChildService {
             }
         }
 
-//        if (!childNeedToCollab.isEmpty()) {
-//            for (Long childId : childNeedToCollab) {
-//                parent_child =
-//                        parentChildRepository.findDistinctFirstByChild_ChildIdAndParent_ParentIdAndCollaboratorIsNull(
-//                                childId, parent.getParentId());
-//                if (parent_child != null) {
-//                    parent_child.setIsCollaboratorConfirm(Boolean.FALSE);
-//                    parent_child.setCollaborator(collaboratorAccount);
-//                } else {
-//                    parent_child = new Parent_Child();
-//
-//                    parent_child.setParent(parent);
-//                    parent_child.setIsCollaboratorConfirm(Boolean.FALSE);
-//                    parent_child.setCollaborator(collaboratorAccount);
-//                    parent_child.setChild(childRepository.findChildByChildIdEqualsAndIsDisabled(childId, Boolean.FALSE));
-//                }
-//                Parent_Child parentChildResult = parentChildRepository.save(parent_child);
-//                if (parentChildResult != null) {
-//                    ChildInformation childInformation = new ChildInformation();
-//
-//                    childInformation.setChildId(parentChildResult.getChild().getChildId());
-//                    childInformation.setName(parentChildResult.getChild().getName());
-//                    if (parentChildResult.getChild().getGender() != null) {
-//                        if (parentChildResult.getChild().getGender().booleanValue()) {
-//                            childInformation.setGender("Male");
-//                        } else {
-//                            childInformation.setGender("Female");
-//                        }
-//                    }
-//                    Calendar calendar = Calendar.getInstance();
-//                    int year = calendar.get(Calendar.YEAR);
-//                    childInformation.setAge(year - parentChildResult.getChild().getYob());
-//
-//                    result.getListChildren().add(childInformation);
-//                }
-//            }
-//        }
         if (result.getListChildren() != null) {
             if (!result.getListChildren().isEmpty()) {
                 result.setStatus(Constants.status.ADDED.toString());
@@ -228,55 +191,62 @@ public class ParentChildService {
         result.setListChildren(new ArrayList<>());
         result.setParentPhoneNumber(collaboratorAccount.getAccount().getUsername());
 
+        Parent_Child parentChild = collaboratorAccount.getParent_collaboratorCollection().stream().findFirst().orElse(null);
+        Boolean canSendNoti = Boolean.FALSE;
+
         for (Long childId : listChildId) {
             Parent_Child parentChildResult =
                     parentChildRepository.findParent_ChildByChild_ChildIdAndCollaborator_Account_UsernameAndIsCollaboratorConfirm(
                             childId, collaboratorAccount.getAccount().getUsername(), Boolean.FALSE);
             if (parentChildResult != null) {
+                Parent_Child parentChildUpdated;
                 if (isConfirm.booleanValue()) {
                     parentChildResult.setIsCollaboratorConfirm(isConfirm);
-                } else {
-                    parentChildResult.setCollaborator(null);
-                    parentChildResult.setIsCollaboratorConfirm(null);
-                }
-                Parent_Child parentChildUpdated = parentChildRepository.save(parentChildResult);
+                    parentChildUpdated = parentChildRepository.save(parentChildResult);
 
-                if (parentChildUpdated != null) {
-                    ChildInformation childInformation = new ChildInformation();
+                    if (parentChildUpdated != null) {
+                        ChildInformation childInformation = new ChildInformation();
 
-                    childInformation.setChildId(parentChildResult.getChild().getChildId());
-                    childInformation.setName(parentChildResult.getChild().getName());
-                    if (parentChildResult.getChild().getGender() != null) {
-                        if (parentChildResult.getChild().getGender().booleanValue()) {
-                            childInformation.setGender("Male");
-                        } else {
-                            childInformation.setGender("Female");
+                        childInformation.setChildId(parentChildResult.getChild().getChildId());
+                        childInformation.setName(parentChildResult.getChild().getName());
+                        if (parentChildResult.getChild().getGender() != null) {
+                            if (parentChildResult.getChild().getGender().booleanValue()) {
+                                childInformation.setGender("Male");
+                            } else {
+                                childInformation.setGender("Female");
+                            }
                         }
-                    }
-                    Calendar calendar = Calendar.getInstance();
-                    int year = calendar.get(Calendar.YEAR);
-                    childInformation.setAge(year - parentChildResult.getChild().getYob());
+                        Calendar calendar = Calendar.getInstance();
+                        int year = calendar.get(Calendar.YEAR);
+                        childInformation.setAge(year - parentChildResult.getChild().getYob());
 
-                    result.getListChildren().add(childInformation);
+                        result.getListChildren().add(childInformation);
+
+                        result.setStatus(Constants.status.CONFIRMED.toString());
+                        canSendNoti = Boolean.TRUE;
+                    }
+                } else {
+                    parentChildRepository.delete(parentChildResult);
+                    canSendNoti = Boolean.TRUE;
                 }
             }
         }
-        if (!result.getListChildren().isEmpty()) {
-            result.setStatus(Constants.status.CONFIRMED.toString());
-            Parent_Child parentChild = collaboratorAccount.getParent_childCollection().stream().findFirst().orElse(null);
 
-            if (parentChild != null) {
+        if (parentChild != null) {
+            if (canSendNoti) {
                 if (parentChild.getParent().getPushToken() != null && !parentChild.getParent().getPushToken().isEmpty()) {
                     ArrayList<String> pushToken = new ArrayList<>();
                     pushToken.add(parentChild.getParent().getPushToken());
                     String msg;
                     if (isConfirm.booleanValue()) {
+                        result.setStatus(Constants.status.CONFIRMED.toString());
                         if (parentChild.getParent().getLanguage().booleanValue()) {
-                            msg = collaboratorAccount.getName() + " đã trở thành người cộng tác của bạn.";
+                            msg = collaboratorAccount.getName() + " đã trở thành người cộng tác của bạn .";
                         } else {
                             msg = collaboratorAccount.getName() + " has become your collaborator.";
                         }
                     } else {
+                        result.setStatus(Constants.status.NOT_CONFIRMED.toString());
                         if (parentChild.getParent().getLanguage().booleanValue()) {
                             msg = collaboratorAccount.getName() + " đã không trở thành người cộng tác của bạn.";
                         } else {
@@ -287,6 +257,7 @@ public class ParentChildService {
                 }
             }
         }
+
         return result;
     }
 

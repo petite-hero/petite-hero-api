@@ -63,7 +63,7 @@ public class NotificationService {
                 body.put("title", Constants.SILENT_NOTI);
             }
             body.put("data", new Gson().toJson(data));
-            body.put("to", new Gson().toJson(pushTokens));
+            body.put("to", pushTokens);
             System.out.println(pushTokens);
             StringEntity bodyJson = new StringEntity(new Gson().toJson(body), "UTF-8");
 

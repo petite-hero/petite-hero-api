@@ -181,31 +181,26 @@ public class ChildService {
                 parentChildRepository.findParent_ChildByChild_ChildIdAndCollaborator_Account_Username(child.getChildId(), collaborator.getAccount().getUsername());
 
         if (parentChild != null) {
-            parentChild.setCollaborator(null);
-            parentChild.setIsCollaboratorConfirm(null);
+            parentChildRepository.delete(parentChild);
 
-            if (parentChildRepository.save(parentChild) != null) {
-                DeleteChildResponseDTO result = new DeleteChildResponseDTO();
-                result.setStatus(Constants.status.DELETED.toString());
+            DeleteChildResponseDTO result = new DeleteChildResponseDTO();
+            result.setStatus(Constants.status.DELETED.toString());
 
-                if (parentChild.getParent().getPushToken() != null && !parentChild.getParent().getPushToken().isEmpty()) {
-                    ArrayList<String> pushToken = new ArrayList<>();
-                    pushToken.add(parentChild.getParent().getPushToken());
-                    String msg;
-                    if (parentChild.getParent().getLanguage().booleanValue()) {
-                        msg = collaborator.getName() + " không còn là cộng tác cho " + child.getName() + " của bạn nữa.";
-                    } else {
-                        msg = collaborator.getName() + " isn't your collaborator with child " + child.getName() + " anymore.";
-                    }
-
-                    notiService.pushNotificationMobile(msg, result, pushToken);
+            if (parentChild.getParent().getPushToken() != null && !parentChild.getParent().getPushToken().isEmpty()) {
+                ArrayList<String> pushToken = new ArrayList<>();
+                pushToken.add(parentChild.getParent().getPushToken());
+                String msg;
+                if (parentChild.getParent().getLanguage().booleanValue()) {
+                    msg = collaborator.getName() + " không còn là cộng tác cho " + child.getName() + " của bạn nữa.";
+                } else {
+                    msg = collaborator.getName() + " isn't your collaborator with child " + child.getName() + " anymore.";
                 }
 
-                return result;
+                notiService.pushNotificationMobile(msg, result, pushToken);
             }
-            return null;
-        }
 
+            return result;
+        }
         return null;
     }
 

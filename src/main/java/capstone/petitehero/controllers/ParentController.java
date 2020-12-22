@@ -622,38 +622,38 @@ public class ParentController {
         ModelAndView mav = new ModelAndView("status");
         try {
             Payment payment = parentPaymentService.executePayment(paymentId, payerId);
-            if (payment.getState().equals("approved")) {
-                SubscriptionType subscriptionType = subscriptionService.findSubscriptionTypeById(subscriptionTypeId);
 
-                if (subscriptionType == null) {
-                    responseObject = new ResponseObject(Constants.CODE_404, "Cannot found that subscription type in the system");
-                    mav.addObject("response", responseObject);
-                    return mav;
-                }
+            SubscriptionType subscriptionType = subscriptionService.findSubscriptionTypeById(subscriptionTypeId);
 
-                Parent parent = parentService.findParentByPhoneNumber(parentPhoneNumber, Boolean.FALSE);
+            if (subscriptionType == null) {
+                responseObject = new ResponseObject(Constants.CODE_404, "Cannot found that subscription type in the system");
+                mav.addObject("response", responseObject);
+                return mav;
+            }
 
-                if (parent == null) {
-                    responseObject = new ResponseObject(Constants.CODE_404, "Cannot found your account in the system");
-                    mav.addObject("response", responseObject);
-                    return mav;
-                }
+            Parent parent = parentService.findParentByPhoneNumber(parentPhoneNumber, Boolean.FALSE);
 
-                Subscription parentCurrentSubscription = subscriptionService.findParentCurrentSubscription(parent);
-                if (parentCurrentSubscription == null) {
-                    responseObject = new ResponseObject(Constants.CODE_404, "Cannot found parent current subscription in the system");
-                    mav.addObject("response", responseObject);
-                    return mav;
-                }
+            if (parent == null) {
+                responseObject = new ResponseObject(Constants.CODE_404, "Cannot found your account in the system");
+                mav.addObject("response", responseObject);
+                return mav;
+            }
 
-                ParentPayment recentParentPayment = parentPaymentService.findParentPaymentToCompletePayment(parent.getAccount().getUsername(), createdDateTimeStamp);
+            Subscription parentCurrentSubscription = subscriptionService.findParentCurrentSubscription(parent);
+            if (parentCurrentSubscription == null) {
+                responseObject = new ResponseObject(Constants.CODE_404, "Cannot found parent current subscription in the system");
+                mav.addObject("response", responseObject);
+                return mav;
+            }
 
-                if (recentParentPayment != null) {
-                    recentParentPayment.setStatus(Constants.status.SUCCESS.toString());
-                    recentParentPayment.setPayerId(payerId);
-                    recentParentPayment.setPayDate(new Date().getTime());
-                    recentParentPayment.setPaymentId(paymentId);
+            ParentPayment recentParentPayment = parentPaymentService.findParentPaymentToCompletePayment(parent.getAccount().getUsername(), createdDateTimeStamp);
+            if (recentParentPayment != null) {
+                recentParentPayment.setStatus(Constants.status.SUCCESS.toString());
+                recentParentPayment.setPayerId(payerId);
+                recentParentPayment.setPayDate(new Date().getTime());
+                recentParentPayment.setPaymentId(paymentId);
 
+                if (payment.getState().equals("approved")) {
                     ParentPaymentCompleteResponseDTO paymentCompleteResponseDTO = parentPaymentService.completedSuccessParentPayment(recentParentPayment);
                     if (paymentCompleteResponseDTO != null) {
                         Parent parentSubscription =
@@ -666,25 +666,32 @@ public class ParentController {
                         }
 
                         responseObject = new ResponseObject(Constants.CODE_500, "Your payment is completed but cannot update your subscription");
-                        mav.addObject("response", responseObject);
-                        return mav;
                     } else {
                         responseObject = new ResponseObject(Constants.CODE_500, "Cannot complete your payment");
-                        mav.addObject("response", responseObject);
-                        return mav;
                     }
+                    mav.addObject("response", responseObject);
+                    return mav;
+                } else if (payment.getState().equals("failed")) {
+                    ParentPaymentCompleteResponseDTO paymentCompleteResponseDTO = parentPaymentService.completedFailedParentPayment(recentParentPayment);
+                    if (paymentCompleteResponseDTO != null) {
+                        responseObject = new ResponseObject(Constants.CODE_500, "Your payment is failed");
+                    } else {
+                        responseObject = new ResponseObject(Constants.CODE_500, "Cannot complete your payment");
+                    }
+                    mav.addObject("response", responseObject);
+                    return mav;
                 } else {
-                    responseObject = new ResponseObject(Constants.CODE_404, "Cannot found your current payment.");
+                    responseObject = new ResponseObject(Constants.CODE_500, "Cannot complete your payment");
                     mav.addObject("response", responseObject);
                     return mav;
                 }
             } else {
-                responseObject = new ResponseObject(Constants.CODE_500, "Cannot completed your payment because of some reason");
+                responseObject = new ResponseObject(Constants.CODE_404, "Cannot found your current payment.");
                 mav.addObject("response", responseObject);
                 return mav;
             }
         } catch (PayPalRESTException e) {
-            responseObject = new ResponseObject(Constants.CODE_500, "Cannot connect to paypal");
+            responseObject = new ResponseObject(Constants.CODE_500, "Cannot connect to paypal. Reason: " + e.getMessage());
             mav.addObject("response", responseObject);
             return mav;
         }
@@ -699,8 +706,9 @@ public class ParentController {
         if (status != null) {
             if (!status.equalsIgnoreCase(Constants.status.PENDING.toString()) &&
                     !status.equalsIgnoreCase(Constants.status.SUCCESS.toString()) &&
+                    !status.equalsIgnoreCase(Constants.status.FAILED.toString()) &&
                     !status.equalsIgnoreCase(Constants.status.CANCELLED.toString())) {
-                responseObject = new ResponseObject(Constants.CODE_400, "Status should be success or failed or pending");
+                responseObject = new ResponseObject(Constants.CODE_400, "Status should be success, failed, cancelled or pending");
                 return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
             }
             result = parentPaymentService.getParentTransaction(phoneNumber, status);
