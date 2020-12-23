@@ -85,6 +85,7 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
                 .antMatchers("/task/{childId}/summary-hour").permitAll()
                 .antMatchers("/parent/test").permitAll()
                 .antMatchers("/payment/list").permitAll()
+                .antMatchers("/payment/list/*").permitAll()
                 .antMatchers("/parent/{phone}/payment/list").permitAll()
                 .antMatchers("/payment/{transactionId}").permitAll()
                 .antMatchers("/subscription/type").permitAll()
