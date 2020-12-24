@@ -168,7 +168,7 @@ public class ChildController {
                 return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
             }
         }
-        if (updateChildProfileRequestDTO.getNickName() != null && !updateChildProfileRequestDTO.getNickName().isEmpty()) {
+        if (updateChildProfileRequestDTO.getNickName() != null) {
             child.setNickName(updateChildProfileRequestDTO.getNickName());
         }
         if (updateChildProfileRequestDTO.getGender() != null && !updateChildProfileRequestDTO.getGender().isEmpty()) {
@@ -307,18 +307,18 @@ public class ChildController {
             responseObject = new ResponseObject(Constants.CODE_400, "Quest's name cannot be missing or empty");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
-        if (questCreateRequestDTO.getDescription() == null || questCreateRequestDTO.getDescription().isEmpty()) {
-            responseObject = new ResponseObject(Constants.CODE_400, "Quest's name cannot be missing or empty");
-            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
-        }
+//        if (questCreateRequestDTO.getDescription() == null || questCreateRequestDTO.getDescription().isEmpty()) {
+//            responseObject = new ResponseObject(Constants.CODE_400, "Quest's name cannot be missing or empty");
+//            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+//        }
         if (questCreateRequestDTO.getReward() == null || questCreateRequestDTO.getReward().toString().isEmpty()) {
             responseObject = new ResponseObject(Constants.CODE_400, "Quest's reward cannot be missing or empty");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         }
-        if (questCreateRequestDTO.getTitle() == null || questCreateRequestDTO.getTitle().isEmpty()) {
-            responseObject = new ResponseObject(Constants.CODE_400, "Quest's title cannot be missing or empty");
-            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
-        }
+//        if (questCreateRequestDTO.getTitle() == null || questCreateRequestDTO.getTitle().isEmpty()) {
+//            responseObject = new ResponseObject(Constants.CODE_400, "Quest's title cannot be missing or empty");
+//            return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+//        }
         //end validate mandatory fields
         Child child = childService.findChildByChildId(questCreateRequestDTO.getChildId(), Boolean.FALSE);
 

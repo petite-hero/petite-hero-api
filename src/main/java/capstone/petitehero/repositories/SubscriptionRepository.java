@@ -15,5 +15,7 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, Long
                                                                                               Boolean isDisabled,
                                                                                               Long expiredDate);
 
+    Subscription findSubscriptionByParent_Account_UsernameAndIsDisabled(String parentPhoneNumber, Boolean isDisabled);
+
     List<Subscription> findSubscriptionsByIsDisabledAndExpiredDateBetween(Boolean isDisabled, Long startDay, Long endDay);
 }

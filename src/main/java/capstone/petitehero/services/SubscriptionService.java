@@ -241,6 +241,18 @@ public class SubscriptionService {
         return null;
     }
 
+    public Subscription findParentCurrentSubscriptionNotDisabledButExpired(Parent parent) {
+        Subscription result = subscriptionRepository.findSubscriptionByParent_Account_UsernameAndIsDisabled(
+                parent.getAccount().getUsername(),
+                Boolean.FALSE);
+
+        if (result != null) {
+            return result;
+        }
+
+        return null;
+    }
+
     public Parent updateParentSubscription(Parent parent, Subscription parentCurrentSubscription, SubscriptionType subscriptionType) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());

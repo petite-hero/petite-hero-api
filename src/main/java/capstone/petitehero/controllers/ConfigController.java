@@ -67,14 +67,14 @@ public class ConfigController {
 
         LicenseDTO licenseDTO = configService.getLicenseForAdmin();
         if (modifyLicenseDTO.getOuter_radius() != null && !modifyLicenseDTO.getOuter_radius().toString().isEmpty()) {
-            if (!Util.validateLongNumber(modifyLicenseDTO.getOuter_radius().toString())) {
+            if (!Util.validateNumber(modifyLicenseDTO.getOuter_radius().toString())) {
                 responseObject = new ResponseObject(Constants.CODE_400, "Outer radius should only contain number");
                 return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
             }
             licenseDTO.setOuter_radius(modifyLicenseDTO.getOuter_radius());
         }
         if (modifyLicenseDTO.getReport_delay() != null && !modifyLicenseDTO.getReport_delay().toString().isEmpty()) {
-            if (!Util.validateLongNumber(modifyLicenseDTO.getReport_delay().toString())) {
+            if (!Util.validateNumber(modifyLicenseDTO.getReport_delay().toString())) {
                 responseObject = new ResponseObject(Constants.CODE_400, "Report delay should only contain number");
                 return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
             }
@@ -130,7 +130,7 @@ public class ConfigController {
             licenseDTO.setParent_subscription_cron_time(modifyLicenseDTO.getParent_subscription_cron_time());
         }
         if (modifyLicenseDTO.getExpired_date_subscription_noti() != null && !modifyLicenseDTO.getExpired_date_subscription_noti().toString().isEmpty()) {
-            if (!Util.validateLongNumber(modifyLicenseDTO.getExpired_date_subscription_noti().toString())) {
+            if (!Util.validateNumber(modifyLicenseDTO.getExpired_date_subscription_noti().toString())) {
                 responseObject = new ResponseObject(Constants.CODE_400, "Expired date subscription should only contain number");
                 return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
             }

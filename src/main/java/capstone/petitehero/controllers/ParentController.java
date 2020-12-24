@@ -204,6 +204,10 @@ public class ParentController {
             responseObject = new ResponseObject(Constants.CODE_400, "Child's year of birth cannot be missing or empty");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         } else {
+            if (!Util.validateNumber(addChildRequestDTO.getYob().toString())) {
+                responseObject = new ResponseObject(Constants.CODE_400, "Child's yob must contains only numbers.");
+                return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+            }
             if (!Util.checkChildYoB(addChildRequestDTO.getYob())) {
                 responseObject = new ResponseObject(Constants.CODE_400, "Child's must be in 4-11 years old");
                 return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
@@ -219,7 +223,7 @@ public class ParentController {
         if (parentAccount != null) {
             Subscription parentCurrentSubscription = subscriptionService.findParentCurrentSubscription(parentAccount);
             if (parentCurrentSubscription == null) {
-                responseObject = new ResponseObject(Constants.CODE_404, "Cannot found parent current subscription in the system");
+                responseObject = new ResponseObject(Constants.CODE_404, "Cannot found parent current subscription in the system. Your subscription maybe is expired.");
                 return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
             }
 
@@ -298,7 +302,7 @@ public class ParentController {
         if (parentAccount != null) {
             Subscription parentCurrentSubscription = subscriptionService.findParentCurrentSubscription(parentAccount);
             if (parentCurrentSubscription == null) {
-                responseObject = new ResponseObject(Constants.CODE_404, "Cannot found parent current subscription in the system");
+                responseObject = new ResponseObject(Constants.CODE_404, "Cannot found parent current subscription in the system. Your susbcription maybe is expired.");
                 return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
             }
 
@@ -525,7 +529,7 @@ public class ParentController {
                     parentPayment.setStatus(Constants.status.PENDING.toString());
 
                     parentPayment.setLink(links.getHref());
-                    Subscription parentCurrentSubscription = subscriptionService.findParentCurrentSubscription(parent);
+                    Subscription parentCurrentSubscription = subscriptionService.findParentCurrentSubscriptionNotDisabledButExpired(parent);
 
                     if (parentCurrentSubscription != null) {
                         if (parentCurrentSubscription.getSubscriptionType().getSubscriptionTypeId().longValue() ==
@@ -582,7 +586,8 @@ public class ParentController {
     @RequestMapping(value = "/{phone}/payment/cancel", method = RequestMethod.GET)
     public ModelAndView cancelParentPayment(@PathVariable("phone") String parentPhoneNumber,
                                             @RequestParam(value = "createdDate") Long createdDateTimeStamp) {
-        ResponseObject responseObject;
+        ResponseObject responseObject = new ResponseObject();
+        responseObject.setData(Util.fromImageFileToBase64String("Petite Hero - Official Logo.png"));
         ModelAndView mav = new ModelAndView("status");
         ParentPayment recentParentPayment = parentPaymentService.findParentPaymentToCompletePayment(parentPhoneNumber, createdDateTimeStamp);
 
@@ -592,22 +597,22 @@ public class ParentController {
 
                 ParentPayment result = parentPaymentService.insertParentPaymentToSystem(recentParentPayment);
                 if (result != null) {
-                    responseObject = new ResponseObject(Constants.CODE_200, "OK");
+                    responseObject.setMsg("Your payment is cancelled successfully");
                     responseObject.setData(result.getStatus());
                     mav.addObject("response", responseObject);
                     return mav;
                 } else {
-                    responseObject = new ResponseObject(Constants.CODE_500, "Cannot connect to server pls come back again");
+                    responseObject.setMsg("Cannot connect to server pls come back again");
                     mav.addObject("response", responseObject);
                     return mav;
                 }
             } else {
-                responseObject = new ResponseObject(Constants.CODE_200, "Payment has completed");
+                responseObject.setMsg("This payment has completed");
                 mav.addObject("response", responseObject);
                 return mav;
             }
         }
-        responseObject = new ResponseObject(Constants.CODE_404, "Cannot found your current payment.");
+        responseObject.setMsg("Cannot found your current payment.");
         mav.addObject("response", responseObject);
         return mav;
     }
@@ -618,7 +623,8 @@ public class ParentController {
                                              @RequestParam(value = "createdDate") Long createdDateTimeStamp,
                                              @RequestParam(value = "paymentId") String paymentId,
                                              @RequestParam(value = "PayerID") String payerId) {
-        ResponseObject responseObject;
+        ResponseObject responseObject = new ResponseObject();
+        responseObject.setData(Util.fromImageFileToBase64String("Petite Hero - Official Logo.png"));
         ModelAndView mav = new ModelAndView("status");
         try {
             Payment payment = parentPaymentService.executePayment(paymentId, payerId);
@@ -626,7 +632,7 @@ public class ParentController {
             SubscriptionType subscriptionType = subscriptionService.findSubscriptionTypeById(subscriptionTypeId);
 
             if (subscriptionType == null) {
-                responseObject = new ResponseObject(Constants.CODE_404, "Cannot found that subscription type in the system");
+                responseObject.setMsg("Cannot found that subscription type in the system");
                 mav.addObject("response", responseObject);
                 return mav;
             }
@@ -634,14 +640,14 @@ public class ParentController {
             Parent parent = parentService.findParentByPhoneNumber(parentPhoneNumber, Boolean.FALSE);
 
             if (parent == null) {
-                responseObject = new ResponseObject(Constants.CODE_404, "Cannot found your account in the system");
+                responseObject.setMsg("Cannot found your account in the system");
                 mav.addObject("response", responseObject);
                 return mav;
             }
 
-            Subscription parentCurrentSubscription = subscriptionService.findParentCurrentSubscription(parent);
+            Subscription parentCurrentSubscription = subscriptionService.findParentCurrentSubscriptionNotDisabledButExpired(parent);
             if (parentCurrentSubscription == null) {
-                responseObject = new ResponseObject(Constants.CODE_404, "Cannot found parent current subscription in the system");
+                responseObject.setMsg("Cannot found parent current subscription in the system");
                 mav.addObject("response", responseObject);
                 return mav;
             }
@@ -660,38 +666,38 @@ public class ParentController {
                                 subscriptionService.updateParentSubscription(parent, parentCurrentSubscription, subscriptionType);
 
                         if (parentSubscription != null) {
-                            responseObject = new ResponseObject(Constants.CODE_200, "SUCCESS");
+                            responseObject.setMsg("Your payment is success.");
                             mav.addObject("response", responseObject);
                             return mav;
                         }
 
-                        responseObject = new ResponseObject(Constants.CODE_500, "Your payment is completed but cannot update your subscription");
+                        responseObject.setMsg("Your payment is completed but cannot update your subscription");
                     } else {
-                        responseObject = new ResponseObject(Constants.CODE_500, "Cannot complete your payment");
+                        responseObject.setMsg("Cannot complete your payment");
                     }
                     mav.addObject("response", responseObject);
                     return mav;
                 } else if (payment.getState().equals("failed")) {
                     ParentPaymentCompleteResponseDTO paymentCompleteResponseDTO = parentPaymentService.completedFailedParentPayment(recentParentPayment);
                     if (paymentCompleteResponseDTO != null) {
-                        responseObject = new ResponseObject(Constants.CODE_500, "Your payment is failed");
+                        responseObject.setMsg( "Your payment is failed");
                     } else {
-                        responseObject = new ResponseObject(Constants.CODE_500, "Cannot complete your payment");
+                        responseObject.setMsg("Cannot complete your payment");
                     }
                     mav.addObject("response", responseObject);
                     return mav;
                 } else {
-                    responseObject = new ResponseObject(Constants.CODE_500, "Cannot complete your payment");
+                    responseObject.setMsg("Cannot complete your payment");
                     mav.addObject("response", responseObject);
                     return mav;
                 }
             } else {
-                responseObject = new ResponseObject(Constants.CODE_404, "Cannot found your current payment.");
+                responseObject.setMsg("Cannot found your current payment.");
                 mav.addObject("response", responseObject);
                 return mav;
             }
         } catch (PayPalRESTException e) {
-            responseObject = new ResponseObject(Constants.CODE_500, "Cannot connect to paypal. Reason: " + e.getMessage());
+            responseObject.setMsg("Cannot connect to paypal. Reason: " + e.getLocalizedMessage());
             mav.addObject("response", responseObject);
             return mav;
         }

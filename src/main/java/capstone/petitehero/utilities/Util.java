@@ -74,6 +74,7 @@ public class Util {
 
             return Base64.getEncoder().encodeToString(bytesPhoto);
         } catch (Exception e) {
+            e.printStackTrace();
             return null;
         }
     }
@@ -125,7 +126,7 @@ public class Util {
                 || status.equalsIgnoreCase(Constants.status.FAILED.toString());
     }
 
-    public static boolean validateLongNumber(String number) {
+    public static boolean validateNumber(String number) {
         return number.matches("\\d+");
     }
 

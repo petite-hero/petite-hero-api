@@ -197,7 +197,7 @@ public class TaskController {
             responseObject = new ResponseObject(Constants.CODE_404, "Missing start day");
             return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
         } else {
-            if (!Util.validateLongNumber(startDay.toString())) {
+            if (!Util.validateNumber(startDay.toString())) {
                 responseObject = new ResponseObject(Constants.CODE_404, "Start day not in right format");
                 return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
             }
@@ -206,7 +206,7 @@ public class TaskController {
             responseObject = new ResponseObject(Constants.CODE_404, "Missing end day");
             return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
         } else {
-            if (!Util.validateLongNumber(endDay.toString())) {
+            if (!Util.validateNumber(endDay.toString())) {
                 responseObject = new ResponseObject(Constants.CODE_404, "End day not in right format");
                 return new ResponseEntity<>(responseObject, HttpStatus.NOT_FOUND);
             }

@@ -24,7 +24,6 @@ public class Account implements Serializable {
     private String role;
 
     @OneToOne(fetch = FetchType.LAZY,
-            cascade = CascadeType.ALL,
             mappedBy = "account")
     @JsonBackReference
     private Parent parent;

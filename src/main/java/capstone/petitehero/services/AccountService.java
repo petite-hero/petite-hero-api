@@ -110,12 +110,13 @@ public class AccountService {
                 LoginResponseDTO result = new LoginResponseDTO();
                 if (account.getRole().equals(Constants.PARENT)) {
                     // check account is expired or disabled.
+                    Date currentDay = new Date();
                     Subscription parentCurrentSubscription = subscriptionRepository.findSubscriptionByParent_Account_UsernameAndIsDisabledAndAndExpiredDateAfter(
                             account.getUsername(),
                             Boolean.FALSE,
-                            new Date().getTime());
+                            currentDay.getTime());
                     if (parentCurrentSubscription != null) {
-                        if (parentCurrentSubscription.getExpiredDate() < new Date().getTime()) {
+                        if (parentCurrentSubscription.getExpiredDate() < currentDay.getTime()) {
                             result.setIsExpired(Boolean.TRUE);
                         } else {
                             result.setIsExpired(Boolean.FALSE);

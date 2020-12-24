@@ -40,7 +40,7 @@ public class SubscriptionController {
             responseObject = new ResponseObject(Constants.CODE_400, "Subscription type max children value cannot be missing or be empty");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         } else {
-            if (!Util.validateLongNumber(createSubscriptionTypeRequestDTO.getMaxChildren().toString())) {
+            if (!Util.validateNumber(createSubscriptionTypeRequestDTO.getMaxChildren().toString())) {
                 responseObject = new ResponseObject(Constants.CODE_400, "Subscription type max children value cannot be a negative number or a characters");
                 return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
             }
@@ -49,7 +49,7 @@ public class SubscriptionController {
             responseObject = new ResponseObject(Constants.CODE_400, "Subscription type max collaborator value cannot be missing or be empty");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         } else {
-            if (!Util.validateLongNumber(createSubscriptionTypeRequestDTO.getMaxCollaborator().toString())) {
+            if (!Util.validateNumber(createSubscriptionTypeRequestDTO.getMaxCollaborator().toString())) {
                 responseObject = new ResponseObject(Constants.CODE_400, "Subscription type max collaborator value cannot be a negative number or a characters");
                 return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
             }
@@ -67,7 +67,7 @@ public class SubscriptionController {
             responseObject = new ResponseObject(Constants.CODE_400, "Subscription type duration day cannot be empty or missing");
             return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
         } else {
-            if (!Util.validateLongNumber(createSubscriptionTypeRequestDTO.getDurationDay().toString())) {
+            if (!Util.validateNumber(createSubscriptionTypeRequestDTO.getDurationDay().toString())) {
                 responseObject = new ResponseObject(Constants.CODE_400, "Subscription type duration day value cannot be a negative number or a characters");
                 return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
             }

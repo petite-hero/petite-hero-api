@@ -428,7 +428,6 @@ public class CRONJobService implements SchedulingConfigurer {
         scheduledTaskRegistrar.addTriggerTask(new Runnable() {
             @Override
             public void run() {
-//                File file = new File("log " + Util.formatTimestampToDate(new Date().getTime()) + ".txt");
                 File file = new File("log.txt");
                 try {
                     if (!file.exists()) {
