@@ -73,7 +73,16 @@ public class LocationService {
                     } else { // in case mobile device doesn't demand emergency mode
                         if (location.getStatus() != latestLocation.getStatus()) { // notify mobile if child' status changes
                             String msg = location.getStatus() ? Constants.CHILD_SAFE : Constants.CHILD_NOT_SAFE;
-                            pushStatus = notiService.pushNotificationMobile(msg, sentLocation, tokens);
+                            if (tokens.size() == 1) {
+                                pushStatus = notiService.pushNotificationMobile(msg, sentLocation, tokens);
+                            } else {
+                                ArrayList<String> pushToken;
+                                for (String token : tokens) {
+                                    pushToken = new ArrayList<>();
+                                    pushToken.add(token);
+                                    pushStatus = notiService.pushNotificationMobile(msg, sentLocation, pushToken);
+                                }
+                            }
                         }
                     }
 
