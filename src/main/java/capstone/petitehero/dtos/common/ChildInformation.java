@@ -13,6 +13,7 @@ public class ChildInformation extends Assignee implements Serializable {
     private Integer yob;
     private String photo;
     private String androidId;
+    private Boolean hasDevice;
     private Boolean isTrackingActive;
     private Boolean isCollaboratorChild;
     private Boolean isConfirm;

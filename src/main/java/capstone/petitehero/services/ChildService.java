@@ -139,7 +139,6 @@ public class ChildService {
 
         List<Parent_Child> parentChildList = new ArrayList<>(child.getChild_parentCollection());
         if (parentChildList != null && !parentChildList.isEmpty()) {
-            Parent parent = parentChildList.stream().findAny().orElse(null).getParent();
 
             List<Parent_Child> collaboratorList = parentChildList
                     .stream()
@@ -148,16 +147,14 @@ public class ChildService {
                     .collect(Collectors.toList());
             if (collaboratorList != null && !collaboratorList.isEmpty()) {
                 for (Parent_Child parentChild : collaboratorList) {
-                    List<Parent_Child> result = parentChildRepository.findParent_ChildrenByCollaborator_Account_UsernameAndParent_Account_Username(
-                            parentChild.getCollaborator().getAccount().getUsername(),
-                            parent.getAccount().getUsername());
-                    if (result != null) {
-                        if (result.size() == 1) {
-                            parentChild.setCollaborator(null);
-                            parentChild.setIsCollaboratorConfirm(null);
-                        }
-                    }
+                    parentChildList.remove(parentChild);
+                    parentChildRepository.deleteParent_ChildByParentPhoneNumberAndCollaboratorPhoneNumberAndChildId(
+                            parentChild.getParent().getParentId(),
+                            parentChild.getCollaborator().getParentId(),
+                            parentChild.getChild().getChildId());
                 }
+
+                child.setChild_parentCollection(parentChildList);
             }
         }
 

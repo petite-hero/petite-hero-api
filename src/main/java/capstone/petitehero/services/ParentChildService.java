@@ -58,6 +58,11 @@ public class ParentChildService {
                     if (data.getChild().getAndroidId() == null || data.getChild().getAndroidId().isEmpty()) {
                         childInformation.setAndroidId(data.getChild().getAndroidId());
                     }
+                    if (data.getChild().getPushToken() == null || !data.getChild().getPushToken().isEmpty()) {
+                        childInformation.setHasDevice(Boolean.FALSE);
+                    } else {
+                        childInformation.setHasDevice(Boolean.TRUE);
+                    }
                     Calendar calendar = Calendar.getInstance();
                     int year = calendar.get(Calendar.YEAR);
                     childInformation.setAge(year - data.getChild().getYob());
@@ -87,6 +92,11 @@ public class ParentChildService {
                     }
                     if (data.getChild().getAndroidId() == null || data.getChild().getAndroidId().isEmpty()) {
                         childInformation.setAndroidId(data.getChild().getAndroidId());
+                    }
+                    if (data.getChild().getPushToken() == null || !data.getChild().getPushToken().isEmpty()) {
+                        childInformation.setHasDevice(Boolean.FALSE);
+                    } else {
+                        childInformation.setHasDevice(Boolean.TRUE);
                     }
                     Calendar calendar = Calendar.getInstance();
                     int year = calendar.get(Calendar.YEAR);
@@ -226,7 +236,12 @@ public class ParentChildService {
                         canSendNoti = Boolean.TRUE;
                     }
                 } else {
-                    parentChildRepository.delete(parentChildResult);
+                    parentChildRepository.deleteParent_ChildByParentPhoneNumberAndCollaboratorPhoneNumberAndChildId(
+                            parentChild.getParent().getParentId(),
+                            parentChild.getCollaborator().getParentId(),
+                            parentChild.getChild().getChildId());
+                    ChildInformation childInformation = new ChildInformation();
+                    result.getListChildren().add(childInformation);
                     canSendNoti = Boolean.TRUE;
                 }
             }

@@ -3,8 +3,12 @@ package capstone.petitehero.repositories;
 import capstone.petitehero.entities.Parent;
 import capstone.petitehero.entities.Parent_Child;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import javax.transaction.Transactional;
 import java.util.List;
 
 @Repository
@@ -31,4 +35,14 @@ public interface ParentChildRepository extends JpaRepository<Parent_Child, Long>
     List<Parent_Child> findParent_ChildrenByCollaborator_Account_UsernameAndParent_Account_Username(String collaboratorUsername, String parentUsername);
 
     List<Parent_Child> findParent_ChildrenByChild_ChildIdAndChild_IsDisabled(Long childId, Boolean isDisabled);
+
+    @Modifying
+    @Transactional
+    @Query(value = "DELETE FROM Parent_Child pc WHERE " +
+            "pc.parent.parentId = :parent AND " +
+            "pc.collaborator.parentId = :collaborator AND " +
+            "pc.child.childId = :child")
+    void deleteParent_ChildByParentPhoneNumberAndCollaboratorPhoneNumberAndChildId(@Param("parent") Long parentPhoneNumber,
+                                                                                   @Param("collaborator") Long collaboratorPhoneNumber,
+                                                                                   @Param("child") Long childId);
 }

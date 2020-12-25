@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <config>
     <expired_date_subscription_noti>14</expired_date_subscription_noti>
-    <failed_task_cron_time>13:57:00</failed_task_cron_time>
+    <failed_task_cron_time>23:50:00</failed_task_cron_time>
     <license_EN>&lt;h2 style="box-sizing: inherit; -webkit-font-smoothing: antialiased; margin: 1rem 0px 0.8rem;
         padding: 0px; border: 0px; font-variant-numeric: inherit; font-variant-east-asian: inherit; font-weight: 800;
         font-stretch: inherit; font-size: 1.6rem; line-height: 1.22; font-family: &amp;quot;Proxima Nova Condensed&amp;quot;,

@@ -259,8 +259,8 @@ public class CRONJobService implements SchedulingConfigurer {
                             String pushToken = childHasQuest.getChild().getPushToken();
 
                             List<ListQuestResponseDTO> listQuest = Util.getChildListOfQuest(questList.stream()
-                                    .filter(task ->
-                                            task.getChild().getChildId().longValue()
+                                    .filter(quest->
+                                            quest.getChild().getChildId().longValue()
                                                     == childHasQuest.getChild().getChildId().longValue())
                                     .collect(Collectors.toList()));
 
@@ -374,35 +374,35 @@ public class CRONJobService implements SchedulingConfigurer {
 
                     taskRepository.saveAll(taskList);
 
-                    List<Task> distinctChildList = taskList
-                            .stream()
-                            .filter(Util.distinctByKey(Task::getChild))
-                            .collect(Collectors.toList());
-
-                    ArrayList<Parent> parentArrayList = new ArrayList<>();
-                    for (Task task : distinctChildList) {
-                        List<Parent_Child> parentChildList = parentChildRepository.findParent_ChildrenByChild_ChildIdAndChild_IsDisabled(
-                                task.getChild().getChildId(), Boolean.FALSE);
-
-                        if (parentChildList != null) {
-                            if (!parentChildList.isEmpty()) {
-                                parentArrayList =
-                                        Util.checkDuplicateParentNotiList(
-                                                parentArrayList, new ArrayList<>(parentChildList));
-                            }
-                        }
-                    }
-                    if (!parentArrayList.isEmpty()) {
-                        for (Parent parentGetNoti : parentArrayList) {
-                            System.out.println("Parent account: " + parentGetNoti.getAccount().getUsername());
-                            if (parentGetNoti.getPushToken() != null && !parentGetNoti.getPushToken().isEmpty()) {
-                                NotificationDTO notificationDTO = new NotificationDTO();
-                                ArrayList<String> pushTokenList = new ArrayList<>();
-                                pushTokenList.add(parentGetNoti.getPushToken());
-                                notiService.pushNotificationMobile(null, notificationDTO, pushTokenList);
-                            }
-                        }
-                    }
+//                    List<Task> distinctChildList = taskList
+//                            .stream()
+//                            .filter(Util.distinctByKey(Task::getChild))
+//                            .collect(Collectors.toList());
+//
+//                    ArrayList<Parent> parentArrayList = new ArrayList<>();
+//                    for (Task task : distinctChildList) {
+//                        List<Parent_Child> parentChildList = parentChildRepository.findParent_ChildrenByChild_ChildIdAndChild_IsDisabled(
+//                                task.getChild().getChildId(), Boolean.FALSE);
+//
+//                        if (parentChildList != null) {
+//                            if (!parentChildList.isEmpty()) {
+//                                parentArrayList =
+//                                        Util.checkDuplicateParentNotiList(
+//                                                parentArrayList, new ArrayList<>(parentChildList));
+//                            }
+//                        }
+//                    }
+//                    if (!parentArrayList.isEmpty()) {
+//                        for (Parent parentGetNoti : parentArrayList) {
+//                            System.out.println("Parent account: " + parentGetNoti.getAccount().getUsername());
+//                            if (parentGetNoti.getPushToken() != null && !parentGetNoti.getPushToken().isEmpty()) {
+//                                NotificationDTO notificationDTO = new NotificationDTO();
+//                                ArrayList<String> pushTokenList = new ArrayList<>();
+//                                pushTokenList.add(parentGetNoti.getPushToken());
+//                                notiService.pushNotificationMobile(null, notificationDTO, pushTokenList);
+//                            }
+//                        }
+//                    }
                 }
             }
         }, new Trigger() {
