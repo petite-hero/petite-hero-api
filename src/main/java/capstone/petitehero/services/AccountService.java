@@ -121,6 +121,8 @@ public class AccountService {
                         } else {
                             result.setIsExpired(Boolean.FALSE);
                         }
+                    } else {
+                        result.setIsExpired(Boolean.TRUE);
                     }
                     if (!account.getParent().getIsDisabled().booleanValue()) {
                         if (account.getParent().getDeviceId() == null || account.getParent().getDeviceId().isEmpty()) {
