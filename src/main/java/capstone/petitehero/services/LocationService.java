@@ -29,7 +29,6 @@ public class LocationService {
     @Autowired
     private NotificationService notiService;
 
-
     public ResponseObject recordLocationFromSW (AddLocationRequestDTO sentLocation, Boolean emergency) {
         ResponseObject result = Util.createResponse();
         try {

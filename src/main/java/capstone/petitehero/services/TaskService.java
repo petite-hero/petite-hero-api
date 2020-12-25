@@ -306,11 +306,11 @@ public class TaskService {
                 ArrayList<String> pushTokenList = new ArrayList<>();
                 pushTokenList.add(taskResult.getParent().getPushToken());
 
-                if (!taskResult.getChild().getChild_parentCollection()
-                        .stream()
-                        .anyMatch(pc ->
-                                pc.getParent().getParentId().longValue() ==
-                                        taskResult.getParent().getParentId().longValue())) {
+//                if (!taskResult.getChild().getChild_parentCollection()
+//                        .stream()
+//                        .anyMatch(pc ->
+//                                pc.getParent().getParentId().longValue() ==
+//                                        taskResult.getParent().getParentId().longValue())) {
 //                    // send noti to collaborator's mobile (creator of the task)
 //                    notiService.pushNotificationMobile(
 //                            taskResult.getChild().getFirstName() + " " + taskResult.getChild().getLastName() +
@@ -335,7 +335,7 @@ public class TaskService {
 //                                taskResult.getParent().getFirstName() + " " + taskResult.getParent().getLastName();
 //                    }
 //                    notiService.pushNotificationMobile(msg, notificationDTO, pushTokenList);
-                } else {
+//                } else {
                     // send noti to parent's mobile (creator of the task)
                     String msg;
                     if (Util.setTimeForAssignDate
@@ -356,7 +356,7 @@ public class TaskService {
                     }
                     notiService.pushNotificationMobile(msg, notificationDTO, pushTokenList);
                 }
-            }
+//            }
             return result;
         }
 
