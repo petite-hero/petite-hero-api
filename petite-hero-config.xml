@@ -1,3 +1,153 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?><config><expired_date_subscription_noti>14</expired_date_subscription_noti><failed_task_cron_time>13:57:00</failed_task_cron_time><license_EN>&lt;h1&gt;Welcome to &lt;b&gt;Petite Hero&lt;/b&gt;&lt;/h1&gt;&lt;h6&gt;This is sample &lt;i&gt;data &lt;/i&gt;in &lt;b&gt;English&lt;/b&gt;&lt;span style="font-family: Arial;"&gt;﻿&lt;/span&gt;&lt;/h6&gt;
-    </license_EN><license_VN>&lt;h1&gt;Chào mừng đến với &lt;b&gt;Petite Hero&lt;/b&gt;&lt;/h1&gt;&lt;p&gt;Đây là &lt;i&gt;dữ liệu&lt;/i&gt; mẫu tiếng&amp;nbsp;&lt;span style="font-weight: bolder;"&gt;Việt&lt;/span&gt;&lt;/p&gt;
-    </license_VN><outer_radius>3000</outer_radius><parent_subscription_cron_time>00:20:00</parent_subscription_cron_time><quest_cron_time>00:15:00</quest_cron_time><report_delay>40000</report_delay><safezone_cron_time>00:05:00</safezone_cron_time><task_cron_time>00:10:00</task_cron_time></config>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<config>
+    <expired_date_subscription_noti>14</expired_date_subscription_noti>
+    <failed_task_cron_time>13:57:00</failed_task_cron_time>
+    <license_EN>&lt;h2 style="box-sizing: inherit; -webkit-font-smoothing: antialiased; margin: 1rem 0px 0.8rem;
+        padding: 0px; border: 0px; font-variant-numeric: inherit; font-variant-east-asian: inherit; font-weight: 800;
+        font-stretch: inherit; font-size: 1.6rem; line-height: 1.22; font-family: &amp;quot;Proxima Nova Condensed&amp;quot;,
+        &amp;quot;Proxima Nova&amp;quot;, &amp;quot;Helvetica Neue&amp;quot;, Arial, Helvetica, sans-serif;
+        vertical-align: baseline; color: rgb(64, 64, 64);"&gt;1. Acceptance of Terms of Use Agreement.&lt;/h2&gt;&lt;h1&gt;&lt;p
+        style="box-sizing: inherit; -webkit-font-smoothing: antialiased; margin: 0.8rem 0px; padding: 0px; border: 0px;
+        font-variant-numeric: inherit; font-variant-east-asian: inherit; font-stretch: inherit; font-size: 17.3333px;
+        line-height: 1.47; font-family: &amp;quot;Proxima Nova&amp;quot;, &amp;quot;Helvetica Neue&amp;quot;, Arial,
+        Helvetica, sans-serif; vertical-align: baseline; color: rgb(99, 99, 99);"&gt;By creating a Petite Hero account,
+        you agree to be bound by these Terms of Use, our. If you do not accept and agree to be bound by all of the terms
+        of this Agreement, please do not use the Service.&lt;/p&gt;&lt;p style="box-sizing: inherit;
+        -webkit-font-smoothing: antialiased; margin: 0.8rem 0px; padding: 0px; border: 0px; font-variant-numeric:
+        inherit; font-variant-east-asian: inherit; font-stretch: inherit; font-size: 17.3333px; line-height: 1.47;
+        font-family: &amp;quot;Proxima Nova&amp;quot;, &amp;quot;Helvetica Neue&amp;quot;, Arial, Helvetica, sans-serif;
+        vertical-align: baseline; color: rgb(99, 99, 99);"&gt;We may make changes to this Agreement and to the Service
+        from time to time. We may do this for a variety of reasons including to reflect changes in or requirements of
+        the law, new features, or changes in business practices. The most recent version of this Agreement will be
+        posted under Profile/Settings, and you should regularly check for the most recent version. The most recent
+        version is the version that applies.&lt;/p&gt;&lt;/h1&gt;&lt;h2 style="box-sizing: inherit;
+        -webkit-font-smoothing: antialiased; margin: 1rem 0px 0.8rem; padding: 0px; border: 0px; font-variant-numeric:
+        inherit; font-variant-east-asian: inherit; font-weight: 800; font-stretch: inherit; font-size: 1.6rem;
+        line-height: 1.22; font-family: &amp;quot;Proxima Nova Condensed&amp;quot;, &amp;quot;Proxima Nova&amp;quot;,
+        &amp;quot;Helvetica Neue&amp;quot;, Arial, Helvetica, sans-serif; vertical-align: baseline; color: rgb(64, 64,
+        64);"&gt;2. Eligibility.&lt;/h2&gt;&lt;h1&gt;&lt;p style="box-sizing: inherit; -webkit-font-smoothing:
+        antialiased; margin: 0.8rem 0px; padding: 0px; border: 0px; font-variant-numeric: inherit;
+        font-variant-east-asian: inherit; font-stretch: inherit; font-size: 17.3333px; line-height: 1.47; font-family:
+        &amp;quot;Proxima Nova&amp;quot;, &amp;quot;Helvetica Neue&amp;quot;, Arial, Helvetica, sans-serif;
+        vertical-align: baseline; color: rgb(99, 99, 99);"&gt;You must be at least 4 years of age to create an account
+        on Petite Hero and use the Service. By creating an account and using the Service, you represent and warrant
+        that:&lt;/p&gt;&lt;ul style="box-sizing: inherit; -webkit-font-smoothing: antialiased; margin: 0.8rem 0px;
+        padding: 0px; border: 0px; font-variant-numeric: inherit; font-variant-east-asian: inherit; font-stretch:
+        inherit; font-size: 17.3333px; line-height: inherit; font-family: &amp;quot;Proxima Nova&amp;quot;, &amp;quot;Helvetica
+        Neue&amp;quot;, Arial, Helvetica, sans-serif; vertical-align: baseline; list-style-position: outside;
+        list-style-image: initial; color: rgb(99, 99, 99);"&gt;&lt;li style="box-sizing: inherit;
+        -webkit-font-smoothing: antialiased; margin: 0px 0px 0.2rem 1rem; padding: 0px; border: 0px; font-style:
+        inherit; font-variant: inherit; font-weight: inherit; font-stretch: inherit; font-size: inherit; line-height:
+        1.47; font-family: inherit; vertical-align: baseline;"&gt;You can form a binding contract with Petite Hero.&lt;/li&gt;&lt;li
+        style="box-sizing: inherit; -webkit-font-smoothing: antialiased; margin: 0.2rem 0px 0.2rem 1rem; padding: 0px;
+        border: 0px; font-style: inherit; font-variant: inherit; font-weight: inherit; font-stretch: inherit; font-size:
+        inherit; line-height: 1.47; font-family: inherit; vertical-align: baseline;"&gt;You are not a person who is
+        barred from using the Service under the laws of the Vietnam or any other applicable jurisdiction–meaning that
+        you do not appear on the Vietnam Treasury Department’s list of Specially Designated Nationals or face any other
+        similar prohibition,&lt;/li&gt;&lt;li style="box-sizing: inherit; -webkit-font-smoothing: antialiased; margin:
+        0.2rem 0px 0.2rem 1rem; padding: 0px; border: 0px; font-style: inherit; font-variant: inherit; font-weight:
+        inherit; font-stretch: inherit; font-size: inherit; line-height: 1.47; font-family: inherit; vertical-align:
+        baseline;"&gt;You will comply with this Agreement and all applicable local, district, national and international
+        laws, rules and regulations.&lt;/li&gt;&lt;/ul&gt;&lt;/h1&gt;&lt;h2 style="box-sizing: inherit;
+        -webkit-font-smoothing: antialiased; margin: 1rem 0px 0.8rem; padding: 0px; border: 0px; font-variant-numeric:
+        inherit; font-variant-east-asian: inherit; font-weight: 800; font-stretch: inherit; font-size: 1.6rem;
+        line-height: 1.22; font-family: &amp;quot;Proxima Nova Condensed&amp;quot;, &amp;quot;Proxima Nova&amp;quot;,
+        &amp;quot;Helvetica Neue&amp;quot;, Arial, Helvetica, sans-serif; vertical-align: baseline; color: rgb(64, 64,
+        64);"&gt;3. Your Account.&lt;/h2&gt;&lt;h1&gt;&lt;p style="box-sizing: inherit; -webkit-font-smoothing:
+        antialiased; margin: 0.8rem 0px; padding: 0px; border: 0px; font-variant-numeric: inherit;
+        font-variant-east-asian: inherit; font-stretch: inherit; font-size: 17.3333px; line-height: 1.47; font-family:
+        &amp;quot;Proxima Nova&amp;quot;, &amp;quot;Helvetica Neue&amp;quot;, Arial, Helvetica, sans-serif;
+        vertical-align: baseline; color: rgb(99, 99, 99);"&gt;In order to use Petite Hero, you may sign in using your
+        phone number. &amp;nbsp;If you do so, you authorize us to access and use certain phone number account
+        information, including but not limited to your phone number.&lt;/p&gt;&lt;p style="box-sizing: inherit;
+        -webkit-font-smoothing: antialiased; margin: 0.8rem 0px; padding: 0px; border: 0px; font-variant-numeric:
+        inherit; font-variant-east-asian: inherit; font-stretch: inherit; font-size: 17.3333px; line-height: 1.47;
+        font-family: &amp;quot;Proxima Nova&amp;quot;, &amp;quot;Helvetica Neue&amp;quot;, Arial, Helvetica, sans-serif;
+        vertical-align: baseline; color: rgb(99, 99, 99);"&gt;You are responsible for maintaining the confidentiality of
+        your login credentials you use to sign up for Petite Hero, and you are solely responsible for all activities
+        that occur under those credentials. If you think someone has gained access to your account, please immediately
+        contact us.&lt;/p&gt;&lt;/h1&gt;
+    </license_EN>
+    <license_VN>&lt;h2 style="box-sizing: inherit; margin: 1rem 0px 0.8rem; font-family: &amp;quot;Proxima Nova
+        Condensed&amp;quot;, &amp;quot;Proxima Nova&amp;quot;, &amp;quot;Helvetica Neue&amp;quot;, Arial, Helvetica,
+        sans-serif; font-weight: 800; line-height: 1.22; color: rgb(64, 64, 64); font-size: 1.6rem;
+        -webkit-font-smoothing: antialiased; padding: 0px; border: 0px; font-variant-numeric: inherit;
+        font-variant-east-asian: inherit; font-stretch: inherit; vertical-align: baseline;"&gt;&lt;span
+        style="font-family: &amp;quot;Times New Roman&amp;quot;;"&gt;﻿1. Chấp nhận điều khoản sử dụng&lt;/span&gt;&lt;br&gt;&lt;/h2&gt;&lt;h1
+        style="font-family: &amp;quot;Source Sans Pro&amp;quot;, -apple-system, BlinkMacSystemFont, &amp;quot;Segoe UI&amp;quot;,
+        Roboto, &amp;quot;Helvetica Neue&amp;quot;, Arial, sans-serif, &amp;quot;Apple Color Emoji&amp;quot;, &amp;quot;Segoe
+        UI Emoji&amp;quot;, &amp;quot;Segoe UI Symbol&amp;quot;; color: rgb(33, 37, 41);"&gt;&lt;p style="box-sizing:
+        inherit; margin: 0.8rem 0px; -webkit-font-smoothing: antialiased; padding: 0px; border: 0px;
+        font-variant-numeric: inherit; font-variant-east-asian: inherit; font-stretch: inherit; font-size: 17.3333px;
+        line-height: 1.47; font-family: &amp;quot;Proxima Nova&amp;quot;, &amp;quot;Helvetica Neue&amp;quot;, Arial,
+        Helvetica, sans-serif; vertical-align: baseline; color: rgb(99, 99, 99);"&gt;Bằng cách tạo một tài khoản Petite
+        Hero, bạn đồng ý bị ràng buộc bởi các Điều khoản Sử dụng này, của chúng tôi. Nếu bạn không chấp nhận và đồng ý
+        bị ràng buộc bởi tất cả các điều khoản của Thỏa thuận này, vui lòng không sử dụng Dịch vụ.&lt;/p&gt;&lt;p
+        style="box-sizing: inherit; margin: 0.8rem 0px; -webkit-font-smoothing: antialiased; padding: 0px; border: 0px;
+        font-variant-numeric: inherit; font-variant-east-asian: inherit; font-stretch: inherit; font-size: 17.3333px;
+        line-height: 1.47; font-family: &amp;quot;Proxima Nova&amp;quot;, &amp;quot;Helvetica Neue&amp;quot;, Arial,
+        Helvetica, sans-serif; vertical-align: baseline; color: rgb(99, 99, 99);"&gt;Đôi khi, chúng tôi có thể thực hiện
+        các thay đổi đối với Thỏa thuận này và Dịch vụ. Chúng tôi có thể thực hiện việc này vì nhiều lý do bao gồm để
+        phản ánh những thay đổi trong hoặc yêu cầu của luật pháp, các tính năng mới hoặc những thay đổi trong thực tiễn
+        kinh doanh. Phiên bản mới nhất của Thỏa thuận này sẽ được đăng trong Hồ sơ / Cài đặt và bạn nên thường xuyên
+        kiểm tra phiên bản mới nhất. Phiên bản gần đây nhất là phiên bản được áp dụng.&lt;/p&gt;&lt;/h1&gt;&lt;h2
+        style="box-sizing: inherit; margin: 1rem 0px 0.8rem; font-family: &amp;quot;Proxima Nova Condensed&amp;quot;,
+        &amp;quot;Proxima Nova&amp;quot;, &amp;quot;Helvetica Neue&amp;quot;, Arial, Helvetica, sans-serif; font-weight:
+        800; line-height: 1.22; color: rgb(64, 64, 64); font-size: 1.6rem; -webkit-font-smoothing: antialiased; padding:
+        0px; border: 0px; font-variant-numeric: inherit; font-variant-east-asian: inherit; font-stretch: inherit;
+        vertical-align: baseline;"&gt;&lt;span style="font-family: &amp;quot;Times New Roman&amp;quot;;"&gt;2. Tính đủ
+        tư cách&lt;/span&gt;&lt;/h2&gt;&lt;h1 style="font-family: &amp;quot;Source Sans Pro&amp;quot;, -apple-system,
+        BlinkMacSystemFont, &amp;quot;Segoe UI&amp;quot;, Roboto, &amp;quot;Helvetica Neue&amp;quot;, Arial, sans-serif,
+        &amp;quot;Apple Color Emoji&amp;quot;, &amp;quot;Segoe UI Emoji&amp;quot;, &amp;quot;Segoe UI Symbol&amp;quot;;
+        color: rgb(33, 37, 41);"&gt;&lt;p style="box-sizing: inherit; margin: 0.8rem 0px; -webkit-font-smoothing:
+        antialiased; padding: 0px; border: 0px; font-variant-numeric: inherit; font-variant-east-asian: inherit;
+        font-stretch: inherit; font-size: 17.3333px; line-height: 1.47; font-family: &amp;quot;Proxima Nova&amp;quot;,
+        &amp;quot;Helvetica Neue&amp;quot;, Arial, Helvetica, sans-serif; vertical-align: baseline; color: rgb(99, 99,
+        99);"&gt;Bạn phải từ 4 tuổi trở lên để tạo tài khoản trên Petite Hero và sử dụng Dịch vụ. Bằng cách tạo tài
+        khoản và sử dụng Dịch vụ, bạn tuyên bố và đảm bảo rằng:&lt;/p&gt;&lt;ul style="box-sizing: inherit; margin:
+        0.8rem 0px; -webkit-font-smoothing: antialiased; padding: 0px; border: 0px; font-variant-numeric: inherit;
+        font-variant-east-asian: inherit; font-stretch: inherit; font-size: 17.3333px; line-height: inherit;
+        font-family: &amp;quot;Proxima Nova&amp;quot;, &amp;quot;Helvetica Neue&amp;quot;, Arial, Helvetica, sans-serif;
+        vertical-align: baseline; list-style-position: outside; list-style-image: initial; color: rgb(99, 99, 99);"&gt;&lt;li
+        style="box-sizing: inherit; -webkit-font-smoothing: antialiased; margin: 0px 0px 0.2rem 1rem; padding: 0px;
+        border: 0px; font-style: inherit; font-variant: inherit; font-weight: inherit; font-stretch: inherit; font-size:
+        inherit; line-height: 1.47; font-family: inherit; vertical-align: baseline;"&gt;Bạn có thể lập một hợp đồng ràng
+        buộc với Petite Hero.&lt;/li&gt;&lt;li style="box-sizing: inherit; -webkit-font-smoothing: antialiased; margin:
+        0.2rem 0px 0.2rem 1rem; padding: 0px; border: 0px; font-style: inherit; font-variant: inherit; font-weight:
+        inherit; font-stretch: inherit; font-size: inherit; line-height: 1.47; font-family: inherit; vertical-align:
+        baseline;"&gt;Bạn không phải là người bị cấm sử dụng Dịch vụ theo luật pháp Việt Nam hoặc bất kỳ khu vực pháp lý
+        hiện hành nào khác - có nghĩa là bạn không xuất hiện trong danh sách Công dân được chỉ định đặc biệt của Bộ Ngân
+        khố Việt Nam hoặc đối mặt với bất kỳ lệnh cấm tương tự nào khác.&lt;/li&gt;&lt;li style="box-sizing: inherit;
+        -webkit-font-smoothing: antialiased; margin: 0.2rem 0px 0.2rem 1rem; padding: 0px; border: 0px; font-style:
+        inherit; font-variant: inherit; font-weight: inherit; font-stretch: inherit; font-size: inherit; line-height:
+        1.47; font-family: inherit; vertical-align: baseline;"&gt;Bạn sẽ tuân thủ Thỏa thuận này và tất cả các luật, quy
+        tắc và quy định hiện hành của địa phương, quốc gia và quốc tế.&lt;/li&gt;&lt;/ul&gt;&lt;/h1&gt;&lt;h2
+        style="box-sizing: inherit; margin: 1rem 0px 0.8rem; font-family: &amp;quot;Proxima Nova Condensed&amp;quot;,
+        &amp;quot;Proxima Nova&amp;quot;, &amp;quot;Helvetica Neue&amp;quot;, Arial, Helvetica, sans-serif; font-weight:
+        800; line-height: 1.22; color: rgb(64, 64, 64); font-size: 1.6rem; -webkit-font-smoothing: antialiased; padding:
+        0px; border: 0px; font-variant-numeric: inherit; font-variant-east-asian: inherit; font-stretch: inherit;
+        vertical-align: baseline;"&gt;&lt;span style="font-family: &amp;quot;Times New Roman&amp;quot;;"&gt;3. Tài khoản&lt;/span&gt;&lt;/h2&gt;&lt;h1
+        style="font-family: &amp;quot;Source Sans Pro&amp;quot;, -apple-system, BlinkMacSystemFont, &amp;quot;Segoe UI&amp;quot;,
+        Roboto, &amp;quot;Helvetica Neue&amp;quot;, Arial, sans-serif, &amp;quot;Apple Color Emoji&amp;quot;, &amp;quot;Segoe
+        UI Emoji&amp;quot;, &amp;quot;Segoe UI Symbol&amp;quot;; color: rgb(33, 37, 41);"&gt;&lt;p style="box-sizing:
+        inherit; margin: 0.8rem 0px; -webkit-font-smoothing: antialiased; padding: 0px; border: 0px;
+        font-variant-numeric: inherit; font-variant-east-asian: inherit; font-stretch: inherit; font-size: 17.3333px;
+        line-height: 1.47; font-family: &amp;quot;Proxima Nova&amp;quot;, &amp;quot;Helvetica Neue&amp;quot;, Arial,
+        Helvetica, sans-serif; vertical-align: baseline; color: rgb(99, 99, 99);"&gt;Để sử dụng Petite Hero, bạn có thể
+        đăng nhập bằng số điện thoại của mình. Nếu bạn làm như vậy, bạn cho phép chúng tôi truy cập và sử dụng thông tin
+        tài khoản số điện thoại nhất định, bao gồm nhưng không giới hạn số điện thoại của bạn.&lt;/p&gt;&lt;p
+        style="box-sizing: inherit; margin: 0.8rem 0px; -webkit-font-smoothing: antialiased; padding: 0px; border: 0px;
+        font-variant-numeric: inherit; font-variant-east-asian: inherit; font-stretch: inherit; font-size: 17.3333px;
+        line-height: 1.47; font-family: &amp;quot;Proxima Nova&amp;quot;, &amp;quot;Helvetica Neue&amp;quot;, Arial,
+        Helvetica, sans-serif; vertical-align: baseline; color: rgb(99, 99, 99);"&gt;Bạn có trách nhiệm duy trì tính bảo
+        mật của thông tin đăng nhập mà bạn sử dụng để đăng ký Petite Hero và bạn hoàn toàn chịu trách nhiệm về tất cả
+        các hoạt động xảy ra theo thông tin đăng nhập đó. Nếu bạn cho rằng ai đó đã giành được quyền truy cập vào tài
+        khoản của bạn, vui lòng liên hệ ngay với chúng tôi.&lt;/p&gt;&lt;/h1&gt;
+    </license_VN>
+    <outer_radius>3000</outer_radius>
+    <parent_subscription_cron_time>00:20:00</parent_subscription_cron_time>
+    <quest_cron_time>00:15:00</quest_cron_time>
+    <report_delay>40000</report_delay>
+    <safezone_cron_time>00:05:00</safezone_cron_time>
+    <task_cron_time>00:10:00</task_cron_time>
+</config>
