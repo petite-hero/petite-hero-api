@@ -10,7 +10,7 @@ Children Management and Development Application
 
 # Contributors
 - [Nguyễn Phú Hưng](https://github.com/hulk1999)
-- [Võ Lam Trường](https://github.com/llduong)
+- [Võ Lam Trường](https://github.com/truongvlit)
 - [Lâm Lệ Dương](https://github.com/llduong)
 - [Âu Đức Tuấn](https://github.com/ibenrique2510)
 
